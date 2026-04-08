@@ -1,3 +1,19 @@
+"""
+prompt.py – System and user prompts for AdaptSci / SR-Scientist.
+
+AdaptSci additions vs. original SR-Scientist prompts:
+  • USER_PROMPT_WITH_MEMORY now accepts an optional `hessian_context` block that
+    injects κ, n_eff, and degenerate flags for the top-K previously explored
+    equations so the LLM agent can reason about structural redundancy.
+  • The system prompt note about the equation evaluator is updated to reflect
+    that multi-restart BFGS may be active (when n_restarts > 1).
+  • All original prompts are preserved unchanged for backward compatibility.
+"""
+
+# ---------------------------------------------------------------------------
+# System prompt
+# ---------------------------------------------------------------------------
+
 SYSTEM_PROMPT = """You are a helpful assistant tasked with discovering mathematical functions that model scientific systems.
 You will have access to a dataset of physical measurements.
 Your goal is to determine the correct equation, implement it as a Python function, and optimize it until the mean absolute percentage error is less than {mape_threshold_percentage}.
@@ -91,6 +107,10 @@ print(data_list[:5])
 ```
 """
 
+# ---------------------------------------------------------------------------
+# User prompts
+# ---------------------------------------------------------------------------
+
 USER_PROMPT = """
 {part1}
 
@@ -155,6 +175,73 @@ You can modify the function body, but the function header must remain unchanged.
 """
 
 
+# ---------------------------------------------------------------------------
+# AdaptSci extension: prompt with Hessian diagnostics context
+# ---------------------------------------------------------------------------
+
+USER_PROMPT_WITH_HESSIAN_CONTEXT = """
+{part1}
+
+Follow these steps to solve the problem:
+
+**1. Implement the Equation in Code**
+
+  * Based on your knowledge and analysis, identify the standard equation and implement it in the code.
+  * Your equation will likely have one or more constants. Use elements from the `params` list (e.g., `params[0]`, `params[1]`, `params[2]`) to represent these constants.
+
+**2. Test, Analyze, and Refine**
+
+  * Evaluate the equation using the `equation_evaluator` tool (pass the full function including header).
+
+```python
+{part2}
+```
+
+  * Your goal: MAPE < {mape_threshold_percentage}.
+  * Use `data_analyzer` for exploratory analysis (no Matplotlib).
+
+**Adaptive Compute Guidance (from Hessian diagnostics on prior equations):**
+
+{hessian_guidance}
+
+**3. Submit Your Final Answer**
+
+  * Once MAPE < {mape_threshold_percentage} or you've exhausted your search, submit the best function found.
+
+{previous_turn_context}
+"""
 
 
+def format_hessian_guidance(hessian_infos: list) -> str:
+    """
+    Format Hessian signals from the top-K buffer entries into a guidance string
+    that is injected into the LLM prompt.
 
+    hessian_infos : list of dicts, each with keys:
+        equation, mape, kappa, n_eff, is_degenerate
+    """
+    if not hessian_infos:
+        return "(No Hessian diagnostics available yet.)"
+
+    lines = [
+        "The following diagnostics are derived from the Hessian of the fitting "
+        "loss at the optimum for the top previously explored equations.",
+        "  • κ (kappa) = condition number: high κ means the loss landscape is "
+        "ill-conditioned and BFGS may converge to different local minima; "
+        "consider structurally simpler or differently parameterised skeletons.",
+        "  • n_eff = effective parameter count: if n_eff ≪ MAX_NPARAMS the "
+        "current skeleton is over-parameterised; reduce the number of free parameters.",
+        "  • Degenerate = True means two or more parameters are entangled or "
+        "too many flat directions exist; switch to a structurally different skeleton.",
+        "",
+        "| MAPE | κ | n_eff | Degenerate |",
+        "|------|---|-------|------------|",
+    ]
+    for info in hessian_infos:
+        mape_str = f"{info.get('mape', float('nan')):.4%}"
+        kappa_str = f"{info.get('kappa', float('nan')):.2e}"
+        neff_str = f"{info.get('n_eff', float('nan')):.1f}"
+        deg_str = str(info.get("is_degenerate", "N/A"))
+        lines.append(f"| {mape_str} | {kappa_str} | {neff_str} | {deg_str} |")
+
+    return "\n".join(lines)
