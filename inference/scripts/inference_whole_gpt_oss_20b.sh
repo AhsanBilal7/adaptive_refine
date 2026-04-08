@@ -118,3 +118,5 @@ python main.py \
     --top-k $TOP_K \
     --source "${SOURCE[@]}" \
     --output-json-path "$OUTPUT_JSON_PATH" 2>&1 | tee "$LOG_FILE"
+
+

@@ -1,8 +1,15 @@
 set -x
+CONDA_BASE=$(conda info --base 2>/dev/null)
+source "${CONDA_BASE}/etc/profile.d/conda.sh"
 
-PARQUET_FILE_PATH="../data/llmsrbench.parquet"
-OUTPUT_JSON_PATH="./output/memory_default/gpt-oss-120b-tool2_0_001_s40_max_25_top3_N1_test.json"
-MODEL_PATH="../models/Qwen3-Coder-30B-A3B-Instruct"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PARQUET_FILE_PATH="$(cd "$SCRIPT_DIR/../../data/inference" && pwd)/llmsrbench.parquet"
+OUTPUT_JSON_PATH="$(cd "$SCRIPT_DIR/.." && pwd)/output/memory_default/gpt-oss-20b-tool2_0_001_s40_max_25_top3_N1_test.json"
+mkdir -p "$(dirname "$OUTPUT_JSON_PATH")"
+
+# MODEL_PATH="../models/Qwen3-Coder-30B-A3B-Instruct"
+MODEL_PATH="$(cd "$SCRIPT_DIR/../../models/gpt-oss-20b" && pwd)"
+
 
 MODEL_URL="http://0.0.0.0:30000/v1"
 SANDBOX_URLS=(
@@ -18,9 +25,13 @@ SANDBOX_URLS=(
 
 
 MAPE_THRESHOLD=0.001
-NUM_TURNS=5
-MAX_ASSISTANT_TURNS=5
+NUM_TURNS=25
+MAX_ASSISTANT_TURNS=25
 TOP_K=3
+# MAPE_THRESHOLD=0.001
+# NUM_TURNS=5
+# MAX_ASSISTANT_TURNS=5
+# TOP_K=3
 SOURCE=(
     "lsr_synth/bio_pop_growth"
     )

@@ -1,2 +1,5 @@
 data/
 *.log
+__pycache__/
+*.safetensors
+models/
