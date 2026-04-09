@@ -1,15 +1,20 @@
 """
 AdaptSci – Hessian-based adaptive compute diagnostics.
 
-For a candidate equation skeleton fitted to training data via BFGS, this module
-computes three geometry-grounded signals from the parameter Hessian at θ*:
+Computes three geometry-grounded signals from the parameter Hessian at θ*:
 
     κ      – condition number        (drives adaptive BFGS restart count)
-    C      – coupling matrix         (drives buffer diversity / monoculture detection)
+    C      – coupling matrix         (drives buffer diversity)
     n_eff  – effective param count   (over-parameterisation signal)
 
-All computations are purely numerical (p×p ops) and are NOT counted against
-the LLM-call budget.
+CRITICAL: The Hessian is computed only over the *active* parameter subspace.
+SR-Scientist passes MAX_NPARAMS=10 to every equation, but most equations only
+use params[0]..params[k-1] for k << 10. The unused parameters sit in perfectly
+flat loss directions, giving λ_min=0, κ→∞, n_eff→1 for every equation
+regardless of actual complexity.
+
+Fix: after BFGS, detect which params moved significantly from their initial
+value (|θ*_i - 1| > threshold) and restrict the Hessian to that subspace.
 
 Reference: AdaptSci paper, Sections 3.2-3.4.
 """
@@ -24,15 +29,17 @@ from scipy.optimize import minimize
 
 logger = logging.getLogger(__name__)
 
+_ACTIVE_PARAM_THRESHOLD = 1e-3
+_MIN_ACTIVE = 1
+
 
 # ---------------------------------------------------------------------------
 # HessianDiag container
 # ---------------------------------------------------------------------------
 
 class HessianDiag:
-    """Container for all three Hessian-derived signals plus raw eigenvalues."""
-
-    __slots__ = ("kappa", "C", "n_eff", "eigenvalues", "theta_star", "valid")
+    __slots__ = ("kappa", "C", "n_eff", "eigenvalues", "theta_star",
+                 "valid", "n_active", "active_indices")
 
     def __init__(
         self,
@@ -42,29 +49,30 @@ class HessianDiag:
         eigenvalues: np.ndarray,
         theta_star: np.ndarray,
         valid: bool = True,
+        n_active: int = 0,
+        active_indices: Optional[List[int]] = None,
     ):
-        self.kappa: float = kappa
-        self.C: np.ndarray = C              # shape (p, p)
-        self.n_eff: float = n_eff
-        self.eigenvalues: np.ndarray = eigenvalues
-        self.theta_star: np.ndarray = theta_star
-        self.valid: bool = valid
+        self.kappa = kappa
+        self.C = C
+        self.n_eff = n_eff
+        self.eigenvalues = eigenvalues
+        self.theta_star = theta_star
+        self.valid = valid
+        self.n_active = n_active
+        self.active_indices: List[int] = active_indices or []
 
     @classmethod
     def invalid(cls, p: int) -> "HessianDiag":
-        """Safe sentinel when Hessian computation fails."""
         return cls(
             kappa=float("inf"),
-            C=np.zeros((p, p)),
-            n_eff=float(p),
-            eigenvalues=np.zeros(p),
+            C=np.zeros((1, 1)),
+            n_eff=1.0,
+            eigenvalues=np.zeros(1),
             theta_star=np.ones(p),
             valid=False,
+            n_active=0,
+            active_indices=[],
         )
-
-    # ------------------------------------------------------------------
-    # Signals → decisions
-    # ------------------------------------------------------------------
 
     def is_degenerate(
         self,
@@ -73,38 +81,25 @@ class HessianDiag:
         p: Optional[int] = None,
     ) -> bool:
         """
-        True if structurally degenerate:
-          • any |C_ij| > coupling_threshold for i≠j  (entangled params), OR
-          • n_eff < n_eff_ratio_threshold * p         (too many flat directions).
-
-        Paper reference: Section 4.2 "When neff ≪ p or |Cij| > 0.95 … force exploration".
+        Check degeneracy within the ACTIVE subspace only.
+        Reference dimension is n_active, not MAX_NPARAMS.
         """
         if not self.valid:
             return True
-        _p = p if p is not None else self.C.shape[0]
+        ref = self.n_active if self.n_active > 0 else (p or 1)
         # Off-diagonal coupling
-        p_size = self.C.shape[0]
-        for i in range(p_size):
-            for j in range(p_size):
+        sz = self.C.shape[0]
+        for i in range(sz):
+            for j in range(sz):
                 if i != j and abs(self.C[i, j]) > coupling_threshold:
                     return True
-        if self.n_eff < n_eff_ratio_threshold * _p:
+        if self.n_eff < n_eff_ratio_threshold * ref:
             return True
         return False
 
-    def adaptive_restart_count(
-        self,
-        tau1: float = 100.0,
-        tau2: float = 1_000.0,
-    ) -> int:
-        """
-        Map κ to number of BFGS restarts (Section 3.2):
-            κ < τ1          → 1
-            τ1 ≤ κ < τ2    → 3
-            κ ≥ τ2          → 5
-        Thresholds τ1, τ2 may be calibrated on a validation split; defaults
-        are sensible priors from the AdaptSci paper.
-        """
+    def adaptive_restart_count(self, tau1: float = 100.0, tau2: float = 1_000.0) -> int:
+        if not self.valid or not np.isfinite(self.kappa):
+            return 1
         if self.kappa < tau1:
             return 1
         elif self.kappa < tau2:
@@ -113,47 +108,69 @@ class HessianDiag:
             return 5
 
     def to_dict(self) -> Dict:
-        """Serialisable summary for logging / JSON output."""
         return {
             "kappa": float(self.kappa),
             "n_eff": float(self.n_eff),
+            "n_active": int(self.n_active),
+            "active_indices": list(self.active_indices),
             "C_frobenius_norm": float(np.linalg.norm(self.C, "fro")),
             "valid": bool(self.valid),
         }
 
 
 # ---------------------------------------------------------------------------
-# Numerical Hessian via central finite differences
+# Active parameter detection
 # ---------------------------------------------------------------------------
 
-def _finite_diff_hessian(
+def _detect_active_params(
+    theta_star: np.ndarray,
+    x0: Optional[np.ndarray] = None,
+    threshold: float = _ACTIVE_PARAM_THRESHOLD,
+    min_active: int = _MIN_ACTIVE,
+) -> List[int]:
+    """Return indices of params that moved from x0 by more than threshold."""
+    if x0 is None:
+        x0 = np.ones_like(theta_star)
+    displacement = np.abs(theta_star - x0)
+    active = [i for i, d in enumerate(displacement) if d > threshold]
+    if len(active) < min_active:
+        active = list(np.argsort(displacement)[-min_active:])
+    return sorted(active)
+
+
+# ---------------------------------------------------------------------------
+# Finite-difference Hessian in active subspace only
+# ---------------------------------------------------------------------------
+
+def _finite_diff_hessian_subspace(
     loss_fn: Callable[[np.ndarray], float],
     theta: np.ndarray,
+    active_indices: List[int],
     eps: float = 1e-4,
 ) -> np.ndarray:
-    """
-    Second-order central finite-difference Hessian (symmetric, O(eps²)):
-
-      H_ij = [L(θ+eᵢ+eⱼ) − L(θ+eᵢ−eⱼ) − L(θ−eᵢ+eⱼ) + L(θ−eᵢ−eⱼ)] / (4·eps²)
-    """
+    """(n_active x n_active) Hessian via central finite differences."""
+    n = len(active_indices)
     p = len(theta)
-    H = np.zeros((p, p))
-    for i in range(p):
+    H = np.zeros((n, n))
+    for ii, gi in enumerate(active_indices):
         ei = np.zeros(p)
-        ei[i] = eps
-        for j in range(i, p):
+        ei[gi] = eps
+        for jj, gj in enumerate(active_indices[ii:], start=ii):
             ej = np.zeros(p)
-            ej[j] = eps
+            ej[gj] = eps
             try:
-                fpp = loss_fn(theta + ei + ej)
-                fpm = loss_fn(theta + ei - ej)
-                fmp = loss_fn(theta - ei + ej)
-                fmm = loss_fn(theta - ei - ej)
-                h_ij = (fpp - fpm - fmp + fmm) / (4.0 * eps ** 2)
+                with np.errstate(all="ignore"):
+                    fpp = loss_fn(theta + ei + ej)
+                    fpm = loss_fn(theta + ei - ej)
+                    fmp = loss_fn(theta - ei + ej)
+                    fmm = loss_fn(theta - ei - ej)
+                    h_ij = (fpp - fpm - fmp + fmm) / (4.0 * eps ** 2)
+                if not np.isfinite(h_ij):
+                    h_ij = 0.0
             except Exception:
                 h_ij = 0.0
-            H[i, j] = h_ij
-            H[j, i] = h_ij
+            H[ii, jj] = h_ij
+            H[jj, ii] = h_ij
     return H
 
 
@@ -169,22 +186,7 @@ def compute_hessian_diag(
     eps: float = 1e-4,
     regularisation: float = 1e-8,
 ) -> HessianDiag:
-    """
-    Compute κ, C, n_eff for a fitted equation skeleton.
-
-    Parameters
-    ----------
-    equation_fn    : Python callable `equation(*inputs.T, params) → np.ndarray`.
-    data           : list of rows [[output, x1, x2, ...], ...] (training split only).
-    theta_star     : pre-fitted parameter vector.  If None, one BFGS run is done.
-    max_params     : MAX_NPARAMS used in the SR system (default 10).
-    eps            : finite-difference step size.
-    regularisation : ridge added to H diagonal for numerical stability.
-
-    Returns
-    -------
-    HessianDiag
-    """
+    """Compute κ, C, n_eff in the active parameter subspace."""
     try:
         outputs = np.array([row[0] for row in data], dtype=float)
         inputs  = np.array([row[1:] for row in data], dtype=float)
@@ -192,53 +194,42 @@ def compute_hessian_diag(
 
         def loss(params: np.ndarray) -> float:
             try:
-                y_pred = equation_fn(*inputs.T, params)
-                return float(np.mean((y_pred - outputs) ** 2))
+                with np.errstate(all="ignore"):
+                    y_pred = equation_fn(*inputs.T, params)
+                    val = float(np.mean((y_pred - outputs) ** 2))
+                return val if np.isfinite(val) else 1e30
             except Exception:
                 return 1e30
 
-        # Fit θ* if not provided
         if theta_star is None:
             res = minimize(loss, np.ones(p), method="BFGS")
             theta_star = res.x
 
-        # Hessian via finite differences
-        H = _finite_diff_hessian(loss, theta_star, eps=eps)
+        active_indices = _detect_active_params(theta_star)
+        n_active = len(active_indices)
+        logger.debug(f"Active params: {active_indices} ({n_active}/{p})")
 
-        # Symmetrise + regularise
-        H = 0.5 * (H + H.T) + regularisation * np.eye(p)
+        H = _finite_diff_hessian_subspace(loss, theta_star, active_indices, eps=eps)
+        H = 0.5 * (H + H.T) + regularisation * np.eye(n_active)
 
-        # Eigenvalues (ascending order, non-negative)
-        eigenvalues = np.linalg.eigvalsh(H)
-        eigenvalues = np.clip(eigenvalues, 0.0, None)
-
+        eigenvalues = np.clip(np.linalg.eigvalsh(H), 0.0, None)
         lambda_max = float(eigenvalues[-1])
         lambda_min = float(eigenvalues[0])
-
-        # κ: condition number
         kappa = (lambda_max / lambda_min) if lambda_min > 1e-12 else float("inf")
 
-        # n_eff: participation ratio  (tr H)² / tr(H²)
         tr_H  = float(np.trace(H))
         tr_H2 = float(np.trace(H @ H))
-        n_eff = (tr_H ** 2) / tr_H2 if tr_H2 > 1e-20 else float(p)
+        n_eff = (tr_H ** 2) / tr_H2 if tr_H2 > 1e-20 else float(n_active)
 
-        # C: normalised off-diagonal Hessian (coupling matrix)
-        diag_vals = np.diag(H)
-        # Safe outer product of sqrt diagonal
-        dv_sqrt = np.sqrt(np.maximum(diag_vals, 0.0))
+        dv_sqrt = np.sqrt(np.maximum(np.diag(H), 0.0))
         outer = np.outer(dv_sqrt, dv_sqrt)
         outer = np.where(outer < 1e-20, 1.0, outer)
-        C = H / outer
-        C = np.clip(C, -1.0, 1.0)
+        C = np.clip(H / outer, -1.0, 1.0)
 
         return HessianDiag(
-            kappa=kappa,
-            C=C,
-            n_eff=n_eff,
-            eigenvalues=eigenvalues,
-            theta_star=theta_star,
-            valid=True,
+            kappa=kappa, C=C, n_eff=n_eff,
+            eigenvalues=eigenvalues, theta_star=theta_star,
+            valid=True, n_active=n_active, active_indices=active_indices,
         )
 
     except Exception as e:
@@ -247,7 +238,7 @@ def compute_hessian_diag(
 
 
 # ---------------------------------------------------------------------------
-# Multi-restart BFGS with integrated Hessian computation  (T2 wrapper)
+# Multi-restart BFGS + Hessian
 # ---------------------------------------------------------------------------
 
 def evaluate_with_hessian(
@@ -256,22 +247,16 @@ def evaluate_with_hessian(
     n_restarts: int = 1,
     max_params: int = 10,
     eps: float = 1e-4,
-) -> Tuple[float, float, float, HessianDiag, np.ndarray]:
-    """
-    Run `n_restarts` BFGS initialisations, keep the best result,
-    compute Hessian at θ*.  (Section 4.1 "Adaptive Optimisation Effort")
-
-    Returns
-    -------
-    (nmse, mape, best_mse, HessianDiag, best_theta)
-    """
+) -> Tuple[float, float, float, "HessianDiag", np.ndarray]:
     outputs = np.array([row[0] for row in data], dtype=float)
     inputs  = np.array([row[1:] for row in data], dtype=float)
 
     def loss(params: np.ndarray) -> float:
         try:
-            y_pred = equation_fn(*inputs.T, params)
-            return float(np.mean((y_pred - outputs) ** 2))
+            with np.errstate(all="ignore"):
+                y_pred = equation_fn(*inputs.T, params)
+                val = float(np.mean((y_pred - outputs) ** 2))
+            return val if np.isfinite(val) else 1e30
         except Exception:
             return 1e30
 
@@ -289,16 +274,15 @@ def evaluate_with_hessian(
         except Exception:
             continue
 
-    # NMSE
     var_out = float(np.var(outputs))
     nmse = (best_mse / var_out) if var_out > 1e-20 else (0.0 if best_mse < 1e-20 else float("inf"))
 
-    # MAPE
     try:
-        y_pred = equation_fn(*inputs.T, best_theta)
-        zm = np.isclose(outputs, 0)
+        with np.errstate(all="ignore"):
+            y_pred = equation_fn(*inputs.T, best_theta)
+        zm  = np.isclose(outputs, 0)
         nzm = ~zm
-        if np.any(nzm):
+        if np.any(nzm) and np.all(np.isfinite(y_pred[nzm])):
             mape = float(np.mean(np.abs((outputs[nzm] - y_pred[nzm]) / outputs[nzm])))
         elif np.allclose(y_pred, 0):
             mape = 0.0
@@ -307,11 +291,8 @@ def evaluate_with_hessian(
     except Exception:
         mape = float("inf")
 
-    hdiag = compute_hessian_diag(
-        equation_fn, data, theta_star=best_theta,
-        max_params=max_params, eps=eps,
-    )
-
+    hdiag = compute_hessian_diag(equation_fn, data, theta_star=best_theta,
+                                  max_params=max_params, eps=eps)
     return nmse, mape, best_mse, hdiag, best_theta
 
 
@@ -320,5 +301,14 @@ def evaluate_with_hessian(
 # ---------------------------------------------------------------------------
 
 def coupling_distance(C1: np.ndarray, C2: np.ndarray) -> float:
-    """Frobenius distance ‖C_e − C_j‖_F between two coupling matrices."""
-    return float(np.linalg.norm(C1 - C2, "fro"))
+    """Frobenius distance ‖C_e − C_j‖_F, zero-padding if sizes differ."""
+    if C1.shape == C2.shape:
+        return float(np.linalg.norm(C1 - C2, "fro"))
+    n = max(C1.shape[0], C2.shape[0])
+    def _pad(C: np.ndarray) -> np.ndarray:
+        if C.shape[0] < n:
+            padded = np.zeros((n, n))
+            padded[:C.shape[0], :C.shape[0]] = C
+            return padded
+        return C
+    return float(np.linalg.norm(_pad(C1) - _pad(C2), "fro"))

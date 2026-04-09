@@ -329,38 +329,48 @@ params = [1.0] * MAX_NPARAMS
 
 {equation}
 
-def _finite_diff_hessian(loss_fn, theta, eps=1e-4):
+def _detect_active_params(theta_star, threshold=1e-3):
+    x0 = np.ones_like(theta_star)
+    displacement = np.abs(theta_star - x0)
+    active = [i for i, d in enumerate(displacement) if d > threshold]
+    if len(active) < 1:
+        active = [int(np.argmax(displacement))]
+    return sorted(active)
+
+def _finite_diff_hessian_subspace(loss_fn, theta, active_indices, eps=1e-4):
+    n = len(active_indices)
     p = len(theta)
-    H = np.zeros((p, p))
-    for i in range(p):
-        ei = np.zeros(p)
-        ei[i] = eps
-        for j in range(i, p):
-            ej = np.zeros(p)
-            ej[j] = eps
+    H = np.zeros((n, n))
+    for ii, gi in enumerate(active_indices):
+        ei = np.zeros(p); ei[gi] = eps
+        for jj, gj in enumerate(active_indices[ii:], start=ii):
+            ej = np.zeros(p); ej[gj] = eps
             try:
-                fpp = loss_fn(theta + ei + ej)
-                fpm = loss_fn(theta + ei - ej)
-                fmp = loss_fn(theta - ei + ej)
-                fmm = loss_fn(theta - ei - ej)
-                h_ij = (fpp - fpm - fmp + fmm) / (4.0 * eps ** 2)
+                with np.errstate(all='ignore'):
+                    fpp = loss_fn(theta + ei + ej)
+                    fpm = loss_fn(theta + ei - ej)
+                    fmp = loss_fn(theta - ei + ej)
+                    fmm = loss_fn(theta - ei - ej)
+                    h_ij = (fpp - fpm - fmp + fmm) / (4.0 * eps ** 2)
+                if not np.isfinite(h_ij): h_ij = 0.0
             except Exception:
                 h_ij = 0.0
-            H[i, j] = h_ij
-            H[j, i] = h_ij
+            H[ii, jj] = h_ij; H[jj, ii] = h_ij
     return H
 
-def compute_hessian_signals(H, p):
-    H = 0.5 * (H + H.T) + 1e-8 * np.eye(p)
-    eigenvalues = np.linalg.eigvalsh(H)
-    eigenvalues = np.clip(eigenvalues, 0.0, None)
+def compute_hessian_signals(loss_fn, theta):
+    active = _detect_active_params(theta)
+    n = len(active)
+    H = _finite_diff_hessian_subspace(loss_fn, theta, active)
+    H = 0.5 * (H + H.T) + 1e-8 * np.eye(n)
+    eigenvalues = np.clip(np.linalg.eigvalsh(H), 0.0, None)
     lmax = float(eigenvalues[-1])
     lmin = float(eigenvalues[0])
     kappa = lmax / lmin if lmin > 1e-12 else float('inf')
     tr_H = float(np.trace(H))
     tr_H2 = float(np.trace(H @ H))
-    n_eff = (tr_H ** 2) / tr_H2 if tr_H2 > 1e-20 else float(p)
-    return kappa, n_eff
+    n_eff = (tr_H ** 2) / tr_H2 if tr_H2 > 1e-20 else float(n)
+    return kappa, n_eff, n
 
 def evaluate(data):
     outputs = np.array([row[0] for row in data])
@@ -369,8 +379,10 @@ def evaluate(data):
 
     def loss(p):
         try:
-            y_pred = equation(*X.T, p)
-            return np.mean((y_pred - outputs) ** 2)
+            with np.errstate(all='ignore'):
+                y_pred = equation(*X.T, p)
+                val = np.mean((y_pred - outputs) ** 2)
+            return float(val) if np.isfinite(val) else 1e30
         except Exception:
             return 1e30
 
@@ -390,12 +402,13 @@ def evaluate(data):
             continue
 
     if np.isnan(best_mse) or np.isinf(best_mse):
-        return None, None, None, None, None
+        return None, None, None, None, None, None
 
     var_outputs = np.var(outputs)
     nmse = best_mse / var_outputs if not np.isclose(var_outputs, 0) else (0.0 if np.isclose(best_mse, 0) else np.inf)
 
-    y_pred = equation(*X.T, best_params)
+    with np.errstate(all='ignore'):
+        y_pred = equation(*X.T, best_params)
     zero_mask = np.isclose(outputs, 0)
     non_zero_mask = ~zero_mask
     mape = 0.0
@@ -403,24 +416,22 @@ def evaluate(data):
         relative_errors = np.abs((y_pred[non_zero_mask] - outputs[non_zero_mask]) / outputs[non_zero_mask])
         mape = np.mean(relative_errors)
 
-    # Hessian diagnostics
     try:
-        H = _finite_diff_hessian(loss, best_params)
-        kappa, n_eff = compute_hessian_signals(H, MAX_NPARAMS)
+        kappa, n_eff, n_active = compute_hessian_signals(loss, best_params)
     except Exception:
-        kappa, n_eff = float('inf'), float(MAX_NPARAMS)
+        kappa, n_eff, n_active = float('inf'), 1.0, 1
 
-    return float(best_mse), float(nmse), float(mape), float(kappa), float(n_eff)
+    return float(best_mse), float(nmse), float(mape), float(kappa), float(n_eff), int(n_active)
 
 
 if __name__ == '__main__':
     input_data_str = sys.stdin.read()
     data_list = json.loads(input_data_str)
-    mse, nmse, mape, kappa, n_eff = evaluate(data_list)
+    mse, nmse, mape, kappa, n_eff, n_active = evaluate(data_list)
 
     if mse is not None:
         print(f"MSE loss: {{mse:.6e}}; NMSE loss: {{nmse:.6e}}; Mean absolute percentage error: {{mape:.4%}}")
-        print(f"Hessian: kappa={{kappa:.2e}}, n_eff={{n_eff:.2f}}")
+        print(f"Hessian (active {{n_active}} params): kappa={{kappa:.2e}}, n_eff={{n_eff:.2f}}")
         if mape < {mape_threshold}:
             print("Success: The mean absolute percentage error is smaller than {mape_threshold_percentage}.")
         else:

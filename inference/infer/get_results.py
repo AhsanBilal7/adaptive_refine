@@ -175,7 +175,7 @@ def parse_equation(messages: list) -> List[str]:
         if not isinstance(msg, dict):
             continue
         if msg.get("role") == "assistant" and "tool_calls" in msg:
-            for tc in msg.get("tool_calls", []):
+            for tc in (msg.get("tool_calls") or []):
                 if not isinstance(tc, dict):
                     continue
                 fn_info = tc.get("function", {})
