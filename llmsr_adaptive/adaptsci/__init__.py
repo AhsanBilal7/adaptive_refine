@@ -1,2 +1,0 @@
-# AdaptSci package
-
