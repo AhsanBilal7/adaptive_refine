@@ -109,18 +109,19 @@ class _Island:
     @staticmethod
     def _sample_short(
         candidates: List[Tuple[float, code_manipulation.Function]],
-        tau: float = 1.0,
+        tau: float = 2.5,
     ) -> Optional[code_manipulation.Function]:
         if not candidates:
             return None
         lengths = np.array([len(str(f)) for _, f in candidates], dtype=np.float64)
-        rng     = lengths.max() - lengths.min()
-        norm    = (lengths - lengths.min()) / (rng + 1e-9) if rng > 0 else np.zeros_like(lengths)
-        lp      = -norm / (tau + 1e-12)
-        lp     -= lp.max()
-        probs   = np.exp(lp)
-        probs  /= probs.sum()
+        rng = lengths.max() - lengths.min()
+        norm = (lengths - lengths.min()) / (rng + 1e-9) if rng > 0 else np.zeros_like(lengths)
+        lp = -0.35 * norm / (tau + 1e-12)  # much weaker simplicity bias
+        lp -= lp.max()
+        probs = np.exp(lp)
+        probs /= probs.sum()
         return candidates[np.random.choice(len(candidates), p=probs)][1]
+
 
 
 # ─────────────────────────────────────────────────────────────────────────────

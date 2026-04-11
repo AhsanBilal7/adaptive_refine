@@ -13,7 +13,7 @@ from flask_cors import CORS
 parser = ArgumentParser()
 parser.add_argument('--gpu_ids', nargs='+', default=['0','1','2','3'])
 parser.add_argument('--quantization', default=False, action='store_true')
-parser.add_argument('--model_path', type=str, default='mistralai/Mixtral-8x7B-Instruct-v0.1')
+parser.add_argument('--model_path', type=str, default='mistralai/Mistral-7B-Instruct-v0.3')
 parser.add_argument('--host', type=str, default=None)
 parser.add_argument('--port', type=int, default=None)
 parser.add_argument('--temperature', type=float, default=0.8)
@@ -21,8 +21,8 @@ parser.add_argument('--do_sample', type=bool, default=True)
 parser.add_argument('--max_new_tokens', type=int, default=512)
 parser.add_argument('--top_k', type=int, default=30)
 parser.add_argument('--top_p', type=float, default=0.9)
-parser.add_argument('--eos_token_id', type=int, default=32021)
-parser.add_argument('--pad_token_id', type=int, default=32021)
+parser.add_argument('--eos_token_id', type=int, default=None)
+parser.add_argument('--pad_token_id', type=int, default=None)
 parser.add_argument('--num_return_sequences', type=int, default=1)
 parser.add_argument('--max_repeat_prompt', type=int, default=10)
 args = parser.parse_args()
@@ -93,17 +93,16 @@ def completions():
         top_k = params.get('top_k', args.top_k)
         top_p = params.get('top_p', args.top_p)
         num_return_sequences = params.get('num_return_sequences', args.num_return_sequences)
-        eos_token_id = params.get('eos_token_id', args.eos_token_id)
-        pad_token_id = params.get('pad_token_id', args.pad_token_id)
+        eos_token_id = params.get('eos_token_id', args.eos_token_id or tokenizer.eos_token_id)
+        pad_token_id = params.get('pad_token_id', args.pad_token_id or tokenizer.eos_token_id)
         max_repeat_prompt = params.get('max_repeat_prompt', args.max_repeat_prompt)
 
 
     # response generation
     while True:
-        inputs = tokenizer.apply_chat_template(prompt, 
-                                               add_generation_prompt=True, 
-                                               return_tensors='pt')       
-        inputs = torch.vstack([inputs] * repeat_prompt).to(model.device)
+        chat_text = tokenizer.apply_chat_template(prompt, add_generation_prompt=True, tokenize=False)
+        encoded = tokenizer(chat_text, return_tensors='pt')
+        inputs = encoded['input_ids'].repeat(repeat_prompt, 1).to(model.device)
 
         try:
             output = model.generate(

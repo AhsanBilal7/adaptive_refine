@@ -637,11 +637,12 @@ def _tokenise_prompt(user_message: str, repeat: int = 1) -> torch.Tensor:
 
     if isinstance(formatted, list):
         # chat_template path
-        ids = tokenizer.apply_chat_template(
+        chat_text = tokenizer.apply_chat_template(
             formatted,
             add_generation_prompt=True,
-            return_tensors='pt',
+            tokenize=False,
         )
+        ids = tokenizer(chat_text, return_tensors='pt')['input_ids']
     else:
         # raw string path (llama2, deepseek, alpaca, chatml manual)
         ids = tokenizer.encode(
@@ -651,7 +652,7 @@ def _tokenise_prompt(user_message: str, repeat: int = 1) -> torch.Tensor:
         )
 
     # Repeat for batch inference
-    ids = torch.vstack([ids] * repeat)
+    ids = ids.repeat(repeat, 1)
     return ids.to(model.device)
 
 
