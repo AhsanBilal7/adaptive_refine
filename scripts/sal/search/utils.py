@@ -1,184 +1,169 @@
-#!/usr/bin/env python
-# Copyright 2024 The HuggingFace Inc. team. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-import copy
+"""
+Beam dataclass and generation utilities for HuggingFace Transformers backend.
+
+Replaces the original vLLM-specific utils (Beam, build_conv, generate_k_steps)
+with a pure Transformers implementation using model.generate().
+"""
+
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+from typing import Optional, List
+from copy import deepcopy
 
-import numpy as np
-from vllm import LLM, SamplingParams
+import torch
+from transformers import PreTrainedModel, PreTrainedTokenizerBase
 
-logger = logging.getLogger()
-
-
-def build_conv(
-    prompt: str, response: str | None, system_prompt: str
-) -> list[dict[str, str]]:
-    conversation = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": prompt},
-    ]
-
-    if response != "":
-        conversation.append({"role": "assistant", "content": response})
-
-    return conversation
-
-
-def last(x):
-    if len(x) == 0:
-        logger.warning("empty list")
-        return 0
-    return x[-1]
-
-
-def list_mean(x):
-    if len(x) == 0:
-        logger.warning("empty list")
-        return 0
-    return np.mean(x)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class Beam:
+    """A single reasoning trajectory being explored during search."""
     prompt: str
     index: int
-    current_text: str | None
-    next_texts: list[str] | None
-    lookahead_texts: list[str] | None
-    stop_reasons: list[str | None] | None
-    best_scores: list[float]  # the PRM scores
-    all_scores: list[list[float]]  # all PRM scores
-    store_tokens: list[int] | None
-    previous_text: str | None
-    pruned: False
-    history: list[str]
-    history_embedding: list[list[float]]
+    current_text: str = ""
+    next_texts: Optional[List[str]] = None
+    lookahead_texts: Optional[List[str]] = None
+    pruned: bool = False
     completed: bool = False
+    stop_reasons: Optional[List[str]] = None
+    history: List[str] = field(default_factory=list)
+    best_scores: List[float] = field(default_factory=list)
+    all_scores: List[float] = field(default_factory=list)
+    previous_text: Optional[str] = None
     completion_tokens: int = 0
-    previous_cluster: int = -1
+    store_tokens: List = field(default_factory=list)
+    history_embedding: List = field(default_factory=list)
 
 
 @dataclass
 class GenResult:
-    index: int
-    initial_prompt: str
-    first_step_text: str
-    first_step_stop_reason: str
-    lookahead_text: str
-    stop_reason: str | None
-    completion_tokens: int = 0
+    """Result from a single generation step."""
+    next_texts: List[str]
+    stop_reasons: List[str]
+    lookahead_texts: Optional[List[str]]
+    completion_tokens: int
 
 
-def generate_k_steps(
-    templated_convs,
-    lookahead_steps: int,
-    llm: LLM,
-    sampling_params: SamplingParams,
-    beam_width: int,
-    max_tokens_per_step,
-    left_completion_tokens = []
-) -> list[Beam]:
-    gen_results = []
-    for i, text in enumerate(templated_convs):
-        for j in range(beam_width):
-            gen_result = GenResult(
-                index=i,
-                initial_prompt=text,
-                first_step_text="",
-                lookahead_text="",
-                stop_reason=None,
-                completion_tokens=0,
-                first_step_stop_reason=None,
+def build_conv(prompt: str, current_text: str, system_prompt: Optional[str] = None) -> list:
+    """
+    Build a chat conversation for the tokenizer's apply_chat_template.
+
+    Returns a list of message dicts: [{"role": ..., "content": ...}, ...]
+    """
+    messages = []
+    if system_prompt:
+        messages.append({"role": "system", "content": system_prompt})
+    messages.append({"role": "user", "content": prompt})
+    if current_text:
+        messages.append({"role": "assistant", "content": current_text})
+    return messages
+
+
+def generate_step(
+    templated_prompts: List[str],
+    model: PreTrainedModel,
+    tokenizer: PreTrainedTokenizerBase,
+    temperature: float = 0.8,
+    top_p: float = 1.0,
+    max_new_tokens: int = 256,
+    stop_strings: Optional[List[str]] = None,
+    left_completion_tokens: Optional[List[int]] = None,
+) -> List[GenResult]:
+    """
+    Generate one reasoning step for each prompt using HuggingFace Transformers.
+
+    This replaces vLLM's batched generation. Each prompt is generated individually
+    to handle per-beam max_new_tokens constraints.
+
+    Args:
+        templated_prompts: List of fully-templated prompt strings.
+        model: HuggingFace causal LM.
+        tokenizer: HuggingFace tokenizer.
+        temperature: Sampling temperature.
+        top_p: Nucleus sampling threshold.
+        max_new_tokens: Maximum new tokens to generate per step.
+        stop_strings: Strings that stop generation (e.g. ["\\n\\n"]).
+        left_completion_tokens: Per-beam remaining token budget.
+
+    Returns:
+        List of GenResult, one per prompt.
+    """
+    results = []
+    device = model.device
+
+    for idx, prompt_text in enumerate(templated_prompts):
+        # Per-beam token budget
+        budget = max_new_tokens
+        if left_completion_tokens is not None:
+            budget = min(budget, max(1, left_completion_tokens[idx]))
+
+        # Tokenize
+        inputs = tokenizer(
+            prompt_text,
+            return_tensors="pt",
+            truncation=True,
+            max_length=model.config.max_position_embeddings
+            if hasattr(model.config, "max_position_embeddings")
+            else 4096,
+        ).to(device)
+        input_len = inputs["input_ids"].shape[1]
+
+        # Generation kwargs
+        gen_kwargs = {
+            "max_new_tokens": budget,
+            "do_sample": temperature > 0,
+            "top_p": top_p,
+            "pad_token_id": tokenizer.pad_token_id or tokenizer.eos_token_id,
+        }
+        if temperature > 0:
+            gen_kwargs["temperature"] = temperature
+
+        # Stop at EOS or stop_strings via stopping_criteria not needed —
+        # we'll post-process stop_strings from the decoded text
+        with torch.no_grad():
+            output_ids = model.generate(**inputs, **gen_kwargs)
+
+        # Decode only the newly generated tokens
+        new_token_ids = output_ids[0, input_len:]
+        generated_text = tokenizer.decode(new_token_ids, skip_special_tokens=True)
+        num_new_tokens = len(new_token_ids)
+
+        # Determine stop reason
+        stop_reason = "length"
+        if num_new_tokens == 0:
+            stop_reason = "EOS"
+        elif output_ids[0, -1].item() == tokenizer.eos_token_id:
+            stop_reason = "EOS"
+
+        # Handle stop_strings: truncate at the first occurrence
+        if stop_strings and stop_reason != "EOS":
+            for ss in stop_strings:
+                pos = generated_text.find(ss)
+                if pos != -1:
+                    # Include the stop string in output (matches vLLM include_stop_str_in_output=True)
+                    generated_text = generated_text[: pos + len(ss)]
+                    stop_reason = "stop"
+                    # Recount tokens after truncation
+                    num_new_tokens = len(
+                        tokenizer.encode(generated_text, add_special_tokens=False)
+                    )
+                    break
+
+        results.append(
+            GenResult(
+                next_texts=[generated_text],
+                stop_reasons=[stop_reason],
+                lookahead_texts=None,
+                completion_tokens=num_new_tokens,
             )
-            gen_results.append(gen_result)
-
-    gen_sampling_params = copy.deepcopy(sampling_params)
-    gen_sampling_params.max_tokens = max_tokens_per_step # incase of repeated generation
-    gen_sampling_params_list = []
-    for i in range(len(left_completion_tokens)):
-        for j in range(beam_width):
-            cur_gen_sampling_params = copy.deepcopy(gen_sampling_params)
-            cur_gen_sampling_params.max_tokens = min(left_completion_tokens[i], gen_sampling_params.max_tokens)
-            gen_sampling_params_list.append(copy.deepcopy(cur_gen_sampling_params))
-
-    for i in range(lookahead_steps + 1):
-        if i == 1:
-            gen_sampling_params.temperature = 0.0  # greedy for the rest of the steps
-        # get all generations that did not finish with eos
-        current_gen = [
-            gen_results[j]
-            for j in range(len(gen_results))
-            if gen_results[j].stop_reason != "EOS"
-        ]
-        gen_sampling_params_list = [gen_sampling_params_list[j] for j in range(len(gen_results)) if gen_results[j].stop_reason != "EOS"]
-        gen_prompts = [
-            gen_result.initial_prompt + gen_result.lookahead_text
-            for gen_result in current_gen
-        ]
-
-        llm_outputs = llm.generate(gen_prompts, gen_sampling_params_list, use_tqdm=False)
-        for gen_result, output in zip(current_gen, llm_outputs):
-            gen_text = output.outputs[0].text
-            gen_tokens = len(output.outputs[0].token_ids)
-            if i == 0:
-                gen_result.first_step_text = gen_text
-                gen_result.first_step_stop_reason = output.outputs[0].stop_reason
-                if gen_result.first_step_stop_reason is None:
-                    gen_result.first_step_stop_reason = "EOS"
-
-            gen_result.lookahead_text = gen_result.lookahead_text + gen_text
-            gen_result.stop_reason = output.outputs[0].stop_reason
-            gen_result.completion_tokens = gen_tokens
-            if gen_result.stop_reason is None:
-                gen_result.stop_reason = "EOS"
-
-    outputs: list[Beam] = []
-
-    counter = 0
-    for i, text in enumerate(templated_convs):
-        next_texts = []
-        stop_reasons = []
-        lookahead_texts = []
-        completion_tokens = 0
-        store_tokens = []
-        
-        for j in range(beam_width):
-            gen_result = gen_results[counter]
-            next_texts.append(gen_result.first_step_text)
-            lookahead_texts.append(gen_result.lookahead_text)
-            stop_reasons.append(gen_result.first_step_stop_reason)
-            completion_tokens += gen_result.completion_tokens   # for beam search
-            store_tokens.append(gen_result.completion_tokens)   # for dvts
-            counter += 1
-
-        beam_result = Beam(
-            prompt=text,
-            index=i,
-            current_text="",
-            next_texts=next_texts,
-            lookahead_texts=lookahead_texts,
-            stop_reasons=stop_reasons,
-            best_scores=[0.0],
-            all_scores=[],
-            previous_text=None,
-            pruned=False,
-            history=[],
-            history_embedding=[],
-            completion_tokens=completion_tokens,
-            store_tokens=store_tokens
         )
-        outputs.append(beam_result)
 
-    return outputs
+    return results
+
+
+def last(scores):
+    """Return the last score in a list (default aggregation)."""
+    if not scores:
+        return 0.0
+    return scores[-1]

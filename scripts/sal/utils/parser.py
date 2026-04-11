@@ -1,117 +1,90 @@
-# coding=utf-8
-# Copyright 2024 The HuggingFace Team. All rights reserved.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+"""Argument parser for dataclass-based configs with YAML support."""
 
-import dataclasses
-import os
 import sys
-from dataclasses import dataclass
-from typing import Any, List, NewType, Optional, Tuple, Union
-
-from transformers import HfArgumentParser
-
-DataClassType = NewType("DataClassType", Any)
+import yaml
+from dataclasses import fields
+from typing import get_origin, get_args, Optional
 
 
-class H4ArgumentParser(HfArgumentParser):
-    def parse_yaml_and_args(
-        self, yaml_arg: str, other_args: Optional[List[str]] = None
-    ) -> List[dataclass]:
-        """
-        Parse a yaml file and overwrite the default/loaded values with the values provided to the command line.
+class H4ArgumentParser:
+    """
+    Parse a dataclass Config from a YAML file + command-line overrides.
 
-        Args:
-            yaml_arg (:obj:`str`): the path to the config file used
-            other_args (:obj:`List[str]`, `optional`): a list of strings to parse as command line arguments.
-                These will look like ['--arg=val', '--arg2=val2'].
+    Usage:
+        parser = H4ArgumentParser(Config)
+        config = parser.parse()
+    """
 
-        Returns:
-            :obj:`List[dataclass]`: a list of dataclasses with the values from the yaml file and the command line
-        """
-        arg_list = self.parse_yaml_file(os.path.abspath(yaml_arg))
+    def __init__(self, config_class):
+        self.config_class = config_class
 
-        outputs = []
-        # strip other args list into dict of key-value pairs
-        other_args = {
-            arg.split("=")[0].strip("-"): arg.split("=")[1] for arg in other_args
-        }
-        used_args = {}
+    def parse(self):
+        args = sys.argv[1:]
 
-        # overwrite the default/loaded value with the value provided to the command line
-        # adapted from https://github.com/huggingface/transformers/blob/d0b5002378daabf62769159add3e7d66d3f83c3b/src/transformers/hf_argparser.py#L327
-        for data_yaml, data_class in zip(arg_list, self.dataclass_types):
-            keys = {f.name for f in dataclasses.fields(data_yaml) if f.init}
-            inputs = {k: v for k, v in vars(data_yaml).items() if k in keys}
-            for arg, val in other_args.items():
-                # add only if in keys
-                if arg in keys:
-                    base_type = data_yaml.__dataclass_fields__[arg].type
-                    inputs[arg] = val
-
-                    # cast type for ints, floats (default to strings)
-                    if base_type in [int, float]:
-                        inputs[arg] = base_type(val)
-
-                    if base_type is List[str]:
-                        inputs[arg] = [str(v) for v in val.split(",")]
-
-                    # bool of a non-empty string is True, so we manually check for bools
-                    if base_type is bool or base_type is Optional[bool]:
-                        if val in ["true", "True"]:
-                            inputs[arg] = True
-                        elif val in ["None", "none"]:
-                            inputs[arg] = None
-                        else:
-                            inputs[arg] = False
-
-                    # add to used-args so we can check if double add
-                    if arg not in used_args:
-                        used_args[arg] = val
-                    else:
-                        raise ValueError(
-                            f"Duplicate argument provided: {arg}, may cause unexpected behavior"
-                        )
-
-            obj = data_class(**inputs)
-            outputs.append(obj)
-
-        unparsed_args = set(other_args.keys()) - set(used_args.keys())
-
-        if len(unparsed_args) > 0:
-            raise ValueError(
-                f"The following arguments were not parsed: {unparsed_args}"
-            )
-        return outputs
-
-    def parse(
-        self, allow_extra_keys=False
-    ) -> Union[DataClassType, Tuple[DataClassType]]:
-        if len(sys.argv) == 2 and sys.argv[1].endswith(".yaml"):
-            # If we pass only one argument to the script and it's the path to a YAML file,
-            # let's parse it to get our arguments.
-            output = self.parse_yaml_file(
-                os.path.abspath(sys.argv[1]), allow_extra_keys=allow_extra_keys
-            )
-        # parse command line args and yaml file
-        elif len(sys.argv) > 2 and sys.argv[1].endswith(".yaml"):
-            output = self.parse_yaml_and_args(
-                os.path.abspath(sys.argv[1]), sys.argv[2:]
-            )
-        # parse command line args only
+        # First positional arg is the YAML config file (if it exists and doesn't start with --)
+        yaml_config = {}
+        remaining_args = []
+        if args and not args[0].startswith("--"):
+            yaml_path = args[0]
+            try:
+                with open(yaml_path, "r") as f:
+                    yaml_config = yaml.safe_load(f) or {}
+            except FileNotFoundError:
+                print(f"Warning: config file {yaml_path} not found, using defaults.")
+            remaining_args = args[1:]
         else:
-            output = self.parse_args_into_dataclasses()
+            remaining_args = args
 
-        if len(output) == 1:
-            output = output[0]
-        return output
+        # Parse command-line overrides (--key=value format)
+        cli_overrides = {}
+        for arg in remaining_args:
+            if arg.startswith("--"):
+                if "=" in arg:
+                    key, value = arg[2:].split("=", 1)
+                    cli_overrides[key] = value
+                else:
+                    key = arg[2:]
+                    cli_overrides[key] = True
+
+        # Merge: defaults < yaml < cli
+        merged = {}
+        for f in fields(self.config_class):
+            name = f.name
+            if name in cli_overrides:
+                merged[name] = self._cast(cli_overrides[name], f.type)
+            elif name in yaml_config:
+                merged[name] = yaml_config[name]
+            # else: use dataclass default
+
+        return self.config_class(**merged)
+
+    def _cast(self, value, type_hint):
+        """Cast a string value to the appropriate type."""
+        # Handle Optional[X]
+        origin = get_origin(type_hint)
+        if origin is type(Optional[str]):  # Union
+            type_args = get_args(type_hint)
+            # Optional[X] is Union[X, None]
+            non_none = [t for t in type_args if t is not type(None)]
+            if non_none:
+                type_hint = non_none[0]
+
+        if value is None or value == "None" or value == "none":
+            return None
+
+        if type_hint == bool or type_hint is bool:
+            if isinstance(value, bool):
+                return value
+            return value.lower() in ("true", "1", "yes")
+        elif type_hint == int or type_hint is int:
+            return int(value)
+        elif type_hint == float or type_hint is float:
+            return float(value)
+        elif type_hint == str or type_hint is str:
+            return str(value)
+        else:
+            # Fallback: try the type as constructor
+            try:
+                return type_hint(value)
+            except (TypeError, ValueError):
+                return value

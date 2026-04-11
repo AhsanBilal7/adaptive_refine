@@ -1,0 +1,38 @@
+# DORA + NLI config for Llama-3.2-1B-Instruct on MATH500
+
+model_path: allmodels/Llama-3.2-1B-Instruct
+prm_path: allmodels/Qwen2.5-Math-PRM-7B
+embedding_path: allmodels/bge-m3
+
+nli_model_path: allmodels/roberta-large-mnli
+similarity_mode: nli
+nli_lambda_penalty: 1.0
+nli_top_k: 10
+nli_batch_size: 32
+nli_max_length: 512
+nli_use_summary: false
+nli_summary_max_steps: 5
+
+dataset_name: HuggingFaceH4/MATH-500
+dataset_split: test
+
+approach: dora
+n: 64
+# num_iterations: 40
+num_iterations: 5
+temperature: 0.8
+top_p: 1.0
+max_tokens: 2048
+max_tokens_per_step: 256
+seed: 0
+
+rebase_temperature: 0.1
+balance_alpha: 0.01
+agg_strategy: last
+sort_completed: true
+
+device: auto
+dtype: bfloat16
+
+search_batch_size: 1
+output_dir: ./result/MATH500/dora_nli

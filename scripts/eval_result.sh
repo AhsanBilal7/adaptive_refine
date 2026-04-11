@@ -6,7 +6,7 @@ benchmark="math" # math
 for approach in "rebase" "beam_search"; do
     for seed in 0 1 2 3 4; do
         for n in 16 32 64 128 256; do
-            python /mnt/public/usr/yourpath/search-and-learn/evaluation/evaluate_hf.py  \
+            python ./evaluation/evaluate_hf.py  \
             --n=$n \
             --seed=$seed \
             --prm_model=$prm_model \

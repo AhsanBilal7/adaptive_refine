@@ -9,7 +9,7 @@ for dataset_name in "MATH500"; do
     for approach in "dora"; do
         for seed in 0 1 2 3 4; do
             for n in 16 32 64 128 256; do
-                python /mnt/public/usr/yourpath/search-and-learn/scripts/merge_jsonl.py  \
+                python ./scripts/merge_jsonl.py  \
                 --n=$n \
                 --seed=$seed \
                 --balance_alpha="0.01" \

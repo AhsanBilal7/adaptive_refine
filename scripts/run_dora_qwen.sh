@@ -1,23 +1,21 @@
-pip install vllm==0.6.5
-pip install latex2sympy2
-pip install word2number
-# pip install openai==0.28.0
-pip install -U FlagEmbedding
-
-export CONFIG=/mnt/public/usr/yourpath/search-and-learn/recipes/Llama-3.2-1B-Instruct/dora_qwen.yaml
-export prm_path=/mnt/public/usr/yourpath/allmodels/Qwen2.5-Math-PRM-7B
-export model_path=/mnt/public/usr/yourpath/allmodels/Llama-3.2-1B-Instruct
-export output_dir=/mnt/public/usr/yourpath/search-and-learn/result/MATH500/Qwen2.5-Math-PRM-7B/Llama-3.2-1B-Instruct/dora
+# pip install vllm==0.6.5
+# pip install latex2sympy2
+# pip install word2number
+# # pip install openai==0.28.0
+# pip install -U FlagEmbedding
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/allmodels/Qwen2.5-Math-PRM-7B"
 
 
-for n in 16 32 64 128 256; do
-    for seed in 0 1 2 3 4; do
-        python /mnt/public/usr/yourpath/search-and-learn/scripts/test_time_compute.py $CONFIG \
-        --n=$n \
-        --balance_alpha=0.01 \
-        --seed=$seed \
-        --prm_path=$prm_path \
-        --model_path=$model_path \
-        --output_dir=$output_dir
-    done
-done
+export CONFIG=./recipes/Llama-3.2-1B-Instruct/dora_qwen.yaml
+export prm_path=./allmodels/Qwen2.5-Math-PRM-7B
+export model_path=./allmodels/Llama-3.2-1B-Instruct
+export output_dir=./result/MATH500/Qwen2.5-Math-PRM-7B/Llama-3.2-1B-Instruct/dora
+
+
+python ./scripts/test_time_compute.py $CONFIG \
+    --n=16 \
+    --balance_alpha=0.01 \
+    --seed=0 \
+    --prm_path=$prm_path \
+    --model_path=$model_path \
+    --output_dir=$output_dir

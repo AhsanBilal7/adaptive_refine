@@ -98,15 +98,15 @@ def main():
     parser = H4ArgumentParser(Config)
     config = parser.parse()
 
-    result_dir = "/mnt/public/usr/yourpath/search-and-learn/result/{}/{}/{}/{}".format(dataset_name, prm_model, policy_model, approach)
+    result_dir = "./result/{}/{}/{}/{}".format(dataset_name, prm_model, policy_model, approach)
     
     if approach == "dora":
         if alpha_strategy is None:
-            final_output_file = "/mnt/public/usr/yourpath/search-and-learn/result/{}/{}/{}/{}/final_embedding_results_n_{}_alpha_{}_seed_{}_temp_{}.jsonl".format(dataset_name, prm_model, policy_model, approach, n, alpha, seed, temp)
+            final_output_file = "./result/{}/{}/{}/{}/final_embedding_results_n_{}_alpha_{}_seed_{}_temp_{}.jsonl".format(dataset_name, prm_model, policy_model, approach, n, alpha, seed, temp)
         else:
-            final_output_file = "/mnt/public/usr/yourpath/search-and-learn/result/{}/{}/{}/{}/final_embedding_results_n_{}_alpha_{}_strategy_{}_seed_{}_temp_{}.jsonl".format(dataset_name, prm_model, policy_model, approach, n, alpha, alpha_strategy, seed, temp)
+            final_output_file = "./result/{}/{}/{}/{}/final_embedding_results_n_{}_alpha_{}_strategy_{}_seed_{}_temp_{}.jsonl".format(dataset_name, prm_model, policy_model, approach, n, alpha, alpha_strategy, seed, temp)
     else:
-        final_output_file = "/mnt/public/usr/yourpath/search-and-learn/result/{}/{}/{}/{}/final_results_n_{}_seed_{}_temp_{}.jsonl".format(dataset_name, prm_model, policy_model, approach, n, seed, temp)
+        final_output_file = "./result/{}/{}/{}/{}/final_results_n_{}_seed_{}_temp_{}.jsonl".format(dataset_name, prm_model, policy_model, approach, n, seed, temp)
 
         
     merged_result = merge_result_files(result_dir, final_output_file, n, temp, seed, embedding_threshold, alpha, embedding, alpha_strategy, approach)
