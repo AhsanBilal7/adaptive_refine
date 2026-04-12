@@ -1,0 +1,14 @@
+[
+  {
+    "filename": "samples_cosine_n_16_alpha_0.01_seed_0_temp_0.8_20260411202602428151.jsonl",
+    "approach": "cosine",
+    "n": 16,
+    "seed": 0,
+    "alpha": 0.01,
+    "temp": 0.8,
+    "acc": 1.002004008016032,
+    "n_samples": 499,
+    "n_correct": 5,
+    "timeout_cnt": 0
+  }
+]

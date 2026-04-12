@@ -147,12 +147,32 @@ class NLISimilarityModel:
 
         return float(pe - self.lambda_penalty * pc)
 
+    def _normalize_for_dora(self, matrix: np.ndarray) -> np.ndarray:
+        """
+        Map NLI scores from [-lambda, 1.0] to [0, 1] so they are compatible
+        with DORA's softmax_with_temperature_1 uniqueness estimator (γ_i).
+
+        Without this, the negative off-diagonal values caused by contradiction
+        penalty make the row-softmax diagonal entries all collapse to ~1.0
+        at the low balance_alpha temperature (0.01), destroying the uniqueness
+        discrimination that DORA relies on to separate clustered from unique beams.
+
+        The shift is: s_norm = (s + lambda) / (1 + lambda)
+        which maps: -lambda → 0.0, 0.0 → lambda/(1+lambda), 1.0 → 1.0
+        This preserves relative ordering and keeps diagonal = 1.0.
+        """
+        out = (matrix + self.lambda_penalty) / (1.0 + self.lambda_penalty)
+        # Clamp to [0,1] to absorb any floating-point overshoot
+        return np.clip(out, 0.0, 1.0).astype(np.float32)
+
     def compute_nli_matrix(self, texts: List[str]) -> np.ndarray:
         """
         Compute the full pairwise NLI similarity matrix for a list of texts.
 
         Returns:
-            np.ndarray of shape (n, n) with symmetric NLI direction similarity scores.
+            np.ndarray of shape (n, n) with NLI direction similarity scores
+            normalized to [0, 1] for compatibility with DORA's uniqueness
+            estimator (γ_i = diagonal of row-softmax at low temperature).
         """
         n = len(texts)
         sim_matrix = np.zeros((n, n), dtype=np.float32)
@@ -161,7 +181,8 @@ class NLISimilarityModel:
             sim_matrix[0, 0] = 1.0
             return sim_matrix
 
-        # Build all ordered pairs (i, j) where i < j
+        # Build all ordered pairs (i, j) where i < j, interleaved as
+        # (forward, backward) so the stride-2 assembly loop stays correct.
         premises = []
         hypotheses = []
         pair_indices = []
@@ -180,11 +201,11 @@ class NLISimilarityModel:
         # Run batch inference
         all_probs = self._predict_batch(premises, hypotheses)
 
-        # Assemble the similarity matrix
+        # Assemble the raw similarity matrix
         for k in range(0, len(pair_indices), 2):
             i, j, _ = pair_indices[k]
             probs_ij = all_probs[k]      # forward
-            probs_ji = all_probs[k + 1]   # backward
+            probs_ji = all_probs[k + 1]  # backward
 
             pe = 0.5 * (probs_ij[self.entailment_idx] + probs_ji[self.entailment_idx])
             pc = 0.5 * (probs_ij[self.contradiction_idx] + probs_ji[self.contradiction_idx])
@@ -196,7 +217,8 @@ class NLISimilarityModel:
         # Diagonal: self-similarity = 1.0
         np.fill_diagonal(sim_matrix, 1.0)
 
-        return sim_matrix
+        # Normalize to [0, 1] so DORA's balance_alpha temperature is meaningful
+        return self._normalize_for_dora(sim_matrix)
 
     def compute_nli_matrix_hybrid(
         self,
@@ -208,8 +230,9 @@ class NLISimilarityModel:
         Two-stage hybrid: use cosine similarity to select top-k neighbors,
         then refine only those pairs with NLI scoring.
 
-        This preserves efficiency of embedding-based retrieval while allowing
-        final direction similarity to depend on logical agreement.
+        NLI scores for refined pairs are normalized to [0, 1] via
+        _normalize_for_dora() so they are on the same scale as the cosine
+        values retained for non-refined pairs.
 
         Args:
             texts: List of trajectory texts.
@@ -217,8 +240,7 @@ class NLISimilarityModel:
             top_k: Number of nearest neighbors per trajectory to refine with NLI.
 
         Returns:
-            np.ndarray of shape (n, n) with hybrid similarity scores.
-            Non-refined pairs retain their cosine similarity values.
+            np.ndarray of shape (n, n) with hybrid similarity scores in [0, 1].
         """
         n = len(texts)
         # Start with cosine similarity as the base
@@ -266,10 +288,17 @@ class NLISimilarityModel:
 
             pe = 0.5 * (probs_ij[self.entailment_idx] + probs_ji[self.entailment_idx])
             pc = 0.5 * (probs_ij[self.contradiction_idx] + probs_ji[self.contradiction_idx])
-            score = pe - self.lambda_penalty * pc
+            raw_score = pe - self.lambda_penalty * pc
+            # Normalize to [0,1] to stay on the same scale as cosine values
+            norm_score = float(np.clip(
+                (raw_score + self.lambda_penalty) / (1.0 + self.lambda_penalty), 0.0, 1.0
+            ))
+            hybrid_matrix[i, j] = norm_score
+            hybrid_matrix[j, i] = norm_score
 
-            hybrid_matrix[i, j] = score
-            hybrid_matrix[j, i] = score
+        # Defensive: ensure diagonal is exactly 1.0 (cosine copy should already
+        # have this, but guard against edge cases)
+        np.fill_diagonal(hybrid_matrix, 1.0)
 
         return hybrid_matrix
 
@@ -290,7 +319,7 @@ def summarize_trajectory(text: str, max_steps: int = 5) -> str:
     )
     steps = step_pattern.findall(text)
 
-    if steps and len(steps) >= 2:
+    if steps and len(steps) >= 1:
         # Use first sentence of each step
         summaries = []
         for step in steps[:max_steps]:

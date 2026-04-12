@@ -9,9 +9,9 @@ export PYTHONPATH="${PYTHONPATH}:$(pwd):$(pwd)/allmodels/Qwen2.5-Math-PRM-7B"
 # ── Defaults ──────────────────────────────────────────────────────────────────
 n=16
 seed=0
-generation_batch_size=8   # beams per model.generate() call
-prm_batch_size=4           # completions per PRM forward pass
-search_batch_size=1        # dataset samples processed together
+generation_batch_size=32   # beams per model.generate() call
+prm_batch_size=32           # completions per PRM forward pass
+search_batch_size=32        # dataset samples processed together
 embedding_batch_size=32
 
 # ── Parse named arguments (--key=value) ───────────────────────────────────────

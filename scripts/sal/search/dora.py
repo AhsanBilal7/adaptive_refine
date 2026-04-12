@@ -228,9 +228,15 @@ def _dora(batch_of_prompts, config, model, tokenizer, prm, embedding_model=None,
         nli_model: NLISimilarityModel (for nli/hybrid).
     """
     beams = []
-    for prompt in batch_of_prompts:
+    for problem_idx, prompt in enumerate(batch_of_prompts):
         for i in range(config.n):
-            beams.append(Beam(prompt=prompt, index=i))
+            b = Beam(prompt=prompt, index=i)
+            # Store the problem index directly on the beam so that the output
+            # assembly in dora() can group by index instead of by prompt string.
+            # Grouping by prompt string fails when beam.prompt uses a different
+            # attribute name than expected (e.g. utils.Beam stores it as .text).
+            b.problem_idx = problem_idx
+            beams.append(b)
 
     completed_beams = []
     final_quality_list, final_diversity_list = [], []
@@ -297,16 +303,12 @@ def _dora(batch_of_prompts, config, model, tokenizer, prm, embedding_model=None,
                 or beam.next_texts[0] == ""
                 or beam.completion_tokens >= config.max_tokens
             ):
-                if is_last:
-                    beam.completed = True
-                    completed_beams.append(beam)
-                else:
-                    if gen_result.completion_tokens == config.max_tokens_per_step:
-                        beam.pruned = True
-                        beam.completed = True
-                    else:
-                        beam.completed = True
-                        completed_beams.append(beam)
+                beam.completed = True
+                if not is_last and gen_result.completion_tokens == config.max_tokens_per_step:
+                    # Hit the per-step token cap mid-trajectory: mark pruned
+                    # but still collect so completed_beams is never empty.
+                    beam.pruned = True
+                completed_beams.append(beam)  # always collect
 
             prompts_for_prm.append(beam.prompt)
             completions_for_prm.append([beam.current_text])
@@ -389,7 +391,14 @@ def _dora(batch_of_prompts, config, model, tokenizer, prm, embedding_model=None,
     else:
         completed_beams = completed_beams[: config.n]
 
-    if len(completed_beams) != config.n:
+    if len(completed_beams) == 0:
+        logger.warning(
+            "completed_beams is empty after the full search loop — "
+            "falling back to active_beams. Check num_iterations / max_tokens."
+        )
+        completed_beams = (active_beams or beams)[: config.n]
+
+    if len(completed_beams) < config.n:
         repeats = (config.n // len(completed_beams)) + 1
         completed_beams = [copy.deepcopy(b) for b in (completed_beams * repeats)[: config.n]]
 
@@ -403,15 +412,40 @@ def _dora(batch_of_prompts, config, model, tokenizer, prm, embedding_model=None,
 def dora(examples, config, model, tokenizer, prm, embedding_model=None, nli_model=None):
     """DORA search entry point (Transformers backend)."""
     problems = examples["problem"]
-    print(problems)
 
     beam_results, fq, fd, aq, ad = _dora(
         problems, config, model, tokenizer, prm, embedding_model, nli_model
     )
 
+    # ── Group completed beams by problem index ────────────────────────────────
+    # We deliberately avoid grouping by beam.prompt (string equality) because
+    # the Beam dataclass in utils.py may store the prompt under a different
+    # attribute name, causing all look-ups to return empty lists.
+    # Instead, we stamp each beam with problem_idx in _dora() and group by that.
     grouped = defaultdict(list)
-    for r in beam_results:
-        grouped[r.prompt].append(r)
+    for b in beam_results:
+        pid = getattr(b, "problem_idx", None)
+        if pid is None:
+            # Fallback: try prompt-string matching for backwards compatibility
+            pid = next(
+                (i for i, p in enumerate(problems)
+                 if getattr(b, "prompt", None) == p),
+                None,
+            )
+        if pid is not None:
+            grouped[pid].append(b)
+
+    # Debug: log how many beams were recovered per problem
+    for i in range(len(problems)):
+        n_beams = len(grouped[i])
+        if n_beams == 0:
+            logger.warning(
+                f"Problem {i} has 0 completed beams after grouping. "
+                f"beam_results has {len(beam_results)} total beams. "
+                f"First beam attrs: {vars(beam_results[0]) if beam_results else 'N/A'}"
+            )
+        else:
+            logger.debug(f"Problem {i}: {n_beams} completed beams.")
 
     results = {
         "completions": [], "pred": [], "completion_tokens": [],
@@ -419,13 +453,14 @@ def dora(examples, config, model, tokenizer, prm, embedding_model=None, nli_mode
         "all_quality_results": [], "all_diversity_results": [], "similarity_mode": [],
     }
 
-    for p in problems:
-        beams = grouped[p]
+    for i, p in enumerate(problems):
+        beams = grouped[i]
         completions = [b.current_text for b in beams]
         agg = [aggregate_scores(b.all_scores, config.agg_strategy) for b in beams]
+        best_pred = completions[int(np.argmax(agg))] if agg else ""
         results["completions"].append(completions)
         results["scores"].append([b.all_scores for b in beams])
-        results["pred"].append(completions[int(np.argmax(agg))] if agg else "")
+        results["pred"].append(best_pred)
         results["completion_tokens"].append([b.completion_tokens for b in beams])
         results["quality_results"].append(fq)
         results["diversity_results"].append(fd)
