@@ -2,8 +2,10 @@
 approach: dora
 n: 64
 search_batch_size: 1
+generation_batch_size: 8   # beams per model.generate() call
+prm_batch_size: 4           # completions per PRM forward pass
+embedding_batch_size: 32
 seed: 0
-prm_batch_size: 2
 max_tokens: 2048
 max_tokens_per_step: 256
 temperature: 0.8

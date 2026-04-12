@@ -273,12 +273,13 @@ def _dora(batch_of_prompts, config, model, tokenizer, prm, embedding_model=None,
         stop_strings = None if is_last else ["\n\n"]
         left_tokens = [config.max_tokens - b.completion_tokens for b in active_beams]
 
-        # Generate one step for all active beams
+        # Generate one step for all active beams (batched)
         gen_results = generate_step(
             templated_convs, model, tokenizer,
             temperature=config.temperature, top_p=config.top_p,
             max_new_tokens=max_new, stop_strings=stop_strings,
             left_completion_tokens=left_tokens,
+            generation_batch_size=getattr(config, "generation_batch_size", 1),
         )
 
         # Update beams with generation results

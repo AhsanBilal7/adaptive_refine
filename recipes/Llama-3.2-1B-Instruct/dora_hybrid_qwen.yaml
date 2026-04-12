@@ -33,4 +33,7 @@ device: auto
 dtype: bfloat16
 
 search_batch_size: 1
+generation_batch_size: 8   # beams per model.generate() call
+prm_batch_size: 4           # completions per PRM forward pass
+embedding_batch_size: 32
 output_dir: ./result/MATH500/dora_hybrid

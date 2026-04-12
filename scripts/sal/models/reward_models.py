@@ -28,7 +28,7 @@ class PRM:
       - The model outputs a reward score at each step boundary.
     """
 
-    def __init__(self, model_path: str, device: str = "auto", dtype: str = "bfloat16"):
+    def __init__(self, model_path: str, device: str = "auto", dtype: str = "bfloat16", prm_batch_size: int = 1):
         logger.info(f"Loading PRM from {model_path}")
 
         # Add model path to sys.path so custom modules can be imported
@@ -54,6 +54,7 @@ class PRM:
         self.model.config.use_cache = False
         self.model.eval()
         self.device = self.model.device
+        self.prm_batch_size = prm_batch_size
         logger.info(f"PRM loaded on {self.device}")
 
     @torch.no_grad()
@@ -112,12 +113,16 @@ class PRM:
         """
         Run a batched forward pass over all texts and return one score per text.
 
-        Falls back to per-sample scoring only if the model exposes a custom
-        `score` method that does not accept batched input (rare).
+        Falls back to mini-batch scoring when the model exposes a custom `score`
+        method (e.g. Qwen2.5-Math-PRM).  prm_batch_size controls how many texts
+        are scored in each call; increase it to improve GPU utilisation.
         """
         if hasattr(self.model, "score"):
-            # Some custom PRM heads don't support padding — fall back per-sample
-            return [self._score_via_model_method_text(t) for t in texts]
+            results = []
+            for start in range(0, len(texts), self.prm_batch_size):
+                chunk = texts[start : start + self.prm_batch_size]
+                results.extend(self._score_via_model_method_text(t) for t in chunk)
+            return results
 
         return self._score_via_logits_batch(texts)
 
@@ -219,4 +224,5 @@ def load_prm(config) -> PRM:
         model_path=config.prm_path,
         device=config.device if config.device != "auto" else "auto",
         dtype=config.dtype,
+        prm_batch_size=getattr(config, "prm_batch_size", 1),
     )

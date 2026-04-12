@@ -59,6 +59,8 @@ class Config:
     # ----- Batching -----
     search_batch_size: int = 1
     embedding_batch_size: int = 1
+    generation_batch_size: int = 1   # beams per model.generate() call (increase to speed up)
+    prm_batch_size: int = 1          # completions per PRM forward pass (increase to speed up)
 
     # ----- Output -----
     output_dir: str = "./results"

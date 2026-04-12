@@ -60,6 +60,109 @@ def build_conv(prompt: str, current_text: str, system_prompt: Optional[str] = No
     return messages
 
 
+def _decode_single_result(
+    new_token_ids: torch.Tensor,
+    tokenizer: PreTrainedTokenizerBase,
+    stop_strings: Optional[List[str]],
+) -> GenResult:
+    """Decode one generated sequence and determine stop reason."""
+    eos_id = tokenizer.eos_token_id
+    pad_id = tokenizer.pad_token_id or eos_id
+    token_list = new_token_ids.tolist()
+
+    # Find the actual end: stop at the first EOS (inclusive)
+    actual_len = len(token_list)
+    hit_eos = False
+    for t_idx, tok in enumerate(token_list):
+        if tok == eos_id:
+            actual_len = t_idx + 1
+            hit_eos = True
+            break
+
+    num_new_tokens = actual_len
+    generated_text = tokenizer.decode(token_list[:actual_len], skip_special_tokens=True)
+
+    stop_reason = "EOS" if (hit_eos or num_new_tokens == 0) else "length"
+
+    # Handle stop_strings: truncate at first match
+    if stop_strings and stop_reason != "EOS":
+        for ss in stop_strings:
+            pos = generated_text.find(ss)
+            if pos != -1:
+                generated_text = generated_text[: pos + len(ss)]
+                stop_reason = "stop"
+                num_new_tokens = len(
+                    tokenizer.encode(generated_text, add_special_tokens=False)
+                )
+                break
+
+    return GenResult(
+        next_texts=[generated_text],
+        stop_reasons=[stop_reason],
+        lookahead_texts=None,
+        completion_tokens=num_new_tokens,
+    )
+
+
+def _generate_mini_batch(
+    prompt_texts: List[str],
+    budgets: List[int],
+    model: PreTrainedModel,
+    tokenizer: PreTrainedTokenizerBase,
+    temperature: float,
+    top_p: float,
+    max_new_tokens: int,
+    stop_strings: Optional[List[str]],
+) -> List[GenResult]:
+    """
+    Run model.generate() on a single mini-batch of prompts.
+
+    Uses left-padding so causal attention is correct for all sequences.
+    max_new_tokens for the batch is the minimum individual budget to avoid
+    exceeding any beam's remaining token allowance.
+    """
+    device = model.device
+    batch_budget = min(min(budgets), max_new_tokens)
+    model_max = (
+        model.config.max_position_embeddings
+        if hasattr(model.config, "max_position_embeddings")
+        else 4096
+    )
+
+    # Left-padding: required for batched causal-LM generation
+    orig_padding_side = tokenizer.padding_side
+    tokenizer.padding_side = "left"
+    inputs = tokenizer(
+        prompt_texts,
+        return_tensors="pt",
+        padding=True,
+        truncation=True,
+        max_length=model_max,
+    ).to(device)
+    tokenizer.padding_side = orig_padding_side
+
+    input_len = inputs["input_ids"].shape[1]
+
+    gen_kwargs = {
+        "max_new_tokens": batch_budget,
+        "do_sample": temperature > 0,
+        "top_p": top_p,
+        "pad_token_id": tokenizer.pad_token_id or tokenizer.eos_token_id,
+    }
+    if temperature > 0:
+        gen_kwargs["temperature"] = temperature
+
+    with torch.no_grad():
+        output_ids = model.generate(**inputs, **gen_kwargs)
+
+    results = []
+    for i in range(len(prompt_texts)):
+        new_token_ids = output_ids[i, input_len:]
+        results.append(_decode_single_result(new_token_ids, tokenizer, stop_strings))
+
+    return results
+
+
 def generate_step(
     templated_prompts: List[str],
     model: PreTrainedModel,
@@ -69,12 +172,10 @@ def generate_step(
     max_new_tokens: int = 256,
     stop_strings: Optional[List[str]] = None,
     left_completion_tokens: Optional[List[int]] = None,
+    generation_batch_size: int = 1,
 ) -> List[GenResult]:
     """
     Generate one reasoning step for each prompt using HuggingFace Transformers.
-
-    This replaces vLLM's batched generation. Each prompt is generated individually
-    to handle per-beam max_new_tokens constraints.
 
     Args:
         templated_prompts: List of fully-templated prompt strings.
@@ -85,79 +186,31 @@ def generate_step(
         max_new_tokens: Maximum new tokens to generate per step.
         stop_strings: Strings that stop generation (e.g. ["\\n\\n"]).
         left_completion_tokens: Per-beam remaining token budget.
+        generation_batch_size: How many prompts to process in one model.generate()
+            call. Values > 1 amortise the GPU kernel launch overhead across beams
+            and are significantly faster than the default of 1.
 
     Returns:
         List of GenResult, one per prompt.
     """
-    results = []
-    device = model.device
+    budgets = [
+        min(max_new_tokens, max(1, left_completion_tokens[i]))
+        if left_completion_tokens is not None
+        else max_new_tokens
+        for i in range(len(templated_prompts))
+    ]
 
-    for idx, prompt_text in enumerate(templated_prompts):
-        # Per-beam token budget
-        budget = max_new_tokens
-        if left_completion_tokens is not None:
-            budget = min(budget, max(1, left_completion_tokens[idx]))
+    results: List[GenResult] = []
+    for start in range(0, len(templated_prompts), generation_batch_size):
+        end = min(start + generation_batch_size, len(templated_prompts))
+        batch_prompts = templated_prompts[start:end]
+        batch_budgets = budgets[start:end]
 
-        # Tokenize
-        inputs = tokenizer(
-            prompt_text,
-            return_tensors="pt",
-            truncation=True,
-            max_length=model.config.max_position_embeddings
-            if hasattr(model.config, "max_position_embeddings")
-            else 4096,
-        ).to(device)
-        input_len = inputs["input_ids"].shape[1]
-
-        # Generation kwargs
-        gen_kwargs = {
-            "max_new_tokens": budget,
-            "do_sample": temperature > 0,
-            "top_p": top_p,
-            "pad_token_id": tokenizer.pad_token_id or tokenizer.eos_token_id,
-        }
-        if temperature > 0:
-            gen_kwargs["temperature"] = temperature
-
-        # Stop at EOS or stop_strings via stopping_criteria not needed —
-        # we'll post-process stop_strings from the decoded text
-        with torch.no_grad():
-            output_ids = model.generate(**inputs, **gen_kwargs)
-
-        # Decode only the newly generated tokens
-        new_token_ids = output_ids[0, input_len:]
-        generated_text = tokenizer.decode(new_token_ids, skip_special_tokens=True)
-        num_new_tokens = len(new_token_ids)
-
-        # Determine stop reason
-        stop_reason = "length"
-        if num_new_tokens == 0:
-            stop_reason = "EOS"
-        elif output_ids[0, -1].item() == tokenizer.eos_token_id:
-            stop_reason = "EOS"
-
-        # Handle stop_strings: truncate at the first occurrence
-        if stop_strings and stop_reason != "EOS":
-            for ss in stop_strings:
-                pos = generated_text.find(ss)
-                if pos != -1:
-                    # Include the stop string in output (matches vLLM include_stop_str_in_output=True)
-                    generated_text = generated_text[: pos + len(ss)]
-                    stop_reason = "stop"
-                    # Recount tokens after truncation
-                    num_new_tokens = len(
-                        tokenizer.encode(generated_text, add_special_tokens=False)
-                    )
-                    break
-
-        results.append(
-            GenResult(
-                next_texts=[generated_text],
-                stop_reasons=[stop_reason],
-                lookahead_texts=None,
-                completion_tokens=num_new_tokens,
-            )
+        batch_results = _generate_mini_batch(
+            batch_prompts, batch_budgets, model, tokenizer,
+            temperature, top_p, max_new_tokens, stop_strings,
         )
+        results.extend(batch_results)
 
     return results
 
