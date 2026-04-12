@@ -7,7 +7,7 @@ pip install latex2sympy2 word2number FlagEmbedding "transformers>=4.36.0" scikit
 export PYTHONPATH="${PYTHONPATH}:$(pwd):$(pwd)/allmodels/Qwen2.5-Math-PRM-7B"
 
 export prm_path=allmodels/Qwen2.5-Math-PRM-7B
-export nli_model_path=allmodels/roberta-large-mnli
+export nli_model_path=FacebookAI/roberta-large-mnli
 
 declare -A MODELS
 MODELS["Llama-3.2-1B-Instruct"]="allmodels/Llama-3.2-1B-Instruct"

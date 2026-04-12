@@ -32,14 +32,17 @@ import torch
 # =============================================================================
 
 def get_embedding_local(all_completions, embedding_model, config):
-    embeddings = []
+    # Encode the entire list in one call instead of one-at-a-time.
+    # BGE-M3 accepts a list directly; batch_size controls the internal
+    # mini-batch size used by the encoder (tune to VRAM).
     with torch.no_grad():
-        for completion in all_completions:
-            embedding = embedding_model.encode(
-                completion, batch_size=1, max_length=config.max_tokens,
-            )['dense_vecs']
-            embeddings.append(deepcopy(embedding))
-    return embeddings
+        result = embedding_model.encode(
+            all_completions,
+            batch_size=getattr(config, "embedding_batch_size", 32),
+            max_length=config.max_tokens,
+        )
+    # result['dense_vecs'] is shape (n, dim) — convert to a plain list of arrays
+    return list(result['dense_vecs'])
 
 
 def compute_cosine_similarity_numpy(embeddings):
@@ -307,7 +310,7 @@ def _dora(batch_of_prompts, config, model, tokenizer, prm, embedding_model=None,
             prompts_for_prm.append(beam.prompt)
             completions_for_prm.append([beam.current_text])
 
-        # Score with PRM
+        # Score with PRM — now a single batched forward pass (see reward_models.py)
         scores = prm.score(prompts_for_prm, completions_for_prm)
         agg_scores = [
             [aggregate_scores(s, config.agg_strategy) for s in sc]

@@ -74,40 +74,122 @@ class PRM:
             Nested list: [prompt_idx][completion_idx] -> list of step scores.
             Each step score is a float in [0, 1].
         """
-        all_scores = []
+        # Flatten all (prompt, completion) pairs into a single batch
+        flat_texts = []
+        shape = []  # number of completions per prompt, to reconstruct nesting
 
         for prompt, comps in zip(prompts, completions):
-            prompt_scores = []
+            shape.append(len(comps))
             for completion in comps:
+                messages = [
+                    {"role": "user", "content": prompt},
+                    {"role": "assistant", "content": completion},
+                ]
                 try:
-                    step_scores = self._score_single(prompt, completion)
-                except Exception as e:
-                    logger.warning(f"PRM scoring failed: {e}. Returning default score.")
-                    step_scores = [0.5]
-                prompt_scores.append(step_scores)
+                    text = self.tokenizer.apply_chat_template(
+                        messages, tokenize=False, add_generation_prompt=False
+                    )
+                except Exception:
+                    text = f"User: {prompt}\nAssistant: {completion}"
+                flat_texts.append(text)
+
+        # Single batched forward pass for all (prompt, completion) pairs
+        flat_scores = self._score_batch(flat_texts)
+
+        # Reconstruct nested [prompt_idx][completion_idx] -> [step_scores]
+        all_scores = []
+        idx = 0
+        for n_comps in shape:
+            prompt_scores = []
+            for _ in range(n_comps):
+                prompt_scores.append(flat_scores[idx])
+                idx += 1
             all_scores.append(prompt_scores)
 
         return all_scores
 
+    def _score_batch(self, texts: List[str]) -> List[List[float]]:
+        """
+        Run a batched forward pass over all texts and return one score per text.
+
+        Falls back to per-sample scoring only if the model exposes a custom
+        `score` method that does not accept batched input (rare).
+        """
+        if hasattr(self.model, "score"):
+            # Some custom PRM heads don't support padding — fall back per-sample
+            return [self._score_via_model_method_text(t) for t in texts]
+
+        return self._score_via_logits_batch(texts)
+
+    def _score_via_model_method_text(self, text: str) -> List[float]:
+        """Score a pre-formatted text string using the model's built-in score head."""
+        inputs = self.tokenizer(
+            text, return_tensors="pt", truncation=True
+        ).to(self.device)
+        outputs = self.model(**inputs)
+
+        logits = outputs.logits[0, -1, :]
+        if logits.shape[-1] == 1:
+            score = torch.sigmoid(logits).item()
+        else:
+            probs = torch.softmax(logits[:2], dim=-1)
+            score = probs[1].item()
+
+        return [score]
+
+    def _score_via_logits_batch(self, texts: List[str]) -> List[List[float]]:
+        """
+        Batched logits-based scoring.
+
+        Tokenizes all texts together with padding, runs one forward pass,
+        then extracts the per-sample average log-probability using each
+        sample's actual (non-padding) token positions.
+        """
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+
+        enc = self.tokenizer(
+            texts,
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=2048,
+        ).to(self.device)
+
+        outputs = self.model(**enc, output_hidden_states=False)
+        logits = outputs.logits  # (B, T, V)
+
+        shift_logits = logits[:, :-1, :]            # (B, T-1, V)
+        shift_labels = enc["input_ids"][:, 1:]      # (B, T-1)
+        attention_mask = enc["attention_mask"][:, 1:]  # (B, T-1)
+
+        log_probs = torch.nn.functional.log_softmax(shift_logits, dim=-1)
+        token_log_probs = log_probs.gather(
+            2, shift_labels.unsqueeze(-1)
+        ).squeeze(-1)  # (B, T-1)
+
+        # Mask padding tokens before averaging
+        masked = token_log_probs * attention_mask
+        avg_log_probs = masked.sum(dim=1) / attention_mask.sum(dim=1).clamp(min=1)
+
+        import math
+        scores = []
+        for avg in avg_log_probs.tolist():
+            score = 1.0 / (1.0 + math.exp(-avg * 10))
+            scores.append([score])
+
+        return scores
+
+    # ------------------------------------------------------------------
+    # Legacy single-sample methods kept for reference / external callers
+    # ------------------------------------------------------------------
+
     def _score_single(self, prompt: str, completion: str) -> List[float]:
-        """
-        Score a single (prompt, completion) pair.
-
-        Uses a simple heuristic: format as chat, run through the model,
-        and extract logits at step boundaries (newlines after "## Step").
-
-        For Qwen2.5-Math-PRM specifically, we use the model's built-in
-        scoring interface if available.
-        """
-        # Try using the model's built-in scoring if it has a score/reward method
         if hasattr(self.model, "score"):
             return self._score_via_model_method(prompt, completion)
-
-        # Fallback: use logits-based scoring
         return self._score_via_logits(prompt, completion)
 
     def _score_via_model_method(self, prompt: str, completion: str) -> List[float]:
-        """Score using model's built-in score method (if available)."""
         messages = [
             {"role": "user", "content": prompt},
             {"role": "assistant", "content": completion},
@@ -115,31 +197,9 @@ class PRM:
         text = self.tokenizer.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=False
         )
-        inputs = self.tokenizer(text, return_tensors="pt", truncation=True).to(
-            self.device
-        )
-        outputs = self.model(**inputs)
-
-        # Extract reward from the last token's logits
-        logits = outputs.logits[0, -1, :]
-        # For reward models, typically use sigmoid of a specific logit
-        # or the model returns scores directly
-        if logits.shape[-1] == 1:
-            score = torch.sigmoid(logits).item()
-        else:
-            # Use softmax over first 2 logits (good/bad) as common PRM pattern
-            probs = torch.softmax(logits[:2], dim=-1)
-            score = probs[1].item()  # probability of "good"
-
-        return [score]
+        return self._score_via_model_method_text(text)
 
     def _score_via_logits(self, prompt: str, completion: str) -> List[float]:
-        """
-        Score by computing per-step perplexity / probability.
-
-        Split completion into steps at "\\n\\n" or "## Step" boundaries,
-        compute the average token log-probability for each step.
-        """
         messages = [
             {"role": "user", "content": prompt},
             {"role": "assistant", "content": completion},
@@ -150,27 +210,7 @@ class PRM:
             )
         except Exception:
             text = f"User: {prompt}\nAssistant: {completion}"
-
-        inputs = self.tokenizer(text, return_tensors="pt", truncation=True).to(
-            self.device
-        )
-        outputs = self.model(**inputs, output_hidden_states=False)
-        logits = outputs.logits
-
-        # Compute token-level log probabilities
-        shift_logits = logits[:, :-1, :]
-        shift_labels = inputs["input_ids"][:, 1:]
-        log_probs = torch.nn.functional.log_softmax(shift_logits, dim=-1)
-        token_log_probs = log_probs.gather(2, shift_labels.unsqueeze(-1)).squeeze(-1)
-
-        # Average log-prob as a rough score (higher = more confident)
-        avg_log_prob = token_log_probs.mean().item()
-
-        # Convert to [0, 1] range using sigmoid
-        import math
-
-        score = 1.0 / (1.0 + math.exp(-avg_log_prob * 10))
-        return [score]
+        return self._score_via_logits_batch([text])[0]
 
 
 def load_prm(config) -> PRM:

@@ -20,7 +20,7 @@ export CONFIG=recipes/Llama-3.2-1B-Instruct/dora_nli_qwen.yaml
 export prm_path=allmodels/Qwen2.5-Math-PRM-7B
 export model_path=allmodels/Llama-3.2-1B-Instruct
 
-export nli_roberta=allmodels/roberta-large-mnli
+export nli_roberta=FacebookAI/roberta-large-mnli
 export nli_deberta=allmodels/deberta-large-mnli
 export nli_mdeberta=allmodels/mDeBERTa-v3-base-mnli-xnli
 

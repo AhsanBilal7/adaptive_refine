@@ -166,7 +166,7 @@ def build_log_filename(config):
 def main():
     parser = H4ArgumentParser(Config)
     config = parser.parse()
-
+    print(config.n)
     os.makedirs(config.output_dir, exist_ok=True)
 
     approach_fn = APPROACHES[config.approach]

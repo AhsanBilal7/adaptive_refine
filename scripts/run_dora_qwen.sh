@@ -6,10 +6,11 @@
 export PYTHONPATH="${PYTHONPATH}:$(pwd)/allmodels/Qwen2.5-Math-PRM-7B"
 
 
-export CONFIG=./recipes/Llama-3.2-1B-Instruct/dora_qwen.yaml
-export prm_path=./allmodels/Qwen2.5-Math-PRM-7B
-export model_path=./allmodels/Llama-3.2-1B-Instruct
+export CONFIG=recipes/Llama-3.2-1B-Instruct/dora_nli_qwen.yaml
+export prm_path=Qwen/Qwen2.5-Math-PRM-7B
+export model_path=meta-llama/Llama-3.2-1B-Instruct
 export output_dir=./result/MATH500/Qwen2.5-Math-PRM-7B/Llama-3.2-1B-Instruct/dora
+export nli_model_path=FacebookAI/roberta-large-mnli
 
 
 python ./scripts/test_time_compute.py $CONFIG \

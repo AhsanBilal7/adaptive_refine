@@ -58,6 +58,7 @@ class Config:
 
     # ----- Batching -----
     search_batch_size: int = 1
+    embedding_batch_size: int = 1
 
     # ----- Output -----
     output_dir: str = "./results"

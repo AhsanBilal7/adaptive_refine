@@ -9,7 +9,7 @@ export PYTHONPATH="${PYTHONPATH}:$(pwd):$(pwd)/allmodels/Qwen2.5-Math-PRM-7B"
 export CONFIG=recipes/Llama-3.2-1B-Instruct/dora_hybrid_qwen.yaml
 export prm_path=allmodels/Qwen2.5-Math-PRM-7B
 export model_path=allmodels/Llama-3.2-1B-Instruct
-export nli_model_path=allmodels/roberta-large-mnli
+export nli_model_path=FacebookAI/roberta-large-mnli
 export output_dir=result/MATH500/dora_hybrid
 
 for n in 16 32 64 128 256; do

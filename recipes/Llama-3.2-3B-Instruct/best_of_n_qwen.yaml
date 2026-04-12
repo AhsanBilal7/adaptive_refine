@@ -10,5 +10,5 @@ seed: 0
 output_dir: "./result/MATH500/Qwen2.5-Math-PRM-7B/Llama-3.2-3B-Instruct/best_of_n"
 model_path: "./allmodels/Llama-3.2-3B-Instruct"
 prm_path: "./allmodels/Qwen2.5-Math-PRM-7B"
-embedding_path: "./allmodels/bge-m3"
+embedding_path: "./BAAI/bge-m3"
 temperature: 0.8
