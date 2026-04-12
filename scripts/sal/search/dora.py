@@ -427,10 +427,10 @@ def dora(examples, config, model, tokenizer, prm, embedding_model=None, nli_mode
         results["scores"].append([b.all_scores for b in beams])
         results["pred"].append(completions[int(np.argmax(agg))] if agg else "")
         results["completion_tokens"].append([b.completion_tokens for b in beams])
-        results["quality_results"] = [fq]
-        results["diversity_results"] = [fd]
-        results["all_quality_results"] = [aq]
-        results["all_diversity_results"] = [ad]
+        results["quality_results"].append(fq)
+        results["diversity_results"].append(fd)
+        results["all_quality_results"].append(aq)
+        results["all_diversity_results"].append(ad)
         results["similarity_mode"].append(config.similarity_mode)
 
     return results
