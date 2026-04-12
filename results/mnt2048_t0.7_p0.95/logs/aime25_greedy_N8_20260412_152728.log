@@ -1,0 +1,39 @@
+15:27:28 | INFO | run_eval | Loading dataset: aime25
+Generating test split:   0%|          | 0/30 [00:00<?, ? examples/s]Generating test split: 100%|██████████| 30/30 [00:00<00:00, 2905.11 examples/s]
+Traceback (most recent call last):
+  File "/home/ahsan/adaptive_scientific_discovery/dataset_loader.py", line 248, in load_dataset_split
+    raw_ds = hf_load(cfg["hf_path"], **kwargs)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/load.py", line 1720, in load_dataset
+    ds = builder_instance.as_dataset(split=split, verification_mode=verification_mode, in_memory=keep_in_memory)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/builder.py", line 1052, in as_dataset
+    datasets = map_nested(
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/utils/py_utils.py", line 492, in map_nested
+    mapped = function(data_struct)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/builder.py", line 1082, in _build_single_dataset
+    ds = self._as_dataset(
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/builder.py", line 1156, in _as_dataset
+    dataset_kwargs = ArrowReader(cache_dir, self.info).read(
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/arrow_reader.py", line 248, in read
+    files = self.get_file_instructions(name, instructions, split_infos)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/arrow_reader.py", line 221, in get_file_instructions
+    file_instructions = make_file_instructions(
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/arrow_reader.py", line 130, in make_file_instructions
+    absolute_instructions = instruction.to_absolute(name2len)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/arrow_reader.py", line 620, in to_absolute
+    return [_rel_to_abs_instr(rel_instr, name2len) for rel_instr in self._relative_instructions]
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/arrow_reader.py", line 620, in <listcomp>
+    return [_rel_to_abs_instr(rel_instr, name2len) for rel_instr in self._relative_instructions]
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/arrow_reader.py", line 437, in _rel_to_abs_instr
+    raise ValueError(f'Unknown split "{split}". Should be one of {list(name2len)}.')
+ValueError: Unknown split "train". Should be one of ['test'].
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ahsan/adaptive_scientific_discovery/run_eval.py", line 310, in <module>
+    main()
+  File "/home/ahsan/adaptive_scientific_discovery/run_eval.py", line 191, in main
+    examples = load_dataset_split(
+  File "/home/ahsan/adaptive_scientific_discovery/dataset_loader.py", line 250, in load_dataset_split
+    raise RuntimeError(
+RuntimeError: Failed to load 'aime25' from HuggingFace Hub: Unknown split "train". Should be one of ['test'].

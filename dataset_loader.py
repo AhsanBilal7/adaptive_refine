@@ -47,9 +47,9 @@ _HF_CONFIGS: Dict[str, Dict[str, Any]] = {
         "question_key": "Problem",
     },
     "aime25": {
-        "hf_path":    "Maxwell-Jia/AIME_2025",
+        "hf_path":    "math-ai/aime25",
         "hf_name":    None,
-        "split":      "train",
+        "split":      "test",
         "question_key": "Problem",
     },
     "amc23": {

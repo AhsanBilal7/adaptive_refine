@@ -1,0 +1,4 @@
+
+Method                 Accuracy    Correct    Total   Avg time    Wall time
+--------------------------------------------------------------------------
+greedy                   0.7180        359      500      1.46s         0.0s
