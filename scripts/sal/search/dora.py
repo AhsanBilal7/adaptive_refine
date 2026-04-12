@@ -424,7 +424,7 @@ def dora(examples, config, model, tokenizer, prm, embedding_model=None, nli_mode
         agg = [aggregate_scores(b.all_scores, config.agg_strategy) for b in beams]
         results["completions"].append(completions)
         results["scores"].append([b.all_scores for b in beams])
-        results["pred"].append(completions[np.argmax(agg)])
+        results["pred"].append(completions[int(np.argmax(agg))] if agg else "")
         results["completion_tokens"].append([b.completion_tokens for b in beams])
         results["quality_results"] = [fq]
         results["diversity_results"] = [fd]
