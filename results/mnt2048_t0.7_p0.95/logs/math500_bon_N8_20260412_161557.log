@@ -1,0 +1,20 @@
+16:18:38 | INFO | run_eval | Loading dataset: math500
+16:18:43 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
+16:18:43 | INFO | run_eval | Loaded 500 examples.
+16:18:43 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=128
+/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+16:18:58 | INFO | model_wrapper | Loading tokenizer for Qwen/Qwen2.5-Math-7B-Instruct ...
+16:19:00 | INFO | model_wrapper | Loading model Qwen/Qwen2.5-Math-7B-Instruct ...
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:06,  2.29s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:04<00:04,  2.34s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:07<00:02,  2.36s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:09<00:00,  2.28s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:09<00:00,  2.30s/it]
+16:19:13 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=128
+16:19:13 | INFO | run_eval | Building verifier: outcome
+16:19:13 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
+16:19:13 | INFO | run_eval | 
+================================================================
+16:19:13 | INFO | run_eval |  Running : bon
+16:19:13 | INFO | run_eval |  Dataset : math500  N=8  batch_size=128
+16:19:13 | INFO | run_eval | ================================================================
+16:19:13 | INFO | evaluator | Resuming: 34 questions already done  (acc so far: 29/34)
+16:19:13 | INFO | evaluator | Evaluating 466/500 pending questions  (method=BestOfN)
+[BoN N=8]  (bs=128, N=8):   0%|[34m          [0m| 0/466 [00:00<?, ?q/s][BoN N=8]  (bs=128, N=8):   0%|[34m          [0m| 1/466 [01:42<13:17:53, 102.95s/q, acc=1.000, correct=1/1][BoN N=8]  (bs=128, N=8):   0%|[34m          [0m| 2/466 [02:29<8:59:36, 69.78s/q, acc=1.000, correct=2/2]  [BoN N=8]  (bs=128, N=8):   1%|[34m          [0m| 3/466 [04:00<10:11:45, 79.28s/q, acc=1.000, correct=3/3][BoN N=8]  (bs=128, N=8):   1%|[34m          [0m| 4/466 [04:28<7:36:56, 59.34s/q, acc=1.000, correct=4/4] 

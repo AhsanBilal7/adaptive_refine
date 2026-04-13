@@ -163,39 +163,84 @@ def _greedy_results(method, pending, max_new_tokens) -> Iterator[tuple]:
 
 def _sampling_results(method, pending, max_new_tokens, label, colour) -> Iterator[tuple]:
     """
-    Yield (example, InferenceResult) one at a time for BestOfN / DNBestOfN.
+    Generate N samples for ALL pending questions in one flat batched pass,
+    then yield (example, InferenceResult) one at a time for immediate saving.
 
-    Each question is one generate() call (batch of N).  Results are yielded
-    immediately after each question so they can be saved right away.
+    Generation phase
+    ----------------
+    Calls model.generate_samples_flat(all_questions, N) which:
+      1. Builds a flat list of Q*N prompts
+      2. Chunks into groups of batch_size
+      3. One model.generate() call per chunk
+
+    With Q=466, N=8, batch_size=128 on H100:
+      → 3728 prompts total
+      → 30 generate() calls of 128 sequences each   (was: 466 calls of 8)
+      → full GPU utilisation
+
+    Save phase
+    ----------
+    After generation, yields results one question at a time so JSONL and
+    summary JSON are written immediately — crash-resume still works at
+    question granularity.
     """
+    bs = method.model.batch_size
+    N  = method.N
+    questions = [ex["question"] for ex in pending]
+    golds     = [ex.get("answer") for ex in pending]
+
+    logger.info(
+        f"  Flat-batch generation: Q={len(questions)}  N={N}  "
+        f"batch_size={bs}  →  {len(questions)*N} total seqs  "
+        f"→  {-(-len(questions)*N // bs)} generate() calls"
+    )
+
+    # ── Generation: all questions × N in flat batched chunks ──────────────────
+    try:
+        all_traces = method.model.generate_samples_flat(
+            questions, N=N,
+            temperature=method.temperature, top_p=method.top_p,
+            max_new_tokens=max_new_tokens,
+        )
+    except Exception as e:
+        logger.error(f"  generate_samples_flat failed: {e}. Falling back to per-question.")
+        all_traces = [
+            method.model.generate_samples(
+                q, N=N,
+                temperature=method.temperature, top_p=method.top_p,
+                max_new_tokens=max_new_tokens,
+            )
+            for q in questions
+        ]
+
+    # ── Select + yield: one question at a time for immediate saving ───────────
     pbar = tqdm(
-        pending,
-        desc=label,
+        zip(pending, golds, all_traces),
+        total=len(pending),
+        desc=f"{label}  select",
         unit="q",
         dynamic_ncols=True,
         colour=colour,
     )
+    n_correct = 0
 
-    for i, ex in enumerate(pbar):
-        q    = ex["question"]
-        gold = ex.get("answer")
+    for i, (ex, gold, traces) in enumerate(pbar):
         try:
-            t0     = time.time()
-            traces = method.model.generate_samples(
-                q, N=method.N,
-                temperature=method.temperature, top_p=method.top_p,
-                max_new_tokens=max_new_tokens,
-            )
-            elapsed = time.time() - t0
-            res = method._select(q, gold, traces, elapsed)
+            res = method._select(ex["question"], gold, traces, elapsed=0.0)
         except Exception as e:
-            logger.error(f"  q[{i}] failed: {e}")
+            logger.error(f"  _select q[{i}] failed: {e}")
             from inference_methods import _make_error_result  # type: ignore
             res = _make_error_result(
-                method.__class__.__name__.lower(), q, gold, method.N
+                method.__class__.__name__.lower(), ex["question"], gold, N
             )
 
-        pbar.set_postfix(refresh=False)   # updated by caller after save
+        if res.is_correct is not None:
+            n_correct += int(res.is_correct)
+            pbar.set_postfix(
+                acc=f"{n_correct/(i+1):.3f}",
+                correct=f"{n_correct}/{i+1}",
+                refresh=False,
+            )
         yield ex, res
 
     pbar.close()

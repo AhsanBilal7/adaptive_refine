@@ -27,8 +27,6 @@ python run_eval.py \\
     --methods greedy bon dn_bon \\
     --N 8 --batch_size 8 \\
     --max_samples 500
-python run_eval.py  --model Qwen/Qwen2.5-Math-7B-Instruct  --dataset math500  --methods greedy bon dn_bon  --N 8 --batch_size 8  --max_samples 500
-python run_eval.py  --model Qwen/Qwen2.5-Math-7B-Instruct  --dataset aime24  --methods greedy bon dn_bon  --N 8 --batch_size 8  --max_samples 32
 
 # Alpha ablation for DN-BoN on AIME-24
 python run_eval.py \\
@@ -220,6 +218,7 @@ def main():
         verifier_type=args.verifier, data_name=data_name,
         prm_model=args.prm_model, prm_aggregation=args.prm_aggregation,
         device=args.device, cache_dir=args.hf_cache_dir,
+        batch_size=args.batch_size,
     )
 
     # ── 4. Build cluster manager (only if DN-BoN is needed) ───────────────────
@@ -235,6 +234,7 @@ def main():
             similarity_threshold=args.similarity_threshold,
             clustering_method=args.clustering_method,
             use_answer_only=args.cluster_on_answer,
+            batch_size=args.batch_size,
         )
 
     # ── 5. Build run configs ───────────────────────────────────────────────────
@@ -266,7 +266,8 @@ def main():
     # ── 6. Evaluate ────────────────────────────────────────────────────────────
     from evaluator import evaluate_batch, save_summary, compare_methods, redundancy_stats
     all_summaries = {}
-    tag = f"{args.dataset}_N{args.N}_bs{args.batch_size}"
+    # tag = f"{args.dataset}_N{args.N}_bs{args.batch_size}"
+    tag = f"{args.dataset}_N{args.N}"
 
     for run_label, method in run_configs:
         logger.info(f"\n{'='*64}")
@@ -279,21 +280,27 @@ def main():
         jsonl_path   = os.path.join(args.output_dir, f"{run_label}_{tag}.jsonl")
         summary_path = os.path.join(args.output_dir, f"{run_label}_{tag}_summary.json")
 
+        # summary_path is passed into evaluate_batch so the summary JSON
+        # is atomically rewritten after EVERY question — not only at the end.
+        # If the run crashes, restart and it will resume from the JSONL.
         summary = evaluate_batch(
             method=method,
             examples=examples,
             max_new_tokens=args.max_new_tokens,
             save_path=jsonl_path,
+            summary_path=summary_path,   # written on-the-go, every question
             resume=not args.no_resume,
             log_every=args.log_every,
+            summary_every=1,             # rewrite after every single question
         )
 
         if "dn_bon" in run_label:
             r_stats = redundancy_stats(summary["results"])
             summary["redundancy_stats"] = r_stats
             logger.info(f"Redundancy stats: {r_stats}")
+            # Final summary rewrite to include redundancy_stats
+            save_summary(summary, summary_path)
 
-        save_summary(summary, summary_path)
         all_summaries[run_label] = summary
 
     # ── 7. Print comparison table ──────────────────────────────────────────────

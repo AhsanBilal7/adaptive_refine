@@ -126,16 +126,18 @@ class HFProcessRewardVerifier:
     """
     Wraps a HuggingFace PRM (e.g. 'Qwen/Qwen2.5-Math-PRM-7B').
 
-    The PRM scores each reasoning step; we return the min-step score
-    (conservative) or mean-step score depending on `aggregation`.
-
-    Falls back to LengthHeuristicVerifier if the model cannot be loaded.
+    All reasoning steps from ALL traces are collected into one flat list,
+    then scored in padded mini-batches of `batch_size` in a single
+    model.forward() call per mini-batch — no per-step or per-trace loops
+    that touch the GPU individually.
 
     Parameters
     ----------
-    model_name : HF Hub PRM model id
-    aggregation: 'min' | 'mean' | 'last'
-    device     : 'auto' | 'cuda' | 'cpu'
+    model_name  : HF Hub PRM model id
+    aggregation : 'min' | 'mean' | 'last'   — how to collapse step scores
+    device      : 'auto' | 'cuda' | 'cpu'
+    batch_size  : number of steps per model.forward() call (default 8)
+                  tune this to fit PRM VRAM: larger = faster, more VRAM
     """
 
     def __init__(
@@ -144,9 +146,11 @@ class HFProcessRewardVerifier:
         aggregation: str = "min",
         device: str = "auto",
         cache_dir: Optional[str] = None,
+        batch_size: int = 8,
     ):
         self.aggregation = aggregation
-        self._fallback = LengthHeuristicVerifier()
+        self.batch_size  = batch_size
+        self._fallback   = LengthHeuristicVerifier()
 
         try:
             import torch
@@ -155,6 +159,11 @@ class HFProcessRewardVerifier:
             self._tokenizer = AutoTokenizer.from_pretrained(
                 model_name, cache_dir=cache_dir
             )
+            # left-pad so batches of different-length steps align correctly
+            self._tokenizer.padding_side = "left"
+            if self._tokenizer.pad_token_id is None:
+                self._tokenizer.pad_token_id = self._tokenizer.eos_token_id
+
             self._model = AutoModelForSequenceClassification.from_pretrained(
                 model_name,
                 torch_dtype=torch.float16 if torch.cuda.is_available() else torch.float32,
@@ -166,38 +175,95 @@ class HFProcessRewardVerifier:
             self._model.eval()
             self._device = next(self._model.parameters()).device
             self._loaded = True
-            logger.info(f"PRM loaded: {model_name}")
+            logger.info(f"PRM loaded: {model_name}  |  batch_size={batch_size}")
         except Exception as e:
-            logger.warning(f"Could not load PRM '{model_name}': {e}. "
-                           f"Falling back to LengthHeuristicVerifier.")
+            logger.warning(
+                f"Could not load PRM '{model_name}': {e}. "
+                f"Falling back to LengthHeuristicVerifier."
+            )
             self._loaded = False
 
-    def _score_one(self, trace: str) -> float:
-        if not self._loaded:
-            return self._fallback.score(trace)
+    # ── batched step scoring  (the only place model.forward() is called) ─────
+
+    def _score_step_batch(self, steps: List[str]) -> List[float]:
+        """
+        Score a flat list of step strings in mini-batches of self.batch_size.
+        Returns a flat list of float scores, one per step.
+        All steps in one mini-batch are tokenised together into one padded
+        tensor and scored in a single model.forward() call.
+        """
         import torch
-        steps = [s.strip() for s in re.split(r"\n\n+|Step \d+[:.]\s*", trace) if s.strip()]
-        if not steps:
-            steps = [trace]
-        step_scores = []
-        for step in steps:
+        scores: List[float] = []
+
+        for i in range(0, len(steps), self.batch_size):
+            mini_batch = steps[i : i + self.batch_size]
             enc = self._tokenizer(
-                step, return_tensors="pt", truncation=True, max_length=512
+                mini_batch,
+                return_tensors="pt",
+                padding=True,        # pad all steps to same length
+                truncation=True,
+                max_length=512,
             ).to(self._device)
+
             with torch.no_grad():
-                logits = self._model(**enc).logits
-                score = torch.sigmoid(logits[0, 0]).item()
-            step_scores.append(score)
-        if not step_scores:
-            return 0.5
-        if self.aggregation == "min":
-            return float(min(step_scores))
-        elif self.aggregation == "last":
-            return float(step_scores[-1])
-        return float(np.mean(step_scores))
+                logits      = self._model(**enc).logits          # (B, num_labels)
+                batch_scores = torch.sigmoid(logits[:, 0])       # (B,)
+                scores.extend(batch_scores.cpu().tolist())
+
+        return scores
+
+    # ── public API ────────────────────────────────────────────────────────────
 
     def score_batch(self, traces: List[str]) -> np.ndarray:
-        return np.array([self._score_one(t) for t in traces])
+        """
+        Score N traces in one batched pass.
+
+        Strategy
+        --------
+        1. Split every trace into reasoning steps.
+        2. Collect ALL steps from ALL traces into one flat list.
+        3. Score the flat list in mini-batches via _score_step_batch()
+           → each mini-batch = one model.forward() call.
+        4. Re-group scores back per trace and aggregate (min/mean/last).
+
+        This means: for N=8 traces each with ~5 steps = 40 steps total.
+        With batch_size=8 that is 5 model.forward() calls, not 40.
+        """
+        if not self._loaded:
+            return self._fallback.score_batch(traces)
+
+        # Step 1 & 2: flatten all steps from all traces
+        all_steps: List[str] = []
+        step_counts: List[int] = []
+
+        for trace in traces:
+            steps = [
+                s.strip()
+                for s in re.split(r"\n\n+|Step \d+[:.]\s*", trace)
+                if s.strip()
+            ]
+            if not steps:
+                steps = [trace]
+            all_steps.extend(steps)
+            step_counts.append(len(steps))
+
+        # Step 3: score entire flat list in mini-batches
+        all_scores = self._score_step_batch(all_steps)
+
+        # Step 4: re-group and aggregate per trace
+        final_scores: List[float] = []
+        idx = 0
+        for cnt in step_counts:
+            step_scores = all_scores[idx : idx + cnt]
+            idx += cnt
+            if self.aggregation == "min":
+                final_scores.append(float(min(step_scores)))
+            elif self.aggregation == "last":
+                final_scores.append(float(step_scores[-1]))
+            else:  # mean
+                final_scores.append(float(np.mean(step_scores)))
+
+        return np.array(final_scores)
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -211,11 +277,13 @@ def build_verifier(
     prm_aggregation: str = "min",
     device: str = "auto",
     cache_dir: Optional[str] = None,
+    batch_size: int = 8,
 ):
     """
     Factory for verifiers.
 
-    verifier_type: 'outcome' | 'length' | 'prm'
+    verifier_type : 'outcome' | 'length' | 'prm'
+    batch_size    : used only by HFProcessRewardVerifier (steps per forward call)
     """
     if verifier_type == "outcome":
         return OutcomeVerifier(data_name=data_name)
@@ -228,6 +296,7 @@ def build_verifier(
             aggregation=prm_aggregation,
             device=device,
             cache_dir=cache_dir,
+            batch_size=batch_size,
         )
     raise ValueError(f"Unknown verifier_type: {verifier_type}")
 

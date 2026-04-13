@@ -113,12 +113,14 @@ class ClusterManager:
         similarity_threshold: float = 0.85,
         clustering_method: str = "agglomerative",
         use_answer_only: bool = False,
+        batch_size: int = 32,
     ):
-        self.embedding_model     = embedding_model
+        self.embedding_model      = embedding_model
         self.similarity_threshold = similarity_threshold
-        self.distance_threshold  = 1.0 - similarity_threshold
-        self.clustering_method   = clustering_method
-        self.use_answer_only     = use_answer_only
+        self.distance_threshold   = 1.0 - similarity_threshold
+        self.clustering_method    = clustering_method
+        self.use_answer_only      = use_answer_only
+        self.batch_size           = batch_size   # used by HF AutoModel _embed path
 
         # These are set once below and reused on every cluster() call
         self._st_model   = None   # SentenceTransformer instance
@@ -187,15 +189,17 @@ class ClusterManager:
         if self._embedder == "sentence_transformers":
             # _st_model is already in memory from __init__
             return self._st_model.encode(
-                texts, normalize_embeddings=True, show_progress_bar=False
+                texts,
+                batch_size=self.batch_size,
+                normalize_embeddings=True,
+                show_progress_bar=False,
             )
 
         if self._embedder == "hf_transformer":
             import torch
             all_embs = []
-            bs = 32
-            for i in range(0, len(texts), bs):
-                batch = texts[i : i + bs]
+            for i in range(0, len(texts), self.batch_size):
+                batch = texts[i : i + self.batch_size]
                 enc = self._hf_tok(
                     batch, padding=True, truncation=True,
                     max_length=512, return_tensors="pt"
