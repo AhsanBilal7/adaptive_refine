@@ -1,4 +1,0 @@
-15:46:17 | INFO | run_eval | Loading dataset: math500
-15:46:21 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
-15:46:21 | INFO | run_eval | Loaded 500 examples.
-15:46:21 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=128

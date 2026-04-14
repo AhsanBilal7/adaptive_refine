@@ -1,25 +1,0 @@
-16:15:57 | INFO | run_eval | Loading dataset: math500
-16:16:02 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
-16:16:02 | INFO | run_eval | Loaded 500 examples.
-16:16:02 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=128
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-16:16:17 | INFO | model_wrapper | Loading tokenizer for Qwen/Qwen2.5-Math-7B-Instruct ...
-16:16:19 | INFO | model_wrapper | Loading model Qwen/Qwen2.5-Math-7B-Instruct ...
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:35<01:47, 35.93s/it]Loading checkpoint shards:  50%|█████     | 2/4 [01:11<01:11, 35.53s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [01:43<00:34, 34.05s/it]Loading checkpoint shards: 100%|██████████| 4/4 [02:12<00:00, 31.88s/it]Loading checkpoint shards: 100%|██████████| 4/4 [02:12<00:00, 33.01s/it]
-16:18:35 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=128
-16:18:35 | INFO | run_eval | Building verifier: outcome
-16:18:35 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
-16:18:35 | INFO | run_eval | 
-================================================================
-16:18:35 | INFO | run_eval |  Running : greedy
-16:18:35 | INFO | run_eval |  Dataset : math500  N=8  batch_size=128
-16:18:35 | INFO | run_eval | ================================================================
-16:18:35 | INFO | evaluator | Resuming: 500 questions already done  (acc so far: 359/500)
-16:18:35 | INFO | evaluator | Evaluating 0/500 pending questions  (method=GreedyInference)
-16:18:35 | INFO | evaluator | All questions already completed — nothing to do.
-16:18:35 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-greedy                   0.7180        359      500      1.46s         0.0s
-16:18:35 | INFO | run_eval | Comparison table saved to ./results/mnt2048_t0.7_p0.95/comparison_math500_N8_bs128.txt

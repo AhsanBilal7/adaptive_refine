@@ -8,11 +8,13 @@
 # Result folder naming
 # --------------------
 # All results go into ONE flat directory under BASE_OUT:
-#   ./results/mnt2048_t0.7_p0.95/
-#   ./results/mnt2048_t0.7_p0.95_4bit/
-#   ./results/mnt4096_t0.8_p0.95/
+#   ./results/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/
+#   ./results/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95_4bit/
+#   ./results/deepseek-math-7b_mnt4096_t0.8_p0.95/
+#   ./results/Llama-3.1-8B-Instruct_mnt2048_t0.7_p0.95_8bit/
 #
 # The folder name encodes:
+#   <ModelName>           — HF model id with org prefix stripped
 #   mnt<MAX_NEW_TOKENS>   — generation length cap
 #   t<TEMPERATURE>        — sampling temperature
 #   p<TOP_P>              — nucleus sampling p
@@ -131,7 +133,7 @@ TOP_P=0.95
 #
 # If you hit CUDA OOM: halve LM_BATCH_SIZE first, then reduce N_SAMPLES.
 # -----------------------------------------------------------------------------
-LM_BATCH_SIZE=128
+LM_BATCH_SIZE=8
 
 # -----------------------------------------------------------------------------
 # N_SAMPLES  —  number of candidate traces sampled per question for BoN/DN-BoN
@@ -186,19 +188,40 @@ HF_CACHE="/scratch/${USER}/hf_cache"
 
 # -----------------------------------------------------------------------------
 # VERIFIER
-# Scoring back-end for BoN / DN-BoN candidate selection.
-#   outcome  — binary correctness vs gold answer (best for eval)
-#   length   — training-free proxy (no gold needed; use for deployment)
-#   prm      — Process Reward Model (set PRM_MODEL below; loads 2nd model)
+# Scoring back-end for BoN / DN-BoN / DN-BoN candidate selection.
+#
+# IMPORTANT — gold leakage:
+#   outcome  — scores by comparing against the gold answer directly.
+#              This LEAKS the gold answer into the selection step, which
+#              artificially inflates BoN / DN-BoN accuracy and makes the
+#              comparison with greedy unfair.  Do NOT use for experiments
+#              that report accuracy — it is only valid as an oracle upper bound.
+#
+#   prm      — Process Reward Model scores each reasoning step without seeing
+#              the gold answer.  This is the correct verifier for fair
+#              evaluation.  Use this for all reported experiments.
+#              Requires PRM_MODEL below.
+#
+#   length   — Training-free proxy (shorter + \boxed = higher score).
+#              No gold needed.  Use only for deployment / no-label settings.
 # -----------------------------------------------------------------------------
-VERIFIER="outcome"
+VERIFIER="prm"
 
 # -----------------------------------------------------------------------------
 # PRM_MODEL
 # HF model id for the PRM verifier.  Only used when VERIFIER=prm.
-# Recommended: Qwen/Qwen2.5-Math-PRM-7B
+# Recommended: Qwen/Qwen2.5-Math-PRM-7B  (~14 GB fp16)
 # -----------------------------------------------------------------------------
 PRM_MODEL="Qwen/Qwen2.5-Math-PRM-7B"
+
+# -----------------------------------------------------------------------------
+# PRM_AGGREGATION
+# How to reduce per-step PRM scores to one score per trace.
+#   min   — most conservative; penalises any weak step  (recommended)
+#   mean  — average quality across all steps
+#   last  — quality of the final answer step only
+# -----------------------------------------------------------------------------
+PRM_AGGREGATION="min"
 
 # -----------------------------------------------------------------------------
 # EMBEDDING_MODEL
@@ -225,6 +248,23 @@ SIMILARITY_THRESHOLD=0.85
 # -----------------------------------------------------------------------------
 CLUSTERING_METHOD="agglomerative"
 
+# -----------------------------------------------------------------------------
+# GPUS
+# Which GPU(s) to use.  Sets CUDA_VISIBLE_DEVICES for every python subprocess.
+#
+# Single GPU examples:
+#   GPUS="0"      — use GPU 0 only
+#   GPUS="1"      — use GPU 1 only
+#
+# Multi-GPU examples:
+#   GPUS="0,1"    — use GPUs 0 and 1 (model sharded automatically)
+#   GPUS="0,1,2,3"— use all four GPUs
+#
+# Leave empty to use whatever CUDA_VISIBLE_DEVICES is already set in the
+# environment (or all GPUs if it is not set).
+# -----------------------------------------------------------------------------
+GPUS=""
+
 # =============================================================================
 # END CONFIG
 # =============================================================================
@@ -247,18 +287,40 @@ fi
 
 
 # =============================================================================
+# GPU setup
+# =============================================================================
+if [[ -n "${GPUS}" ]]; then
+    export CUDA_VISIBLE_DEVICES="${GPUS}"
+    echo "[gpu] CUDA_VISIBLE_DEVICES=${GPUS}"
+fi
+
+
+# =============================================================================
 # Internal helpers
 # =============================================================================
 
 NOW=$(date +"%Y%m%d_%H%M%S")
 
-# Build the result-folder tag from the hyperparameters that actually affect
-# outputs (batch size excluded — it is a throughput knob only).
-#   mnt2048_t0.7_p0.95
-#   mnt2048_t0.7_p0.95_4bit
-#   mnt2048_t0.7_p0.95_8bit
+# Build the result-folder tag from model name + hyperparameters.
+#
+# Format:  <ModelName>_mnt<tokens>_t<temp>_p<top_p>[_4bit|_8bit]
+#
+# Model name sanitisation:
+#   - Strip the HF org prefix (everything up to and including the last '/')
+#   - Replace any remaining '/' or ':' with '_'
+#
+# Examples:
+#   Qwen/Qwen2.5-Math-7B-Instruct  →  Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95
+#   deepseek-ai/deepseek-math-7b   →  deepseek-math-7b_mnt2048_t0.7_p0.95
+#   /local/path/my_model           →  my_model_mnt2048_t0.7_p0.95
+#   meta-llama/Llama-3.1-8B-Instruct_4bit  →  Llama-3.1-8B-Instruct_4bit_mnt2048_t0.7_p0.95_4bit
 _build_run_tag() {
-    local tag="mnt${MAX_NEW_TOKENS}_t${TEMPERATURE}_p${TOP_P}"
+    # Strip org prefix: take only the part after the last '/'
+    local model_short="${MODEL##*/}"
+    # Replace any remaining unsafe chars (colons, spaces) with underscores
+    model_short="${model_short//[: ]/_}"
+
+    local tag="${model_short}_mnt${MAX_NEW_TOKENS}_t${TEMPERATURE}_p${TOP_P}"
     [[ "${LOAD_4BIT}" == "1" ]] && tag+="_4bit"
     [[ "${LOAD_8BIT}" == "1" ]] && tag+="_8bit"
     echo "${tag}"
@@ -285,6 +347,8 @@ common_flags() {
     [[ "${LOAD_4BIT}" == "1" ]] && flags+=" --load_in_4bit"
     [[ "${LOAD_8BIT}" == "1" ]] && flags+=" --load_in_8bit"
     [[ "${VERIFIER}"  == "prm" ]] && flags+=" --prm_model ${PRM_MODEL}"
+    [[ "${VERIFIER}"  == "prm" ]] && flags+=" --prm_aggregation ${PRM_AGGREGATION}"
+    [[ -n "${GPUS}" ]]          && flags+=" --gpus ${GPUS}"
     echo "${flags}"
 }
 
@@ -331,20 +395,36 @@ run_math500() {
         --max_samples 500 \
         --output_dir "${OUT}"
 
-    # 1b. Best-of-N  (N=8)
-    run_exp "math500_bon_N8" \
+    # 1b. Best-of-N  (verifier score)
+    run_exp "math500_bon_N${N_SAMPLES}" \
         --dataset math500 \
         --methods bon \
         --N ${N_SAMPLES} \
         --max_samples 500 \
         --output_dir "${OUT}"
 
-    # 1c. DN-BoN  (N=8, alpha=0.5)
-    run_exp "math500_dnbon_N8_a0.5" \
+    # 1c. DN-BoN  (alpha=0.5)
+    run_exp "math500_dnbon_N${N_SAMPLES}_a0.5" \
         --dataset math500 \
         --methods dn_bon \
         --N ${N_SAMPLES} \
         --alpha 0.5 \
+        --max_samples 500 \
+        --output_dir "${OUT}"
+
+    # 1d. Greedy Pass@N  (select by max log-probability — no verifier needed)
+    run_exp "math500_greedy_pass_n_N${N_SAMPLES}" \
+        --dataset math500 \
+        --methods greedy_pass_n \
+        --N ${N_SAMPLES} \
+        --max_samples 500 \
+        --output_dir "${OUT}"
+
+    # 1e. BoN Majority  (self-consistency / majority vote)
+    run_exp "math500_bon_majority_N${N_SAMPLES}" \
+        --dataset math500 \
+        --methods bon_majority \
+        --N ${N_SAMPLES} \
         --max_samples 500 \
         --output_dir "${OUT}"
 }
@@ -363,18 +443,32 @@ run_aime24() {
         --max_samples 32 \
         --output_dir "${OUT}"
 
-    run_exp "aime24_bon_N8" \
+    run_exp "aime24_bon_N${N_SAMPLES}" \
         --dataset aime24 \
         --methods bon \
         --N ${N_SAMPLES} \
         --max_samples 32 \
         --output_dir "${OUT}"
 
-    run_exp "aime24_dnbon_N8_a0.5" \
+    run_exp "aime24_dnbon_N${N_SAMPLES}_a0.5" \
         --dataset aime24 \
         --methods dn_bon \
         --N ${N_SAMPLES} \
         --alpha 0.5 \
+        --max_samples 32 \
+        --output_dir "${OUT}"
+
+    run_exp "aime24_greedy_pass_n_N${N_SAMPLES}" \
+        --dataset aime24 \
+        --methods greedy_pass_n \
+        --N ${N_SAMPLES} \
+        --max_samples 32 \
+        --output_dir "${OUT}"
+
+    run_exp "aime24_bon_majority_N${N_SAMPLES}" \
+        --dataset aime24 \
+        --methods bon_majority \
+        --N ${N_SAMPLES} \
         --max_samples 32 \
         --output_dir "${OUT}"
 }
@@ -392,17 +486,29 @@ run_amc23() {
         --N ${N_SAMPLES} \
         --output_dir "${OUT}"
 
-    run_exp "amc23_bon_N8" \
+    run_exp "amc23_bon_N${N_SAMPLES}" \
         --dataset amc23 \
         --methods bon \
         --N ${N_SAMPLES} \
         --output_dir "${OUT}"
 
-    run_exp "amc23_dnbon_N8_a0.5" \
+    run_exp "amc23_dnbon_N${N_SAMPLES}_a0.5" \
         --dataset amc23 \
         --methods dn_bon \
         --N ${N_SAMPLES} \
         --alpha 0.5 \
+        --output_dir "${OUT}"
+
+    run_exp "amc23_greedy_pass_n_N${N_SAMPLES}" \
+        --dataset amc23 \
+        --methods greedy_pass_n \
+        --N ${N_SAMPLES} \
+        --output_dir "${OUT}"
+
+    run_exp "amc23_bon_majority_N${N_SAMPLES}" \
+        --dataset amc23 \
+        --methods bon_majority \
+        --N ${N_SAMPLES} \
         --output_dir "${OUT}"
 }
 
@@ -420,18 +526,32 @@ run_gsm8k() {
         --max_samples 500 \
         --output_dir "${OUT}"
 
-    run_exp "gsm8k_bon_N8" \
+    run_exp "gsm8k_bon_N${N_SAMPLES}" \
         --dataset gsm8k \
         --methods bon \
         --N ${N_SAMPLES} \
         --max_samples 500 \
         --output_dir "${OUT}"
 
-    run_exp "gsm8k_dnbon_N8_a0.5" \
+    run_exp "gsm8k_dnbon_N${N_SAMPLES}_a0.5" \
         --dataset gsm8k \
         --methods dn_bon \
         --N ${N_SAMPLES} \
         --alpha 0.5 \
+        --max_samples 500 \
+        --output_dir "${OUT}"
+
+    run_exp "gsm8k_greedy_pass_n_N${N_SAMPLES}" \
+        --dataset gsm8k \
+        --methods greedy_pass_n \
+        --N ${N_SAMPLES} \
+        --max_samples 500 \
+        --output_dir "${OUT}"
+
+    run_exp "gsm8k_bon_majority_N${N_SAMPLES}" \
+        --dataset gsm8k \
+        --methods bon_majority \
+        --N ${N_SAMPLES} \
         --max_samples 500 \
         --output_dir "${OUT}"
 }
@@ -518,26 +638,33 @@ run_clustering() {
 
 # =============================================================================
 # BLOCK 8 : Verifier ablation
-# DN-BoN on MATH-500 (200 samples) with outcome vs length verifier.
+# DN-BoN on MATH-500 (200 samples) comparing the three verifier back-ends.
 #
-#   outcome — binary correctness vs gold answer (best for eval)
-#   length  — training-free proxy; use for deployment without gold answers
+# Correct interpretation:
+#   prm     — Process Reward Model; no gold leakage; THIS IS THE REAL METHOD.
+#             Used as the default VERIFIER in CONFIG.
+#   length  — Training-free proxy; no gold; realistic deployment baseline.
+#   outcome — Sees the gold answer during selection; ORACLE UPPER BOUND ONLY.
+#             Shows the ceiling if we had a perfect verifier.
+#             Do NOT report this as a fair comparison to greedy/BoN baselines.
 #
-# To add PRM: set VERIFIER=prm in CONFIG above; an extra run_exp call is
-# commented out below.
-# 2 separate python calls.
+# 3 separate python calls.
 # =============================================================================
 run_verifier() {
     echo "===== VERIFIER ABLATION ====="
 
-    run_exp "math500_dnbon_verifier_outcome" \
+    # PRM — the real method; no gold leakage
+    run_exp "math500_dnbon_verifier_prm" \
         --dataset math500 \
         --methods dn_bon \
         --N ${N_SAMPLES} \
-        --verifier outcome \
+        --verifier prm \
+        --prm_model "${PRM_MODEL}" \
+        --prm_aggregation "${PRM_AGGREGATION}" \
         --max_samples 200 \
         --output_dir "${OUT}"
 
+    # Length heuristic — no gold, no PRM; deployment baseline
     run_exp "math500_dnbon_verifier_length" \
         --dataset math500 \
         --methods dn_bon \
@@ -546,15 +673,14 @@ run_verifier() {
         --max_samples 200 \
         --output_dir "${OUT}"
 
-    # Uncomment to add PRM (set VERIFIER=prm in CONFIG first):
-    # run_exp "math500_dnbon_verifier_prm" \
-    #     --dataset math500 \
-    #     --methods dn_bon \
-    #     --N ${N_SAMPLES} \
-    #     --verifier prm \
-    #     --prm_model "${PRM_MODEL}" \
-    #     --max_samples 200 \
-    #     --output_dir "${OUT}"
+    # Outcome — oracle upper bound ONLY (leaks gold into selection)
+    run_exp "math500_dnbon_verifier_outcome_ORACLE" \
+        --dataset math500 \
+        --methods dn_bon \
+        --N ${N_SAMPLES} \
+        --verifier outcome \
+        --max_samples 200 \
+        --output_dir "${OUT}"
 }
 
 
@@ -622,7 +748,7 @@ run_bs128_all() {
         echo "----- dataset=${DATASET}  max_samples=${MAX_S} -----"
 
         # Greedy
-        run_exp "${DATASET}_greedy_N8" \
+        run_exp "${DATASET}_greedy_N${N_SAMPLES}" \
             --dataset "${DATASET}" \
             --methods greedy \
             --N ${N_SAMPLES} \
@@ -630,8 +756,8 @@ run_bs128_all() {
             --max_samples "${MAX_S}" \
             --output_dir "${OUT}"
 
-        # BoN (batch_size > N accepted by CLI; sampling still uses N=8 per question)
-        run_exp "${DATASET}_bon_N8" \
+        # BoN (verifier score)
+        run_exp "${DATASET}_bon_N${N_SAMPLES}" \
             --dataset "${DATASET}" \
             --methods bon \
             --N ${N_SAMPLES} \
@@ -640,12 +766,30 @@ run_bs128_all() {
             --output_dir "${OUT}"
 
         # DN-BoN
-        run_exp "${DATASET}_dnbon_N8_a0.5" \
+        run_exp "${DATASET}_dnbon_N${N_SAMPLES}_a0.5" \
             --dataset "${DATASET}" \
             --methods dn_bon \
             --N ${N_SAMPLES} \
             --batch_size "${BS}" \
             --alpha 0.5 \
+            --max_samples "${MAX_S}" \
+            --output_dir "${OUT}"
+
+        # Greedy Pass@N  (log-probability selection)
+        run_exp "${DATASET}_greedy_pass_n_N${N_SAMPLES}" \
+            --dataset "${DATASET}" \
+            --methods greedy_pass_n \
+            --N ${N_SAMPLES} \
+            --batch_size "${BS}" \
+            --max_samples "${MAX_S}" \
+            --output_dir "${OUT}"
+
+        # BoN Majority  (self-consistency)
+        run_exp "${DATASET}_bon_majority_N${N_SAMPLES}" \
+            --dataset "${DATASET}" \
+            --methods bon_majority \
+            --N ${N_SAMPLES} \
+            --batch_size "${BS}" \
             --max_samples "${MAX_S}" \
             --output_dir "${OUT}"
     done
@@ -700,10 +844,67 @@ run_dnbon_bs64() {
 
 
 # =============================================================================
+# BLOCK 12 : New methods only — Greedy Pass@N and BoN Majority
+#
+# Runs only the two new selection strategies across one or all datasets.
+# Neither method requires a verifier or cluster manager.
+#
+#   bash run_experiments.sh new_methods              # all datasets
+#   bash run_experiments.sh new_methods math500      # math500 only
+#   bash run_experiments.sh new_methods aime24       # aime24 only
+#
+# Total per dataset: 2 python calls (1 per method).
+# =============================================================================
+run_new_methods() {
+    local DATASET_FILTER="${1:-all}"
+    local BS="${LM_BATCH_SIZE}"
+
+    local DATASETS
+    if [[ "${DATASET_FILTER}" == "all" ]]; then
+        DATASETS="math500 aime24 aime25 amc23 gsm8k"
+    else
+        _check_dataset "${DATASET_FILTER}"
+        DATASETS="${DATASET_FILTER}"
+    fi
+
+    echo "===== NEW METHODS  (greedy_pass_n + bon_majority)  N=${N_SAMPLES}  datasets=[${DATASETS}] ====="
+
+    for DATASET in ${DATASETS}; do
+        local MAX_S
+        MAX_S="$(_max_samples "${DATASET}")"
+        echo "----- dataset=${DATASET}  max_samples=${MAX_S} -----"
+
+        # ── Greedy Pass@N ─────────────────────────────────────────────────────
+        # Sample N traces, select by max mean per-token log-probability.
+        # No verifier or cluster manager needed.
+        run_exp "${DATASET}_greedy_pass_n_N${N_SAMPLES}" \
+            --dataset "${DATASET}" \
+            --methods greedy_pass_n \
+            --N ${N_SAMPLES} \
+            --batch_size "${BS}" \
+            --max_samples "${MAX_S}" \
+            --output_dir "${OUT}"
+
+        # ── BoN Majority  (self-consistency) ──────────────────────────────────
+        # Sample N traces, group by equivalent answer, pick majority group.
+        # No verifier or cluster manager needed.
+        run_exp "${DATASET}_bon_majority_N${N_SAMPLES}" \
+            --dataset "${DATASET}" \
+            --methods bon_majority \
+            --N ${N_SAMPLES} \
+            --batch_size "${BS}" \
+            --max_samples "${MAX_S}" \
+            --output_dir "${OUT}"
+    done
+}
+
+
+# =============================================================================
 # BLOCK 11 : ALL experiments for a SINGLE dataset
 #
-# Runs every experiment type (greedy, BoN, DN-BoN, alpha ablation, budget
-# scaling, clustering threshold, verifier ablation) for one dataset.
+# Runs every experiment type for one dataset:
+#   greedy | bon | dn_bon | greedy_pass_n | bon_majority
+#   + alpha ablation + budget scaling + clustering threshold + verifier ablation
 #
 # Usage:
 #   bash run_experiments.sh all_for_dataset math500
@@ -712,7 +913,7 @@ run_dnbon_bs64() {
 #   bash run_experiments.sh all_for_dataset amc23
 #   bash run_experiments.sh all_for_dataset gsm8k
 #
-# Each method/config is a separate python call.  GPU freed between runs.
+# Total per dataset: 21 separate python calls.
 # =============================================================================
 run_all_for_dataset() {
     local DATASET="${1}"
@@ -737,7 +938,7 @@ run_all_for_dataset() {
     echo "############################################################"
 
     # ── 1. Greedy ─────────────────────────────────────────────────────────────
-    echo "----- [1/7] Greedy -----"
+    echo "----- [1/9] Greedy -----"
     run_exp "${DATASET}_greedy" \
         --dataset "${DATASET}" \
         --methods greedy \
@@ -746,8 +947,8 @@ run_all_for_dataset() {
         --max_samples "${MAX_S}" \
         --output_dir "${OUT}"
 
-    # ── 2. Best-of-N  (N from CONFIG) ─────────────────────────────────────────
-    echo "----- [2/7] Best-of-N  N=${N_SAMPLES} -----"
+    # ── 2. Best-of-N  (verifier score) ────────────────────────────────────────
+    echo "----- [2/9] Best-of-N  N=${N_SAMPLES} -----"
     run_exp "${DATASET}_bon_N${N_SAMPLES}" \
         --dataset "${DATASET}" \
         --methods bon \
@@ -756,8 +957,8 @@ run_all_for_dataset() {
         --max_samples "${MAX_S}" \
         --output_dir "${OUT}"
 
-    # ── 3. DN-BoN  (alpha=0.5, N from CONFIG) ─────────────────────────────────
-    echo "----- [3/7] DN-BoN  N=${N_SAMPLES}  alpha=0.5 -----"
+    # ── 3. DN-BoN  (alpha=0.5) ────────────────────────────────────────────────
+    echo "----- [3/9] DN-BoN  N=${N_SAMPLES}  alpha=0.5 -----"
     run_exp "${DATASET}_dnbon_N${N_SAMPLES}_a0.5" \
         --dataset "${DATASET}" \
         --methods dn_bon \
@@ -767,9 +968,32 @@ run_all_for_dataset() {
         --max_samples "${MAX_S}" \
         --output_dir "${OUT}"
 
-    # ── 4. Alpha ablation  (DN-BoN, α ∈ {0.0, 0.25, 0.5, 0.75, 1.0}) ─────────
-    # α=0 recovers plain BoN — clean ablation control point.
-    echo "----- [4/7] Alpha ablation -----"
+    # ── 4. Greedy Pass@N  (log-probability selection) ─────────────────────────
+    # Select from N sampled traces by max mean per-token log-prob.
+    # No verifier needed — uses the LM's own probability as the signal.
+    echo "----- [4/9] Greedy Pass@N  N=${N_SAMPLES} -----"
+    run_exp "${DATASET}_greedy_pass_n_N${N_SAMPLES}" \
+        --dataset "${DATASET}" \
+        --methods greedy_pass_n \
+        --N "${N_SAMPLES}" \
+        --batch_size "${BS}" \
+        --max_samples "${MAX_S}" \
+        --output_dir "${OUT}"
+
+    # ── 5. BoN Majority  (self-consistency / majority vote) ───────────────────
+    # Select from N sampled traces by the most-voted answer group.
+    # No verifier or cluster manager needed.
+    echo "----- [5/9] BoN Majority  N=${N_SAMPLES} -----"
+    run_exp "${DATASET}_bon_majority_N${N_SAMPLES}" \
+        --dataset "${DATASET}" \
+        --methods bon_majority \
+        --N "${N_SAMPLES}" \
+        --batch_size "${BS}" \
+        --max_samples "${MAX_S}" \
+        --output_dir "${OUT}"
+
+    # ── 6. Alpha ablation  (DN-BoN, α ∈ {0.0, 0.25, 0.5, 0.75, 1.0}) ─────────
+    echo "----- [6/9] Alpha ablation -----"
     for ALPHA in 0.0 0.25 0.5 0.75 1.0; do
         run_exp "${DATASET}_dnbon_N${N_SAMPLES}_a${ALPHA}" \
             --dataset "${DATASET}" \
@@ -781,30 +1005,41 @@ run_all_for_dataset() {
             --output_dir "${OUT}"
     done
 
-    # ── 5. Budget scaling  (BoN + DN-BoN, N ∈ {4, 8, 16, 32}) ───────────────
-    # Shows accuracy vs test-time compute budget curve.
-    echo "----- [5/7] Budget scaling  N=4,8,16,32 -----"
+    # ── 7. Budget scaling  (all 5 methods, N ∈ {4, 8, 16, 32}) ─────────────
+    echo "----- [7/9] Budget scaling  N=4,8,16,32 -----"
     for N in 4 8 16 32; do
         run_exp "${DATASET}_bon_N${N}" \
             --dataset "${DATASET}" \
             --methods bon \
-            --N "${N}" \
-            --batch_size "${BS}" \
+            --N "${N}" --batch_size "${BS}" \
             --max_samples "${MAX_S}" \
             --output_dir "${OUT}"
 
         run_exp "${DATASET}_dnbon_N${N}_a0.5" \
             --dataset "${DATASET}" \
             --methods dn_bon \
-            --N "${N}" \
-            --batch_size "${BS}" \
+            --N "${N}" --batch_size "${BS}" \
             --alpha 0.5 \
+            --max_samples "${MAX_S}" \
+            --output_dir "${OUT}"
+
+        run_exp "${DATASET}_greedy_pass_n_N${N}" \
+            --dataset "${DATASET}" \
+            --methods greedy_pass_n \
+            --N "${N}" --batch_size "${BS}" \
+            --max_samples "${MAX_S}" \
+            --output_dir "${OUT}"
+
+        run_exp "${DATASET}_bon_majority_N${N}" \
+            --dataset "${DATASET}" \
+            --methods bon_majority \
+            --N "${N}" --batch_size "${BS}" \
             --max_samples "${MAX_S}" \
             --output_dir "${OUT}"
     done
 
-    # ── 6. Clustering threshold ablation  (DN-BoN, threshold ∈ {0.70..0.95}) ─
-    echo "----- [6/7] Clustering threshold ablation -----"
+    # ── 8. Clustering threshold ablation  (DN-BoN) ────────────────────────────
+    echo "----- [8/9] Clustering threshold ablation -----"
     for THRESH in 0.70 0.80 0.85 0.90 0.95; do
         run_exp "${DATASET}_dnbon_N${N_SAMPLES}_thresh${THRESH}" \
             --dataset "${DATASET}" \
@@ -817,8 +1052,8 @@ run_all_for_dataset() {
             --output_dir "${OUT}"
     done
 
-    # ── 7. Verifier ablation  (outcome vs length) ─────────────────────────────
-    echo "----- [7/7] Verifier ablation -----"
+    # ── 9. Verifier ablation  (outcome vs length) ─────────────────────────────
+    echo "----- [9/9] Verifier ablation -----"
     run_exp "${DATASET}_dnbon_verifier_outcome" \
         --dataset "${DATASET}" \
         --methods dn_bon \
@@ -839,7 +1074,154 @@ run_all_for_dataset() {
 
     echo ""
     echo "############################################################"
-    echo "  DONE  →  dataset=${DATASET}"
+    echo "  DONE  →  dataset=${DATASET}  (all 9 experiment types)"
+    echo "  Results : ${OUT}"
+    echo "############################################################"
+}
+
+
+
+# =============================================================================
+# BLOCK 13 : Custom run — any combination of datasets and methods
+#
+# The most flexible entry point.  Pass a comma-separated list of datasets
+# and a comma-separated list of methods.  Use "all" as a shorthand for
+# every dataset or every method.
+#
+# Usage
+# -----
+#   bash run_experiments.sh run <datasets> <methods>
+#
+#   <datasets> : comma-separated list or "all"
+#     Valid values: math500, aime24, aime25, amc23, gsm8k
+#     "all"  expands to: math500,aime24,aime25,amc23,gsm8k
+#
+#   <methods>  : comma-separated list or "all"
+#     Valid values: greedy, bon, dn_bon, greedy_pass_n, bon_majority
+#     "all"  expands to: greedy,bon,dn_bon,greedy_pass_n,bon_majority
+#
+# Examples
+# --------
+#   # Single dataset, single method
+#   bash run_experiments.sh run math500 greedy
+#
+#   # Single dataset, multiple methods
+#   bash run_experiments.sh run math500 greedy,bon,dn_bon
+#
+#   # Multiple datasets, single method
+#   bash run_experiments.sh run math500,aime24,aime25 dn_bon
+#
+#   # Multiple datasets, multiple methods
+#   bash run_experiments.sh run math500,aime24 greedy,bon,dn_bon,greedy_pass_n,bon_majority
+#
+#   # All datasets, all methods
+#   bash run_experiments.sh run all all
+#
+#   # All datasets, specific methods
+#   bash run_experiments.sh run all greedy,bon_majority
+#
+#   # Specific datasets, all methods
+#   bash run_experiments.sh run math500,aime24 all
+#
+# Each (dataset, method) pair is ONE separate python call — GPU freed between.
+# Total calls = len(datasets) × len(methods).
+# =============================================================================
+
+ALL_DATASETS="math500 aime24 aime25 amc23 gsm8k"
+ALL_METHODS="greedy bon dn_bon greedy_pass_n bon_majority"
+
+# Validate a single method name
+_check_method() {
+    case "$1" in
+        greedy|bon|dn_bon|greedy_pass_n|bon_majority) return 0 ;;
+        *)
+            echo "ERROR: unknown method '$1'"
+            echo "Valid methods: greedy | bon | dn_bon | greedy_pass_n | bon_majority"
+            exit 1
+            ;;
+    esac
+}
+
+run_custom() {
+    local DATASETS_ARG="${1:-all}"
+    local METHODS_ARG="${2:-all}"
+    local BS="${LM_BATCH_SIZE}"
+
+    # ── Expand "all" shorthand ─────────────────────────────────────────────────
+    local DATASETS
+    if [[ "${DATASETS_ARG}" == "all" ]]; then
+        DATASETS="${ALL_DATASETS}"
+    else
+        # Replace commas with spaces
+        DATASETS="${DATASETS_ARG//,/ }"
+    fi
+
+    local METHODS
+    if [[ "${METHODS_ARG}" == "all" ]]; then
+        METHODS="${ALL_METHODS}"
+    else
+        METHODS="${METHODS_ARG//,/ }"
+    fi
+
+    # ── Validate all dataset and method names before running anything ──────────
+    for D in ${DATASETS}; do _check_dataset "${D}"; done
+    for M in ${METHODS};  do _check_method  "${M}"; done
+
+    # ── Count total runs ───────────────────────────────────────────────────────
+    local N_D=0; for D in ${DATASETS}; do N_D=$((N_D+1)); done
+    local N_M=0; for M in ${METHODS};  do N_M=$((N_M+1)); done
+    local TOTAL=$((N_D * N_M))
+
+    echo ""
+    echo "############################################################"
+    echo "  CUSTOM RUN"
+    echo "  datasets : ${DATASETS}"
+    echo "  methods  : ${METHODS}"
+    echo "  N        : ${N_SAMPLES}   batch_size : ${BS}"
+    echo "  total    : ${TOTAL} python calls  (${N_D} datasets × ${N_M} methods)"
+    echo "  output   : ${OUT}"
+    echo "############################################################"
+    echo ""
+
+    local RUN_IDX=0
+
+    for DATASET in ${DATASETS}; do
+        local MAX_S
+        MAX_S="$(_max_samples "${DATASET}")"
+
+        echo "----- dataset=${DATASET}  max_samples=${MAX_S} -----"
+
+        for METHOD in ${METHODS}; do
+            RUN_IDX=$((RUN_IDX+1))
+            echo "  [${RUN_IDX}/${TOTAL}]  method=${METHOD}"
+
+            local TAG="${DATASET}_${METHOD}_N${N_SAMPLES}"
+
+            # dn_bon needs --alpha; others don't
+            if [[ "${METHOD}" == "dn_bon" ]]; then
+                run_exp "${TAG}_a0.5" \
+                    --dataset "${DATASET}" \
+                    --methods "${METHOD}" \
+                    --N "${N_SAMPLES}" \
+                    --batch_size "${BS}" \
+                    --alpha 0.5 \
+                    --max_samples "${MAX_S}" \
+                    --output_dir "${OUT}"
+            else
+                run_exp "${TAG}" \
+                    --dataset "${DATASET}" \
+                    --methods "${METHOD}" \
+                    --N "${N_SAMPLES}" \
+                    --batch_size "${BS}" \
+                    --max_samples "${MAX_S}" \
+                    --output_dir "${OUT}"
+            fi
+        done
+    done
+
+    echo ""
+    echo "############################################################"
+    echo "  CUSTOM RUN COMPLETE — ${TOTAL} experiments finished"
     echo "  Results : ${OUT}"
     echo "############################################################"
 }
@@ -847,29 +1229,33 @@ run_all_for_dataset() {
 
 # =============================================================================
 # Dispatcher
-# $1 = block name   $2 = optional dataset argument
+# $1 = block name
+# $2 = dataset argument  (for blocks that take a dataset, or <datasets> for run)
+# $3 = methods argument  (only for the "run" block)
 # =============================================================================
 BLOCK="${1:-all}"
-DATASET_ARG="${2:-all}"   # passed through to blocks that accept a dataset filter
+DATASET_ARG="${2:-all}"
+METHODS_ARG="${3:-all}"
 
-# Print resolved output directory so the user knows where files will land.
 echo ""
 echo "  Result folder : ${OUT}"
 echo "  Run tag       : ${RUN_TAG}"
 echo ""
 
 case "${BLOCK}" in
-    math500)          run_math500                         ;;
-    aime24)           run_aime24                          ;;
-    amc23)            run_amc23                           ;;
-    gsm8k)            run_gsm8k                           ;;
-    alpha)            run_alpha                           ;;
-    scaling)          run_scaling                         ;;
-    clustering)       run_clustering                      ;;
-    verifier)         run_verifier                        ;;
-    bs128_all)        run_bs128_all    "${DATASET_ARG}"   ;;
-    dnbon_bs64)       run_dnbon_bs64   "${DATASET_ARG}"   ;;
-    all_for_dataset)  run_all_for_dataset "${DATASET_ARG}" ;;
+    math500)          run_math500                               ;;
+    aime24)           run_aime24                                ;;
+    amc23)            run_amc23                                 ;;
+    gsm8k)            run_gsm8k                                 ;;
+    alpha)            run_alpha                                 ;;
+    scaling)          run_scaling                               ;;
+    clustering)       run_clustering                            ;;
+    verifier)         run_verifier                              ;;
+    new_methods)      run_new_methods     "${DATASET_ARG}"      ;;
+    bs128_all)        run_bs128_all       "${DATASET_ARG}"      ;;
+    dnbon_bs64)       run_dnbon_bs64      "${DATASET_ARG}"      ;;
+    all_for_dataset)  run_all_for_dataset "${DATASET_ARG}"      ;;
+    run)              run_custom          "${DATASET_ARG}" "${METHODS_ARG}" ;;
     all)
         run_math500
         run_aime24
@@ -879,38 +1265,46 @@ case "${BLOCK}" in
         run_scaling
         run_clustering
         run_verifier
-        run_bs128_all  all
-        run_dnbon_bs64 all
+        run_new_methods all
+        run_bs128_all   all
+        run_dnbon_bs64  all
         ;;
     *)
         echo "Unknown block: '${BLOCK}'"
         echo ""
-        echo "Usage:  bash run_experiments.sh <block> [dataset]"
+        echo "Usage:  bash run_experiments.sh <block> [args]"
         echo ""
-        echo "Single-dataset blocks:"
-        echo "  math500 | aime24 | amc23 | gsm8k"
+        echo "──────────────────────────────────────────────────────────────"
+        echo "  FLEXIBLE  run block (most useful)"
+        echo "──────────────────────────────────────────────────────────────"
+        echo "  run <datasets> <methods>"
         echo ""
-        echo "Multi-experiment single-dataset block:"
-        echo "  all_for_dataset <dataset>    — ALL experiments for one dataset"
-        echo "  Valid datasets: math500 | aime24 | aime25 | amc23 | gsm8k"
+        echo "  <datasets>: comma-separated or 'all'"
+        echo "    math500 | aime24 | aime25 | amc23 | gsm8k"
         echo ""
-        echo "Ablation blocks (run on fixed datasets internally):"
-        echo "  alpha | scaling | clustering | verifier"
+        echo "  <methods>: comma-separated or 'all'"
+        echo "    greedy | bon | dn_bon | greedy_pass_n | bon_majority"
         echo ""
-        echo "All-dataset blocks (optional dataset filter):"
-        echo "  bs128_all  [dataset]         default: all datasets"
-        echo "  dnbon_bs64 [dataset]         default: all datasets"
+        echo "  Examples:"
+        echo "    bash run_experiments.sh run math500 greedy"
+        echo "    bash run_experiments.sh run math500 greedy,bon,dn_bon"
+        echo "    bash run_experiments.sh run math500,aime24 dn_bon"
+        echo "    bash run_experiments.sh run math500,aime24,aime25 greedy,bon,dn_bon,greedy_pass_n,bon_majority"
+        echo "    bash run_experiments.sh run all all"
+        echo "    bash run_experiments.sh run all greedy,bon_majority"
+        echo "    bash run_experiments.sh run math500,aime24 all"
         echo ""
-        echo "Run everything:"
-        echo "  all"
+        echo "──────────────────────────────────────────────────────────────"
+        echo "  FIXED blocks"
+        echo "──────────────────────────────────────────────────────────────"
+        echo "  math500 | aime24 | amc23 | gsm8k     per-dataset (all 5 methods)"
+        echo "  new_methods [dataset]                 greedy_pass_n + bon_majority"
+        echo "  all_for_dataset <dataset>             all 9 experiment types"
+        echo "  alpha | scaling | clustering | verifier   ablation studies"
+        echo "  bs128_all  [dataset]                  all methods, all datasets"
+        echo "  dnbon_bs64 [dataset]                  DN-BoN only"
+        echo "  all                                   run everything"
         echo ""
-        echo "Examples:"
-        echo "  bash run_experiments.sh all_for_dataset math500"
-        echo "  bash run_experiments.sh all_for_dataset aime24"
-        echo "  bash run_experiments.sh all_for_dataset aime25"
-        echo "  bash run_experiments.sh all_for_dataset gsm8k"
-        echo "  bash run_experiments.sh bs128_all aime24"
-        echo "  bash run_experiments.sh dnbon_bs64 math500"
         exit 1
         ;;
 esac
@@ -921,3 +1315,72 @@ echo " All experiments finished."
 echo " Results : ${OUT}"
 echo " Logs    : ${OUT}/logs/"
 echo "============================================================"
+
+# =============================================================================
+# Auto-plot: accuracy vs effective token length
+# =============================================================================
+# Run plot_token_accuracy.py automatically if matplotlib is available and
+# there are JSONL result files in the output directory.
+# Set AUTO_PLOT=0 in CONFIG to disable.
+# =============================================================================
+AUTO_PLOT="${AUTO_PLOT:-1}"   # default on; override with: AUTO_PLOT=0 bash run_experiments.sh ...
+
+if [[ "${AUTO_PLOT}" == "1" ]]; then
+    JSONL_COUNT=$(ls "${OUT}"/*.jsonl 2>/dev/null | grep -v "_summary" | wc -l || echo 0)
+    if [[ "${JSONL_COUNT}" -gt 0 ]]; then
+        echo ""
+        echo "  Generating accuracy vs token-length plots..."
+        PLOT_ACC="${OUT}/accuracy_vs_tokens.png"
+        PLOT_DIST="${OUT}/token_distribution.png"
+        CSV_OUT="${OUT}/accuracy_vs_tokens.csv"
+        ${PYTHON} plot_token_accuracy.py \
+            --dir      "${OUT}" \
+            --model    "${MODEL}" \
+            --bins     10 \
+            --min_count 3 \
+            --out      "${PLOT_ACC}" \
+            --out_dist "${PLOT_DIST}" \
+            --csv      "${CSV_OUT}" \
+            --title    "Accuracy vs Token Length  [${RUN_TAG}]" \
+            2>&1 || echo "  [warn] plot_token_accuracy.py failed — run manually"
+        echo "  Accuracy plot  : ${PLOT_ACC}"
+        echo "  Distribution   : ${PLOT_DIST}"
+        echo "  CSV            : ${CSV_OUT}"
+        echo ""
+        echo "  To regenerate or customise:"
+        echo "    python plot_token_accuracy.py --dir ${OUT} --model ${MODEL} --bins 15"
+        echo "    python plot_token_accuracy.py --dir ${OUT} --model ${MODEL} --filter_method greedy_pass_n"
+        echo "    python plot_token_accuracy.py --dir ${OUT} --use_chars   # raw character length"
+    fi
+fi
+
+# # ── single dataset, single method ──────────────────────────────────
+# bash run_experiments.sh run math500 greedy
+# bash run_experiments.sh run aime24 dn_bon
+# bash run_experiments.sh run gsm8k bon_majority
+
+# # ── single dataset, multiple methods ───────────────────────────────
+# bash run_experiments.sh run math500 greedy,bon,dn_bon
+# bash run_experiments.sh run aime24 greedy,bon,dn_bon,greedy_pass_n,bon_majority
+
+# # ── single dataset, ALL methods ────────────────────────────────────
+# bash run_experiments.sh run math500 all
+# bash run_experiments.sh run aime25 all
+
+# # ── multiple datasets, single method ───────────────────────────────
+# bash run_experiments.sh run math500,aime24 dn_bon
+# bash run_experiments.sh run math500,aime24,aime25 greedy_pass_n
+
+# # ── multiple datasets, multiple methods ────────────────────────────
+# bash run_experiments.sh run math500,aime24 greedy,bon,dn_bon
+# bash run_experiments.sh run math500,aime24,aime25 greedy,bon,dn_bon,greedy_pass_n,bon_majority
+
+# # ── ALL datasets, ALL methods ───────────────────────────────────────
+# bash run_experiments.sh run all all
+
+# # ── ALL datasets, specific methods ─────────────────────────────────
+# bash run_experiments.sh run all greedy,bon_majority
+# bash run_experiments.sh run all dn_bon
+
+# # ── specific datasets, ALL methods ─────────────────────────────────
+# bash run_experiments.sh run math500,aime24 all

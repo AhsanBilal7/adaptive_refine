@@ -64,9 +64,21 @@ class InferenceResult:
             "elapsed_sec":        round(self.elapsed_sec, 3),
             "selected_index":     self.selected_index,
             "alpha":              self.alpha,
+            # ── Cluster fields (DN-BoN and BestOfNMajority populate these) ──────
+            # cluster_labels[i]  : cluster id for trace i  (int, 0-indexed)
+            # cluster_sizes[i]   : size of trace i's cluster
+            "cluster_labels":     self.cluster_labels,
             "cluster_sizes":      self.cluster_sizes,
+            # ── Score fields ────────────────────────────────────────────────────
+            # raw_scores[i]       : verifier score for trace i
+            # normalized_scores[i]: raw / cluster_size^alpha  (DN-BoN)
             "raw_scores":         [round(s, 4) for s in self.raw_scores],
             "normalized_scores":  [round(s, 4) for s in self.normalized_scores],
+            # ── Per-trace predictions (needed for all 5 motivation experiments) ─
+            # Saved as character lengths here; full traces saved separately if
+            # save_all_traces=True is set in the evaluator call.
+            # trace_lengths[i]   : number of characters in trace i
+            "trace_lengths":      [len(t) for t in self.all_traces] if self.all_traces else [],
         }
 
 
@@ -324,7 +336,7 @@ class BestOfN:
     ) -> InferenceResult:
         from verifier import score_candidates  # type: ignore
 
-        scores   = score_candidates(traces, self.verifier, gold)
+        scores   = score_candidates(traces, self.verifier, gold, question=question)
         best_idx = int(np.argmax(scores))
         selected = traces[best_idx]
 
@@ -439,17 +451,28 @@ class DNBestOfN:
     ) -> InferenceResult:
         from verifier import score_candidates  # type: ignore
 
-        raw_scores              = score_candidates(traces, self.verifier, gold)
+        raw_scores              = score_candidates(traces, self.verifier, gold, question=question)
         labels, cluster_sizes   = self.cluster_manager.cluster(traces)
-        norm_scores             = raw_scores / (cluster_sizes.astype(float) ** self.alpha)
+        # Clamp to ≥1: cluster_sizes should always be ≥1 from ClusterManager,
+        # but guard against any edge case that would produce 0^alpha = NaN/inf.
+        safe_sizes  = np.maximum(cluster_sizes.astype(float), 1.0)
+        norm_scores = raw_scores / (safe_sizes ** self.alpha)
 
         best_idx = int(np.argmax(norm_scores))
         selected = traces[best_idx]
 
-        pred    = _extract_pred(selected, self.ev, self.data_name)   # reuses self.ev
+        pred    = _extract_pred(selected, self.ev, self.data_name)
         correct = _check_correct(pred, gold, self.ev, self.data_name)
 
-        return InferenceResult(
+        # Per-trace predictions — needed for Exp 2, 3, 4, 5
+        all_preds = [_extract_pred(t, self.ev, self.data_name) for t in traces]
+        # Per-trace correctness — needed for Exp 3 (oracle), Exp 5
+        all_correct = [
+            bool(_check_correct(p, gold, self.ev, self.data_name))
+            for p in all_preds
+        ] if gold is not None else []
+
+        res = InferenceResult(
             method="dn_bon", question=question,
             gold_answer=gold, selected_trace=selected,
             predicted_answer=pred, is_correct=correct,
@@ -461,6 +484,10 @@ class DNBestOfN:
             cluster_sizes=cluster_sizes.tolist(),
             selected_index=best_idx, alpha=self.alpha,
         )
+        # Attach extra fields for motivation experiments
+        res._all_preds   = all_preds
+        res._all_correct = all_correct
+        return res
 
     def run(
         self,
@@ -524,6 +551,209 @@ class DNBestOfN:
 
 
 # ──────────────────────────────────────────────────────────────────────────────
+# 4. Greedy Pass@N  (select by maximum sequence log-probability)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class GreedyPassN:
+    """
+    Sample N traces with temperature, then select the one with the highest
+    mean per-token log-probability under the model.
+
+    This is the model's implicit preference among the N candidates —
+    analogous to greedy decoding but with diversity from sampling.
+    No reward model or gold answer is required at selection time.
+
+    Selection cost: one batched forward pass over N completions (no generation).
+    """
+
+    def __init__(
+        self,
+        model,
+        N: int = 8,
+        data_name: str = "math",
+        temperature: float = 0.7,
+        top_p: float = 0.95,
+    ):
+        self.model       = model
+        self.N           = N
+        self.data_name   = data_name
+        self.temperature = temperature
+        self.top_p       = top_p
+        self.ev          = _build_evaluator(data_name)
+
+    def _select(
+        self,
+        question: str,
+        gold: Optional[str],
+        traces: List[str],
+        elapsed: float,
+    ) -> InferenceResult:
+        prompt   = self.model._build_prompt(question)
+        logprobs = self.model.score_sequences_logprob(prompt, traces)
+        best_idx = int(np.argmax(logprobs))
+        selected = traces[best_idx]
+
+        pred    = _extract_pred(selected, self.ev, self.data_name)
+        correct = _check_correct(pred, gold, self.ev, self.data_name)
+
+        return InferenceResult(
+            method="greedy_pass_n", question=question,
+            gold_answer=gold, selected_trace=selected,
+            predicted_answer=pred, is_correct=correct,
+            N=self.N, elapsed_sec=elapsed,
+            all_traces=traces,
+            raw_scores=logprobs,
+            normalized_scores=logprobs,
+            selected_index=best_idx, alpha=0.0,
+        )
+
+    def run(
+        self,
+        question: str,
+        gold_answer: Optional[str] = None,
+        max_new_tokens: Optional[int] = None,
+    ) -> InferenceResult:
+        t0      = time.time()
+        traces  = self.model.generate_samples(
+            question, N=self.N,
+            temperature=self.temperature, top_p=self.top_p,
+            max_new_tokens=max_new_tokens,
+        )
+        elapsed = time.time() - t0
+        return self._select(question, gold_answer, traces, elapsed)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# 5. Best-of-N with Majority Voting  (self-consistency)
+# ──────────────────────────────────────────────────────────────────────────────
+
+class BestOfNMajority:
+    """
+    Sample N traces, then select by majority vote (Wang et al., 2023
+    self-consistency).
+
+    Algorithm
+    ---------
+    1. Sample N traces with temperature sampling.
+    2. Extract the final answer from each trace.
+    3. Group traces by equivalent answer using ev.check_answers_equiv()
+       so LaTeX variants count as the same answer.
+    4. Return the first trace from the largest vote group.
+
+    No reward model required — only the model and an equivalence checker.
+    """
+
+    def __init__(
+        self,
+        model,
+        N: int = 8,
+        data_name: str = "math",
+        temperature: float = 0.7,
+        top_p: float = 0.95,
+    ):
+        self.model       = model
+        self.N           = N
+        self.data_name   = data_name
+        self.temperature = temperature
+        self.top_p       = top_p
+        self.ev          = _build_evaluator(data_name)
+
+    def _majority_vote(self, traces: List[str]):
+        """
+        Group traces by equivalent final answer.
+
+        Returns
+        -------
+        best_idx      : index of selected trace (first in majority group)
+        majority_ans  : the majority answer string
+        vote_counts   : vote_counts[i] = size of trace i's group
+        group_labels  : group id for each trace
+        """
+        answers = [_extract_pred(t, self.ev, self.data_name) for t in traces]
+
+        groups: List[List[int]] = []
+        group_rep: List[str]    = []
+
+        for idx, ans in enumerate(answers):
+            placed = False
+            for g, rep in enumerate(group_rep):
+                try:
+                    equiv = (
+                        self.ev.check_answers_equiv(ans, rep)
+                        if self.ev is not None else None
+                    )
+                except Exception:
+                    equiv = None
+                if equiv is None:
+                    equiv = (ans.strip() == rep.strip())
+                if equiv:
+                    groups[g].append(idx)
+                    placed = True
+                    break
+            if not placed:
+                groups.append([idx])
+                group_rep.append(ans)
+
+        majority_g   = max(range(len(groups)), key=lambda g: len(groups[g]))
+        best_idx     = groups[majority_g][0]
+        majority_ans = group_rep[majority_g]
+
+        vote_counts  = [0] * len(traces)
+        group_labels = [0] * len(traces)
+        for g, members in enumerate(groups):
+            for idx in members:
+                vote_counts[idx]  = len(members)
+                group_labels[idx] = g
+
+        return best_idx, majority_ans, vote_counts, group_labels
+
+    def _select(
+        self,
+        question: str,
+        gold: Optional[str],
+        traces: List[str],
+        elapsed: float,
+    ) -> InferenceResult:
+        best_idx, majority_ans, vote_counts, group_labels = \
+            self._majority_vote(traces)
+
+        selected = traces[best_idx]
+        pred     = majority_ans or _extract_pred(selected, self.ev, self.data_name)
+        correct  = _check_correct(pred, gold, self.ev, self.data_name)
+
+        max_v      = max(vote_counts) if vote_counts else 1
+        norm_votes = [v / max_v for v in vote_counts]
+
+        return InferenceResult(
+            method="bon_majority", question=question,
+            gold_answer=gold, selected_trace=selected,
+            predicted_answer=pred, is_correct=correct,
+            N=self.N, elapsed_sec=elapsed,
+            all_traces=traces,
+            raw_scores=[float(v) for v in vote_counts],
+            normalized_scores=norm_votes,
+            cluster_labels=group_labels,
+            cluster_sizes=vote_counts,
+            selected_index=best_idx, alpha=0.0,
+        )
+
+    def run(
+        self,
+        question: str,
+        gold_answer: Optional[str] = None,
+        max_new_tokens: Optional[int] = None,
+    ) -> InferenceResult:
+        t0      = time.time()
+        traces  = self.model.generate_samples(
+            question, N=self.N,
+            temperature=self.temperature, top_p=self.top_p,
+            max_new_tokens=max_new_tokens,
+        )
+        elapsed = time.time() - t0
+        return self._select(question, gold_answer, traces, elapsed)
+
+
+# ──────────────────────────────────────────────────────────────────────────────
 # Factory
 # ──────────────────────────────────────────────────────────────────────────────
 
@@ -538,6 +768,17 @@ def build_inference_method(
     temperature: float = 0.7,
     top_p: float = 0.95,
 ):
+    """
+    Instantiate an inference method by name.
+
+    method_name choices
+    -------------------
+    greedy         — single argmax decode, no sampling
+    bon            — Best-of-N with verifier score
+    dn_bon         — Direction-Normalised BoN (requires cluster_manager)
+    greedy_pass_n  — N samples, select by max sequence log-probability
+    bon_majority   — N samples, select by majority vote (self-consistency)
+    """
     if method_name == "greedy":
         return GreedyInference(model=model, data_name=data_name)
     elif method_name == "bon":
@@ -549,4 +790,13 @@ def build_inference_method(
         return DNBestOfN(model=model, verifier=verifier, cluster_manager=cluster_manager,
                          N=N, alpha=alpha, data_name=data_name,
                          temperature=temperature, top_p=top_p)
-    raise ValueError(f"Unknown method '{method_name}'. Choose: greedy | bon | dn_bon")
+    elif method_name == "greedy_pass_n":
+        return GreedyPassN(model=model, N=N, data_name=data_name,
+                           temperature=temperature, top_p=top_p)
+    elif method_name == "bon_majority":
+        return BestOfNMajority(model=model, N=N, data_name=data_name,
+                               temperature=temperature, top_p=top_p)
+    raise ValueError(
+        f"Unknown method '{method_name}'. "
+        f"Choose: greedy | bon | dn_bon | greedy_pass_n | bon_majority"
+    )

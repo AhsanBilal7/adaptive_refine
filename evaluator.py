@@ -163,26 +163,19 @@ def _greedy_results(method, pending, max_new_tokens) -> Iterator[tuple]:
 
 def _sampling_results(method, pending, max_new_tokens, label, colour) -> Iterator[tuple]:
     """
-    Generate N samples for ALL pending questions in one flat batched pass,
-    then yield (example, InferenceResult) one at a time for immediate saving.
+    Interleaved generation + saving via generate_samples_flat generator.
 
-    Generation phase
-    ----------------
-    Calls model.generate_samples_flat(all_questions, N) which:
-      1. Builds a flat list of Q*N prompts
-      2. Chunks into groups of batch_size
-      3. One model.generate() call per chunk
+    generate_samples_flat() yields (q_idx, traces) as each question's
+    N samples become available — after every chunk of batch_size sequences.
 
-    With Q=466, N=8, batch_size=128 on H100:
-      → 3728 prompts total
-      → 30 generate() calls of 128 sequences each   (was: 466 calls of 8)
-      → full GPU utilisation
+    With batch_size=64, N=8:
+      → 8 questions saved per generate() call
+    With batch_size=128, N=8:
+      → 16 questions saved per generate() call
 
-    Save phase
-    ----------
-    After generation, yields results one question at a time so JSONL and
-    summary JSON are written immediately — crash-resume still works at
-    question granularity.
+    This function receives each (q_idx, traces) immediately, runs _select(),
+    and yields (example, InferenceResult) to the evaluator for saving.
+    No waiting for all chunks to finish.
     """
     bs = method.model.batch_size
     N  = method.N
@@ -192,58 +185,72 @@ def _sampling_results(method, pending, max_new_tokens, label, colour) -> Iterato
     logger.info(
         f"  Flat-batch generation: Q={len(questions)}  N={N}  "
         f"batch_size={bs}  →  {len(questions)*N} total seqs  "
-        f"→  {-(-len(questions)*N // bs)} generate() calls"
+        f"→  {-(-len(questions)*N // bs)} generate() calls  "
+        f"→  saving every {bs // N} questions"
     )
 
-    # ── Generation: all questions × N in flat batched chunks ──────────────────
-    try:
-        all_traces = method.model.generate_samples_flat(
-            questions, N=N,
-            temperature=method.temperature, top_p=method.top_p,
-            max_new_tokens=max_new_tokens,
-        )
-    except Exception as e:
-        logger.error(f"  generate_samples_flat failed: {e}. Falling back to per-question.")
-        all_traces = [
-            method.model.generate_samples(
-                q, N=N,
-                temperature=method.temperature, top_p=method.top_p,
-                max_new_tokens=max_new_tokens,
-            )
-            for q in questions
-        ]
+    n_correct = 0
+    n_done    = 0
 
-    # ── Select + yield: one question at a time for immediate saving ───────────
-    pbar = tqdm(
-        zip(pending, golds, all_traces),
+    save_bar = tqdm(
         total=len(pending),
-        desc=f"{label}  select",
+        desc=f"{label}",
         unit="q",
         dynamic_ncols=True,
         colour=colour,
     )
-    n_correct = 0
 
-    for i, (ex, gold, traces) in enumerate(pbar):
-        try:
-            res = method._select(ex["question"], gold, traces, elapsed=0.0)
-        except Exception as e:
-            logger.error(f"  _select q[{i}] failed: {e}")
-            from inference_methods import _make_error_result  # type: ignore
-            res = _make_error_result(
-                method.__class__.__name__.lower(), ex["question"], gold, N
-            )
+    try:
+        for q_idx, traces in method.model.generate_samples_flat(
+            questions, N=N,
+            temperature=method.temperature, top_p=method.top_p,
+            max_new_tokens=max_new_tokens,
+        ):
+            ex   = pending[q_idx]
+            gold = golds[q_idx]
 
-        if res.is_correct is not None:
-            n_correct += int(res.is_correct)
-            pbar.set_postfix(
-                acc=f"{n_correct/(i+1):.3f}",
-                correct=f"{n_correct}/{i+1}",
-                refresh=False,
-            )
-        yield ex, res
+            try:
+                res = method._select(ex["question"], gold, traces, elapsed=0.0)
+            except Exception as e:
+                logger.error(f"  _select q[{q_idx}] failed: {e}")
+                from inference_methods import _make_error_result  # type: ignore
+                res = _make_error_result(
+                    method.__class__.__name__.lower(), ex["question"], gold, N
+                )
 
-    pbar.close()
+            n_done += 1
+            if res.is_correct is not None:
+                n_correct += int(res.is_correct)
+                save_bar.set_postfix(
+                    acc=f"{n_correct/n_done:.3f}",
+                    correct=f"{n_correct}/{n_done}",
+                    refresh=False,
+                )
+            save_bar.update(1)
+            yield ex, res   # → evaluator writes JSONL + summary immediately
+
+    except Exception as e:
+        logger.error(f"  generate_samples_flat failed: {e}. Falling back to per-question.")
+        # Fallback: per-question loop
+        for i, (ex, gold) in enumerate(zip(pending[n_done:], golds[n_done:]), start=n_done):
+            try:
+                traces = method.model.generate_samples(
+                    ex["question"], N=N,
+                    temperature=method.temperature, top_p=method.top_p,
+                    max_new_tokens=max_new_tokens,
+                )
+                res = method._select(ex["question"], gold, traces, elapsed=0.0)
+            except Exception as e2:
+                logger.error(f"  fallback q[{i}] failed: {e2}")
+                from inference_methods import _make_error_result  # type: ignore
+                res = _make_error_result(
+                    method.__class__.__name__.lower(), ex["question"], gold, N
+                )
+            n_done += 1
+            save_bar.update(1)
+            yield ex, res
+    finally:
+        save_bar.close()
 
 
 # ──────────────────────────────────────────────────────────────────────────────
@@ -280,6 +287,7 @@ def evaluate_batch(
     dict: accuracy, n_correct, n_total, avg_elapsed_sec, total_wall_sec, results
     """
     from inference_methods import GreedyInference, BestOfN, DNBestOfN  # type: ignore
+    from inference_methods import GreedyPassN, BestOfNMajority          # type: ignore
     method_name = method.__class__.__name__
 
     # ── load already-completed results from previous run ──────────────────────
@@ -328,6 +336,16 @@ def evaluate_batch(
             method, pending, max_new_tokens,
             label=f"[DN-BoN N={method.N} α={method.alpha}]", colour="magenta",
         )
+    elif isinstance(method, GreedyPassN):
+        result_gen = _sampling_results(
+            method, pending, max_new_tokens,
+            label=f"[GreedyPass@N N={method.N}]", colour="cyan",
+        )
+    elif isinstance(method, BestOfNMajority):
+        result_gen = _sampling_results(
+            method, pending, max_new_tokens,
+            label=f"[BoN-Majority N={method.N}]", colour="yellow",
+        )
     else:
         raise TypeError(f"Unknown method type: {type(method)}")
 
@@ -340,6 +358,16 @@ def evaluate_batch(
             # Build the row
             row = res.to_dict()
             row["question"] = ex["question"][:300]
+
+            # ── Motivation experiment extra fields ─────────────────────────────
+            # DNBestOfN._select attaches _all_preds and _all_correct as
+            # ad-hoc attributes so they can be serialised here without
+            # changing the InferenceResult dataclass signature.
+            if hasattr(res, "_all_preds"):
+                row["all_predictions"] = res._all_preds
+            if hasattr(res, "_all_correct"):
+                row["all_correct"] = res._all_correct
+
             rows.append(row)
 
             # Update running counts

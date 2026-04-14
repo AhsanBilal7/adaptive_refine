@@ -1,22 +1,0 @@
-15:48:57 | INFO | run_eval | Loading dataset: math500
-15:49:02 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
-15:49:02 | INFO | run_eval | Loaded 500 examples.
-15:49:02 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=128
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-15:49:17 | INFO | model_wrapper | Loading tokenizer for Qwen/Qwen2.5-Math-7B-Instruct ...
-15:49:18 | INFO | model_wrapper | Loading model Qwen/Qwen2.5-Math-7B-Instruct ...
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:07,  2.44s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:04<00:04,  2.44s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:07<00:02,  2.43s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:09<00:00,  2.25s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:09<00:00,  2.31s/it]
-15:49:32 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=128
-15:49:32 | INFO | run_eval | Building verifier: outcome
-15:49:32 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
-15:49:32 | INFO | run_eval | 
-================================================================
-15:49:32 | INFO | run_eval |  Running : bon
-15:49:32 | INFO | run_eval |  Dataset : math500  N=8  batch_size=128
-15:49:32 | INFO | run_eval | ================================================================
-15:49:32 | INFO | evaluator | Resuming: 18 questions already done  (acc so far: 15/18)
-15:49:32 | INFO | evaluator | Evaluating 482/500 pending questions  (method=BestOfN)
-[BoN N=8]:   0%|[34m          [0m| 0/482 [00:00<?, ?q/s][BoN N=8]:   0%|[34m          [0m| 1/482 [01:14<9:54:03, 74.10s/q]15:52:54 | INFO | evaluator |   [20/500] acc=0.850 (17/20)
-[BoN N=8]:   0%|[34m          [0m| 2/482 [03:21<14:05:38, 105.70s/q][BoN N=8]:   1%|[34m          [0m| 3/482 [03:44<8:59:33, 67.59s/q]  [BoN N=8]:   1%|[34m          [0m| 4/482 [05:14<10:10:30, 76.63s/q][BoN N=8]:   1%|[34m          [0m| 5/482 [08:39<16:17:00, 122.90s/q][BoN N=8]:   1%|[34m          [0m| 6/482 [09:57<14:13:16, 107.56s/q][BoN N=8]:   1%|[34m▏         [0m| 7/482 [11:40<13:59:52, 106.09s/q][BoN N=8]:   2%|[34m▏         [0m| 8/482 [13:51<15:02:03, 114.18s/q][BoN N=8]:   2%|[34m▏         [0m| 9/482 [14:52<12:48:50, 97.53s/q] [BoN N=8]:   2%|[34m▏         [0m| 10/482 [15:29<10:19:24, 78.74s/q][BoN N=8]:   2%|[34m▏         [0m| 11/482 [16:02<8:27:29, 64.65s/q] 16:06:41 | INFO | evaluator |   [30/500] acc=0.867 (26/30)
-[BoN N=8]:   2%|[34m▏         [0m| 12/482 [17:08<8:31:24, 65.29s/q][BoN N=8]:   3%|[34m▎         [0m| 13/482 [18:07<8:14:30, 63.26s/q][BoN N=8]:   3%|[34m▎         [0m| 14/482 [18:59<7:46:47, 59.85s/q][BoN N=8]:   3%|[34m▎         [0m| 15/482 [19:40<7:01:27, 54.15s/q][BoN N=8]:   3%|[34m▎         [0m| 16/482 [21:20<8:47:36, 67.93s/q]

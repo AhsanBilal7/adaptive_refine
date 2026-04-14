@@ -1,59 +1,88 @@
 """
 run_eval.py
 -----------
-Main entry point for Greedy / BoN / DN-BoN evaluation.
+Main entry point for all five test-time compute strategies:
+
+  greedy        — single argmax decode per question
+  bon           — Best-of-N, select by verifier score
+  dn_bon        — Direction-Normalised BoN (proposed method)
+  greedy_pass_n — N samples, select by max sequence log-probability
+  bon_majority  — N samples, select by majority vote (self-consistency)
 
 Batch-size semantics
 --------------------
---batch_size  controls how many sequences are processed in ONE model.generate()
-              call.  The value is stored in model.batch_size and used as:
+--batch_size controls how many sequences are processed in ONE model.generate()
+call.  The value is stored in model.batch_size and used as:
 
-  Greedy : questions are chunked into groups of --batch_size; each group
-           is one generate() call with a left-padded batch.
+  Greedy        : questions chunked into groups of batch_size; each group
+                  is one generate() call.
 
-  BoN / DN-BoN : set --batch_size = N (recommended).  Each question's N
-           sample prompts are stacked into one batch of size N and decoded
-           in a single generate() call.  If --batch_size < N the N prompts
-           are split into ceil(N/batch_size) calls; if > N only N are used.
-
-In practice you almost always want --batch_size == --N for BoN/DN-BoN.
+  BoN / DN-BoN / greedy_pass_n / bon_majority:
+                  generate_samples_flat() builds a flat Q×N prompt list,
+                  chunks by batch_size, and yields completed questions as
+                  each chunk finishes.  With batch_size=128, N=8 → 16
+                  questions decoded per generate() call.
 
 Quick-start examples
 --------------------
-# All three methods, MATH-500, N=8, batch=8
+# All five methods, MATH-500, N=8, batch=128
 python run_eval.py \\
     --model Qwen/Qwen2.5-Math-7B-Instruct \\
     --dataset math500 \\
-    --methods greedy bon dn_bon \\
-    --N 8 --batch_size 8 \\
+    --methods greedy bon dn_bon greedy_pass_n bon_majority \\
+    --N 8 --batch_size 128 \\
     --max_samples 500
+
+# DN-BoN only
+python run_eval.py \\
+    --model Qwen/Qwen2.5-Math-7B-Instruct \\
+    --dataset math500 \\
+    --methods dn_bon \\
+    --N 8 --batch_size 128 \\
+    --max_samples 500
+
+# Greedy Pass@N (no verifier needed)
+python run_eval.py \\
+    --model Qwen/Qwen2.5-Math-7B-Instruct \\
+    --dataset math500 \\
+    --methods greedy_pass_n \\
+    --N 8 --batch_size 128 \\
+    --max_samples 500
+
+# BoN Majority / self-consistency (no verifier needed)
+python run_eval.py \\
+    --model Qwen/Qwen2.5-Math-7B-Instruct \\
+    --dataset aime24 \\
+    --methods bon_majority \\
+    --N 16 --batch_size 128 \\
+    --max_samples 32
 
 # Alpha ablation for DN-BoN on AIME-24
 python run_eval.py \\
     --model Qwen/Qwen2.5-Math-7B-Instruct \\
     --dataset aime24 \\
-    --alpha_ablation 0 0.5 1 \\
-    --N 16 --batch_size 16 \\
-    --max_samples 30
+    --alpha_ablation 0 0.25 0.5 0.75 1.0 \\
+    --N 8 --batch_size 128 \\
+    --max_samples 32
 
 # Budget scaling: vary N
 for N in 4 8 16 32; do
   python run_eval.py \\
     --model Qwen/Qwen2.5-Math-7B-Instruct \\
     --dataset math500 \\
-    --methods bon dn_bon \\
-    --N $N --batch_size $N \\
-    --max_samples 100 \\
+    --methods bon dn_bon greedy_pass_n bon_majority \\
+    --N $N --batch_size 128 \\
+    --max_samples 200 \\
     --output_dir ./results/scaling
 done
 
-# Low-VRAM with 4-bit quantisation (use smaller batch)
+# Low-VRAM with 4-bit quantisation
 python run_eval.py \\
     --model Qwen/Qwen2.5-Math-1.5B-Instruct \\
     --load_in_4bit \\
     --dataset gsm8k \\
-    --methods greedy bon dn_bon \\
-    --N 8 --batch_size 8
+    --methods greedy bon dn_bon greedy_pass_n bon_majority \\
+    --N 8 --batch_size 32
 """
 
 import argparse
@@ -97,7 +126,22 @@ def parse_args():
     g.add_argument("--dtype", default="auto",
                    choices=["auto", "float16", "bfloat16", "float32"])
     g.add_argument("--device", default="auto",
-                   help="'auto', 'cuda', 'cpu', or 'cuda:0'")
+                   help=(
+                       "'auto'   — use all visible GPUs via device_map=auto  "
+                       "(recommended; works for 1 or N GPUs)  |  "
+                       "'cuda:0' — pin to GPU 0  |  "
+                       "'cuda:1' — pin to GPU 1  |  "
+                       "'cpu'    — CPU only (debug)"
+                   ))
+    g.add_argument(
+        "--gpus", default=None,
+        help=(
+            "Comma-separated GPU indices to use, e.g. '0' or '0,1,2,3'.  "
+            "Sets CUDA_VISIBLE_DEVICES before loading the model.  "
+            "Overrides any existing CUDA_VISIBLE_DEVICES in the environment.  "
+            "Example: --gpus 0,1  uses GPU 0 and GPU 1 only."
+        ),
+    )
     g.add_argument("--load_in_4bit", action="store_true")
     g.add_argument("--load_in_8bit", action="store_true")
     g.add_argument("--max_new_tokens", type=int, default=1024)
@@ -123,10 +167,18 @@ def parse_args():
     g = p.add_argument_group("Methods")
     g.add_argument("--methods", nargs="+",
                    default=["greedy", "bon", "dn_bon"],
-                   choices=["greedy", "bon", "dn_bon"])
+                   choices=["greedy", "bon", "dn_bon",
+                            "greedy_pass_n", "bon_majority"],
+                   help=(
+                       "greedy        — single argmax decode\n"
+                       "bon           — Best-of-N with verifier score\n"
+                       "dn_bon        — Direction-Normalised BoN\n"
+                       "greedy_pass_n — N samples, pick by max log-probability\n"
+                       "bon_majority  — N samples, pick by majority vote"
+                   ))
     g.add_argument(
         "--N", type=int, default=8,
-        help="Number of samples for BoN / DN-BoN (recommend --batch_size == --N)",
+        help="Number of samples for BoN / DN-BoN / greedy_pass_n / bon_majority",
     )
     g.add_argument("--alpha", type=float, default=0.5,
                    help="DN-BoN normalisation exponent (0 = plain BoN)")
@@ -170,12 +222,32 @@ def main():
     args = parse_args()
     os.makedirs(args.output_dir, exist_ok=True)
 
-    # Warn only when batch_size is SMALLER than N for BoN/DN-BoN,
-    # which means N samples will be split across multiple generate() calls.
-    # batch_size > N is fine (unused capacity); batch_size == N is ideal.
-    needs_bon = ("bon" in args.methods or "dn_bon" in args.methods
-                 or args.alpha_ablation is not None)
-    if needs_bon and args.batch_size < args.N:
+    # ── 0. GPU setup ───────────────────────────────────────────────────────────
+    # Must happen before any torch/CUDA call so the device list is fixed.
+    if args.gpus is not None:
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.gpus
+        logger.info(f"CUDA_VISIBLE_DEVICES set to: {args.gpus}")
+
+    import torch
+    if torch.cuda.is_available():
+        n_gpus = torch.cuda.device_count()
+        gpu_names = [torch.cuda.get_device_name(i) for i in range(n_gpus)]
+        logger.info(f"GPUs available: {n_gpus}  →  {gpu_names}")
+        if n_gpus > 1:
+            logger.info(
+                "Multi-GPU detected — model will be sharded across all "
+                f"{n_gpus} GPUs via device_map='auto' (unless --device is pinned)."
+            )
+    else:
+        logger.info("No CUDA GPUs available — running on CPU")
+
+    # Warn when batch_size < N for any sampling method
+    sampling_methods = {"bon", "dn_bon", "greedy_pass_n", "bon_majority"}
+    needs_sampling = (
+        bool(set(args.methods) & sampling_methods)
+        or args.alpha_ablation is not None
+    )
+    if needs_sampling and args.batch_size < args.N:
         logger.warning(
             f"batch_size={args.batch_size} < N={args.N}.  "
             f"N samples per question will be split across "
@@ -294,11 +366,12 @@ def main():
             summary_every=1,             # rewrite after every single question
         )
 
-        if "dn_bon" in run_label:
+        # Log cluster/vote stats for methods that group traces
+        if "dn_bon" in run_label or "bon_majority" in run_label:
             r_stats = redundancy_stats(summary["results"])
             summary["redundancy_stats"] = r_stats
-            logger.info(f"Redundancy stats: {r_stats}")
-            # Final summary rewrite to include redundancy_stats
+            logger.info(f"Redundancy/vote stats: {r_stats}")
+            # Final summary rewrite to include the stats
             save_summary(summary, summary_path)
 
         all_summaries[run_label] = summary

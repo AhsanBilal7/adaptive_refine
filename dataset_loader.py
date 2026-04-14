@@ -34,53 +34,60 @@ logger = logging.getLogger(__name__)
 
 _HF_CONFIGS: Dict[str, Dict[str, Any]] = {
     "math500": {
-        "hf_path":    "HuggingFaceH4/MATH-500",
-        "hf_name":    "default",
-        "split":      "test",
+        "hf_path":      "HuggingFaceH4/MATH-500",
+        "hf_name":      "default",
+        "split":        "test",
         "question_key": "problem",
-        # answer extracted by _extract_gt, not read directly
+        "answer_key":   "solution",      # full worked solution; \boxed{} extracted
     },
     "aime24": {
-        "hf_path":    "Maxwell-Jia/AIME_2024",
-        "hf_name":    None,
-        "split":      "train",
+        "hf_path":      "Maxwell-Jia/AIME_2024",
+        "hf_name":      None,
+        "split":        "train",
         "question_key": "Problem",
+        "answer_key":   "Answer",        # clean integer string, used directly
     },
     "aime25": {
-        "hf_path":    "math-ai/aime25",
-        "hf_name":    None,
-        "split":      "test",
-        "question_key": "Problem",
+        "hf_path":      "math-ai/aime25",
+        "hf_name":      None,
+        "split":        "test",
+        "question_key": "problem",
+        "answer_key":   "answer",        # clean integer string, used directly
     },
     "amc23": {
-        "hf_path":    "Maxwell-Jia/AMC_2023",
-        "hf_name":    None,
-        "split":      "train",
-        "question_key": "Problem",
+        "hf_path":      "math-ai/amc23",
+        "hf_name":      None,
+        "split":        "test",
+        "question_key": "question",
+        "answer_key":   "answer",        # clean string, used directly
     },
     "gsm8k": {
-        "hf_path":    "openai/gsm8k",
-        "hf_name":    "main",
-        "split":      "test",
+        "hf_path":      "openai/gsm8k",
+        "hf_name":      "main",
+        "split":        "test",
         "question_key": "question",
+        "answer_key":   "answer",        # contains "#### <number>"; split on ####
     },
     "olympiadbench": {
-        "hf_path":    "lmms-lab/OlympiadBench",
-        "hf_name":    "OE_TO_maths_en_COMP",
-        "split":      "test",
+        "hf_path":      "lmms-lab/OlympiadBench",
+        "hf_name":      "OE_TO_maths_en_COMP",
+        "split":        "test",
         "question_key": "question",
+        "answer_key":   "final_answer",  # list; take [0] and strip $
     },
     "college_math": {
-        "hf_path":    "TIGER-Lab/college-math",
-        "hf_name":    None,
-        "split":      "test",
+        "hf_path":      "TIGER-Lab/college-math",
+        "hf_name":      None,
+        "split":        "test",
         "question_key": "problem",
+        "answer_key":   "answer",        # may be prefixed "answer: ..." or wrapped in $
     },
     "minerva_math": {
-        "hf_path":    "math-ai/minerva_math",
-        "hf_name":    None,
-        "split":      "test",
+        "hf_path":      "math-ai/minerva_math",
+        "hf_name":      None,
+        "split":        "test",
         "question_key": "problem",
+        "answer_key":   "answer",        # may contain \boxed{}; extracted if present
     },
 }
 
@@ -96,56 +103,68 @@ def _extract_gt(row: Dict, data_name: str) -> str:
     we read it directly.  For math500 / minerva_math the answer is buried inside
     a full solution string with \\boxed{}, so we call extract_answer() from
     parser.py to pull it out.
+
+    The answer_key for each dataset is declared in _HF_CONFIGS and used here
+    as the primary field lookup so the registry and extraction stay in sync.
     """
+    cfg = _HF_CONFIGS.get(data_name, {})
+    answer_key = cfg.get("answer_key", "answer")
 
     # ── math500: solution column contains the full worked solution ─────────────
     if data_name in ("math500", "math"):
-        solution = str(row.get("solution", ""))
+        solution = str(row.get(answer_key, ""))
         return _extract_boxed_from_solution(solution)
 
     # ── minerva_math: same structure as math500 ────────────────────────────────
     if data_name == "minerva_math":
-        solution = str(row.get("answer", row.get("solution", "")))
+        solution = str(row.get(answer_key, row.get("solution", "")))
         if "\\boxed" in solution or "boxed" in solution:
             return _extract_boxed_from_solution(solution)
         return solution.strip("$").strip()
 
-    # ── aime24 / aime25 / amc23: Answer field is already a clean integer/string
-    if data_name in ("aime24", "aime25", "amc23"):
-        return str(row.get("Answer", "")).strip()
+    # ── aime24 / amc23: Answer field is a clean integer string ────────────────
+    if data_name in ("aime24", "amc23"):
+        return str(row.get(answer_key, "")).strip()
+
+    # ── aime25: answer field (lowercase) is a clean integer string ────────────
+    if data_name == "aime25":
+        return str(row.get(answer_key, "")).strip()
 
     # ── gsm8k: "#### <number>" at the end of the answer field ─────────────────
     if data_name == "gsm8k":
-        raw = str(row.get("answer", ""))
+        raw = str(row.get(answer_key, ""))
         if "####" in raw:
             return raw.split("####")[-1].strip()
         return raw.strip()
 
     # ── olympiadbench: final_answer is a list ──────────────────────────────────
     if data_name == "olympiadbench":
-        fa = row.get("final_answer", [""])
+        fa = row.get(answer_key, [""])
         val = fa[0] if isinstance(fa, list) and fa else str(fa)
         return str(val).strip("$").strip()
 
     # ── college_math ───────────────────────────────────────────────────────────
     if data_name == "college_math":
-        ans = str(row.get("answer", "")).strip()
-        # some entries are like "answer: 3" or "$3$"
+        ans = str(row.get(answer_key, "")).strip()
         ans = ans.strip("$").strip()
         if ans.lower().startswith("answer:"):
             ans = ans[len("answer:"):].strip()
         return ans
 
-    # ── generic fallback: try common key names ─────────────────────────────────
-    for key in ("answer", "Answer", "solution", "target", "label"):
-        val = row.get(key)
-        if val is not None:
-            raw = str(val).strip()
-            if "####" in raw:
-                return raw.split("####")[-1].strip()
-            if "\\boxed" in raw or "boxed" in raw:
-                return _extract_boxed_from_solution(raw)
-            return raw.strip("$").strip()
+    # ── generic fallback: use answer_key from registry, then common names ──────
+    val = row.get(answer_key)
+    if val is None:
+        for key in ("answer", "Answer", "solution", "target", "label"):
+            val = row.get(key)
+            if val is not None:
+                break
+    if val is not None:
+        raw = str(val).strip()
+        if "####" in raw:
+            return raw.split("####")[-1].strip()
+        if "\\boxed" in raw or "boxed" in raw:
+            return _extract_boxed_from_solution(raw)
+        return raw.strip("$").strip()
 
     return ""
 

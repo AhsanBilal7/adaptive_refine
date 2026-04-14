@@ -1,4 +1,0 @@
-15:25:28 | INFO | run_eval | Loading dataset: aime24
-15:25:32 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
-15:25:32 | INFO | run_eval | Loaded 30 examples.
-15:25:32 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=128
