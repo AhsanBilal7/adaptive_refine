@@ -65,7 +65,7 @@ PYTHON="python"
 # encodes MAX_NEW_TOKENS, TEMPERATURE, TOP_P, and quantisation flags.
 # All experiment JSONL + summary JSON files go into that one folder.
 # -----------------------------------------------------------------------------
-BASE_OUT="./results"
+BASE_OUT="./results_updated"
 
 # -----------------------------------------------------------------------------
 # MAX_NEW_TOKENS
@@ -133,7 +133,7 @@ TOP_P=0.95
 #
 # If you hit CUDA OOM: halve LM_BATCH_SIZE first, then reduce N_SAMPLES.
 # -----------------------------------------------------------------------------
-LM_BATCH_SIZE=8
+LM_BATCH_SIZE=32
 
 # -----------------------------------------------------------------------------
 # N_SAMPLES  —  number of candidate traces sampled per question for BoN/DN-BoN
@@ -221,7 +221,7 @@ PRM_MODEL="Qwen/Qwen2.5-Math-PRM-7B"
 #   mean  — average quality across all steps
 #   last  — quality of the final answer step only
 # -----------------------------------------------------------------------------
-PRM_AGGREGATION="min"
+PRM_AGGREGATION="mean"
 
 # -----------------------------------------------------------------------------
 # EMBEDDING_MODEL

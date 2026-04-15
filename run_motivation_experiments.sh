@@ -46,10 +46,11 @@ MODEL="Qwen/Qwen2.5-Math-7B-Instruct"
 PYTHON="python"
 
 # Datasets to run
-DATASETS="math500 aime24 aime25 amc23 gsm8k"
+# DATASETS="math500 aime24 aime25 amc23"
+DATASETS="aime25"
 
 # N values to sweep — Exp 1 needs at least 3 values to show the budget curve
-N_LIST="4 8 16 32"
+N_LIST="2 4 8 16 32"
 
 # Methods to run for each (dataset, N)
 #   dn_bon       — required for all 5 experiments
@@ -61,14 +62,14 @@ METHODS="dn_bon bon bon_majority"
 MAX_NEW_TOKENS=2048
 TEMPERATURE=0.7
 TOP_P=0.95
-LM_BATCH_SIZE=64
+LM_BATCH_SIZE=2
 DTYPE="auto"
 LOAD_4BIT=0
 LOAD_8BIT=0
 GPUS=""              # e.g. "0,1" for multi-GPU; "" = all visible
 
 # Output directories
-BASE_OUT="./results"
+BASE_OUT="./results_updated"
 ANALYSIS_OUT="./motivation_analysis"
 
 # HuggingFace cache
@@ -100,7 +101,7 @@ PRM_MODEL="Qwen/Qwen2.5-Math-PRM-7B"
 #   mean  — average quality across all steps
 #   last  — quality of the final step only
 # Use the same aggregation as your main experiments.
-PRM_AGGREGATION="min"
+PRM_AGGREGATION="mean"
 
 EMBEDDING_MODEL="all-MiniLM-L6-v2"
 SIMILARITY_THRESHOLD=0.85
@@ -122,7 +123,7 @@ N_BINS=3
 # so PRM-scored and outcome-scored results land in separate folders and never mix.
 model_short="${MODEL##*/}"
 model_short="${model_short//[: ]/_}"
-RUN_TAG="${model_short}_mnt${MAX_NEW_TOKENS}_t${TEMPERATURE}_p${TOP_P}_v${VERIFIER}"
+RUN_TAG="${model_short}_mnt${MAX_NEW_TOKENS}_t${TEMPERATURE}_p${TOP_P}"
 [[ "${LOAD_4BIT}" == "1" ]] && RUN_TAG+="_4bit"
 [[ "${LOAD_8BIT}" == "1" ]] && RUN_TAG+="_8bit"
 RESULTS_DIR="${BASE_OUT}/${RUN_TAG}"

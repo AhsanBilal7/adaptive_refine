@@ -49,14 +49,17 @@ MODEL="Qwen/Qwen2.5-Math-7B-Instruct"
 #   4096  — very long CoT; slow but complete
 #   8192  — maximum; only for models that support it
 # -----------------------------------------------------------------------------
-TOKEN_LIST="1024 2048 4096"
-
+# TOKEN_LIST="1024 2048 4096"
+# TOKEN_LIST="1024 2048 4096 8192 12288 16384 24576 32768 49152 65536 81920 100000"
+# TOKEN_LIST="1024 4096"
+TOKEN_LIST="8192 12288 16384 24576 32768 49152 65536 81920 100000"
 # -----------------------------------------------------------------------------
 # DATASETS
 # Space-separated list of datasets to run for each token budget.
 # Valid: math500  aime24  aime25  amc23  gsm8k
 # -----------------------------------------------------------------------------
-DATASETS="math500 aime24 aime25 amc23 gsm8k"
+DATASETS="aime24"
+# DATASETS="math500 aime24 aime25 amc23"
 
 # -----------------------------------------------------------------------------
 # METHODS
@@ -70,7 +73,8 @@ DATASETS="math500 aime24 aime25 amc23 gsm8k"
 #   greedy_pass_n — no verifier needed; uses model log-probability
 #   bon_majority  — no verifier needed; uses majority vote
 # -----------------------------------------------------------------------------
-METHODS="greedy bon dn_bon greedy_pass_n bon_majority"
+# METHODS="greedy bon dn_bon greedy_pass_n bon_majority"
+METHODS="bon dn_bon greedy_pass_n bon_majority"
 
 # -----------------------------------------------------------------------------
 # N_SAMPLES
@@ -87,7 +91,7 @@ N_SAMPLES=8
 # Set equal to N_SAMPLES for BoN so all N prompts decode in one call.
 # For H100 60 GB with a 7B model: 64–128 is safe.
 # -----------------------------------------------------------------------------
-LM_BATCH_SIZE=64
+LM_BATCH_SIZE=32
 
 # -----------------------------------------------------------------------------
 # TEMPERATURE / TOP_P
@@ -107,7 +111,7 @@ LOAD_8BIT=0   # set 1 for int8  (~8 GB for 7B)
 # BASE_OUT
 # Root output directory. One sub-folder is created per token budget.
 # -----------------------------------------------------------------------------
-BASE_OUT="./results"
+BASE_OUT="./results_updated"
 
 # -----------------------------------------------------------------------------
 # PYTHON
@@ -157,7 +161,7 @@ VERIFIER="prm"
 #   PRM_AGGREGATION : min (conservative) | mean | last
 # -----------------------------------------------------------------------------
 PRM_MODEL="Qwen/Qwen2.5-Math-PRM-7B"
-PRM_AGGREGATION="min"
+PRM_AGGREGATION="mean"
 
 EMBEDDING_MODEL="all-MiniLM-L6-v2"
 SIMILARITY_THRESHOLD=0.85

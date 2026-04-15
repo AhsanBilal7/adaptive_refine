@@ -218,6 +218,7 @@ class HFProcessRewardVerifier:
             trust_remote_code=True,
             cache_dir=cache_dir,
         )
+        self._model.config.use_cache = False
         if device not in ("auto",):
             self._model = self._model.to(device)
         self._model.eval()
