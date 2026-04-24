@@ -1,0 +1,44 @@
+Please act as a commonsense teacher and solve the commonsense reasoning problem step by step.
+####
+# Question:
+Quinn wanted to help me clean my room up because it was so messy. What will Quinn want to do next?
+# Options:
+(A) Eat messy snacks
+(B) help out a friend
+(C) Pick up the dirty clothes
+# Reasoning:
+Step 1: Quinn want to clean the room up.
+Step 2: Picking up the dirty clothes is one way to clean the room.
+Step 3: Thus, quinn will want to pick up the dirty clothes next.
+Step 4: The answer is: C
+####
+# Question:
+Sydney had so much pent up emotion, they burst into tears at work. How would Sydney feel afterwards?
+# Options:
+(A) affected
+(B) like they released their tension
+(C) worse
+# Reasoning:
+Step 1: Crying is often a way to release tension.
+Step 2: Sydney burst into tears at work.
+Step 3: Thus, she would release the tension.
+Step 4: The answer is: B
+####
+# Question:
+Their cat kept trying to escape out of the window, so Jan placed an obstacle in the way. How would Jan feel afterwards?
+# Options:
+(A) scared of losing the cat
+(B) normal
+(C) relieved for fixing the problem 
+# Reasoning:
+Step 1: The cat try to escape so Jan need to stop it to avoid losing the cat.
+Step 2: Jan place an obstacle in the way so the cat can not escape.
+Step 3: The problem is been solved.
+Step 4: Thus, Jan will fell relieved for fixing the problem.
+Step 5: The answer is: C
+####
+# Question:
+{{question}}
+# Options:
+{{options}}
+# Reasoning:

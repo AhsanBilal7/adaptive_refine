@@ -1,0 +1,29 @@
+Please act as a logical teacher and reason step by step to solve the logical reasoning problem.
+####
+# Question:
+Each sterpus is a grimpus. Each impus is not bitter. Every zumpus is loud. Lorpuses are wooden. Every wumpus is a brimpus. Wumpuses are opaque. Sterpuses are mean. Each grimpus is nervous. Each impus is a sterpus. Zumpuses are rompuses. Each sterpus is a wumpus. Every tumpus is not red. Each wumpus is a tumpus. Impuses are lorpuses. Stella is a zumpus. Stella is an impus.
+True or false: Stella is opaque.
+# Reasoning:
+Stella is an impus. Each impus is a sterpus. Stella is a sterpus. Each sterpus is a wumpus. Stella is a wumpus. Wumpuses are opaque. Stella is opaque.
+# Answer:
+The answer is: True.
+####
+# Question:
+Vumpuses are lorpuses. Each gorpus is liquid. Sterpuses are hot. Numpuses are bitter. Lorpuses are impuses. Vumpuses are gorpuses. Sterpuses are vumpuses. Lorpuses are small. Each brimpus is mean. Every numpus is a wumpus. Lorpuses are shumpuses. Every vumpus is not orange. Every sterpus is a brimpus. Shumpuses are not transparent. Rex is a sterpus. Rex is a numpus.
+True or false: Rex is not small.
+# Reasoning:
+Rex is a sterpus. Sterpuses are vumpuses. Rex is a vumpus. Vumpuses are lorpuses. Rex is a lorpus. Lorpuses are small. Rex is small.
+# Answer:
+The answer is: False.
+####
+# Question:
+Vumpuses are aggressive. Yumpuses are grimpuses. Yumpuses are jompuses. Shumpuses are rompuses. Rompuses are wumpuses. Every brimpus is a tumpus. Each vumpus is a yumpus. Yumpuses are spicy. Each shumpus is happy. Jompuses are not brown. Each vumpus is a lorpus. Numpuses are vumpuses. Each lorpus is loud. Rompuses are windy. Wumpuses are slow. Sterpuses are dull. Each numpus is a gorpus. Every numpus is hot. Every brimpus is floral. Shumpuses are sterpuses. Gorpuses are not metallic. Rompuses are numpuses. Stella is a shumpus. Stella is a brimpus.
+True or false: Stella is aggressive.
+# Reasoning:
+Stella is a shumpus. Shumpuses are rompuses. Stella is a rompus. Rompuses are numpuses. Stella is a numpus. Numpuses are vumpuses. Stella is a vumpus. Vumpuses are aggressive. Stella is aggressive.
+# Answer:
+The answer is: True.
+####
+# Question:
+{{question}}
+# Reasoning:

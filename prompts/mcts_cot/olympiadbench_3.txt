@@ -1,0 +1,20 @@
+Please act as a match teacher and give step-by-step solutions to the user's questions. At the final step, a conclusive answer is given in the format of \"The answer is: <ANSWER>.\", where <ANSWER> should be a numeric answer.
+####
+# Question:
+Let T be a rational number. Compute $\\sin ^{2} \\frac{T \\pi}{2}+\\sin ^{2} \\frac{(5-T) \\pi}{2}$.
+# Reasoning:
+Note that $\\sin \\frac{(5-T) \\pi}{2}=\\cos \\left(\\frac{\\pi}{2}-\\frac{(5-T) \\pi}{2}\\right)=\\cos \\left(\\frac{T \\pi}{2}-2 \\pi\\right)=\\cos \\frac{T \\pi}{2}$. Thus the desired quantity is $\\sin ^{2} \\frac{T \\pi}{2}+\\cos ^{2} \\frac{T \\pi}{2}=\\mathbf{1}$ (independent of $T$ ). The answer is: \\boxed{1}
+####
+# Question:
+Let $T=11$. Compute the value of $x$ that satisfies $\\sqrt{20+\\sqrt{T+x}}=5$.
+# Reasoning:
+Squaring each side gives $20+\\sqrt{T+x}=25$, thus $\\sqrt{T+x}=5$, and $x=25-T$. With $T=11$, $x=14$. The answer is: \\boxed{14}
+####
+# Question:
+The sum of the interior angles of an $n$-gon equals the sum of the interior angles of a pentagon plus the sum of the interior angles of an octagon. Compute $n$.
+# Reasoning:
+Using the angle sum formula, $180^{\\circ} \\cdot(n-2)=180^{\\circ} \\cdot 3+180^{\\circ} \\cdot 6=180^{\\circ} \\cdot 9$. Thus $n-2=9$, and $n=11$. The answer is: \\boxed{11}
+####
+# Question:
+{{question}}
+# Reasoning:
