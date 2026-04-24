@@ -288,6 +288,7 @@ def evaluate_batch(
     """
     from inference_methods import GreedyInference, BestOfN, DNBestOfN  # type: ignore
     from inference_methods import GreedyPassN, BestOfNMajority          # type: ignore
+    from inference_methods import DNBonUpdated                           # type: ignore
     method_name = method.__class__.__name__
 
     # ── load already-completed results from previous run ──────────────────────
@@ -346,6 +347,15 @@ def evaluate_batch(
             method, pending, max_new_tokens,
             label=f"[BoN-Majority N={method.N}]", colour="yellow",
         )
+    elif isinstance(method, DNBonUpdated):
+        # DORA: soft quality × uniqueness scoring.
+        # Uses the same _sampling_results generator as other sampling methods —
+        # the selection logic is fully self-contained in DNBonUpdated._select().
+        result_gen = _sampling_results(
+            method, pending, max_new_tokens,
+            label=f"[DN-BoN-Updated N={method.N} T_b={method.T_b} T_s={method.T_s}]",
+            colour="cyan",
+        )
     else:
         raise TypeError(f"Unknown method type: {type(method)}")
 
@@ -367,6 +377,18 @@ def evaluate_batch(
                 row["all_predictions"] = res._all_preds
             if hasattr(res, "_all_correct"):
                 row["all_correct"] = res._all_correct
+            # DNBonUpdated (DORA) attaches additional scoring fields:
+            #   _quality_weights : softmax quality weights w_i  (list of N floats)
+            #   _gamma           : uniqueness scores γ_i = P_ii  (list of N floats)
+            #   _T_b / _T_s      : temperature hyperparameters used
+            if hasattr(res, "_quality_weights"):
+                row["quality_weights"] = [round(v, 6) for v in res._quality_weights]
+            if hasattr(res, "_gamma"):
+                row["gamma"] = [round(v, 6) for v in res._gamma]
+            if hasattr(res, "_T_b"):
+                row["T_b"] = res._T_b
+            if hasattr(res, "_T_s"):
+                row["T_s"] = res._T_s
 
             rows.append(row)
 

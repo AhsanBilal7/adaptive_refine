@@ -325,6 +325,186 @@ class OlympiadEvaluator(Evaluator):
 # Registry
 # ──────────────────────────────────────────────────────────────────────────────
 
+# ──────────────────────────────────────────────────────────────────────────────
+# Registry
+# ──────────────────────────────────────────────────────────────────────────────
+
+# ── Multiple-choice evaluator (MMLU, ARC-Challenge) ───────────────────────────
+# Gold answer is a single letter A/B/C/D.
+# Model answer is extracted by looking for the last standalone letter
+# A/B/C/D in the completion (inside \boxed{} if present, otherwise raw).
+# Equivalence: exact letter match after normalisation.
+
+class MCQEvaluator(Evaluator):
+    """
+    Evaluator for multiple-choice benchmarks where the gold answer is a
+    single letter (A, B, C, D).
+
+    Used for: MMLU, ARC-Challenge.
+
+    Answer extraction strategy (in priority order):
+      1. Content of \\boxed{} if present.
+      2. Last occurrence of a standalone A/B/C/D/E in the completion.
+      3. First character of the stripped completion if it is a letter.
+    """
+
+    # Letters that are valid single-option answers
+    _VALID = set("ABCDE")
+
+    def _check_answers_equiv(self, answer_a: str, answer_b: str):
+        if answer_a is None or answer_b is None:
+            return None
+        # Normalise both to uppercase letter
+        a = answer_a.strip().upper()
+        b = answer_b.strip().upper()
+        # Strip trailing punctuation (e.g. "A." → "A")
+        a = a.rstrip(".):").strip()
+        b = b.rstrip(".):").strip()
+        if not a or not b:
+            return False
+        return a == b
+
+    def validate_model_completion(self, completion: str) -> bool:
+        # Accept any non-empty string; extraction handles missing \boxed{}
+        return isinstance(completion, str) and len(completion.strip()) > 0
+
+    def _extract_answer_from_gold_solution(self, solution: str) -> str:
+        return solution.strip().upper().rstrip(".):").strip()
+
+    def _extract_answer_from_model_completion(self, completion: str) -> str:
+        if not completion:
+            return ""
+
+        # 1. Try \boxed{} first
+        box = self._last_boxed_only_string(completion)
+        if box:
+            ans = self._remove_boxed(box)
+            if ans:
+                return ans.strip().upper().rstrip(".):").strip()
+
+        # 2. Last standalone letter A-E preceded by whitespace / punctuation
+        import re as _re
+        matches = _re.findall(r'(?<![A-Za-z])([A-E])(?![A-Za-z])', completion.upper())
+        if matches:
+            return matches[-1]
+
+        # 3. First character of stripped completion
+        first = completion.strip()[0].upper()
+        if first in self._VALID:
+            return first
+
+        return completion.strip()[:1].upper()
+
+
+# ── Yes/No evaluator (StrategyQA) ──────────────────────────────────────────────
+# Gold answer is "yes" or "no".  Model answer is extracted by searching
+# for the first occurrence of "yes" or "no" in the completion.
+
+class YesNoEvaluator(Evaluator):
+    """
+    Evaluator for binary yes/no questions.
+
+    Used for: StrategyQA.
+
+    Answer extraction: search for "yes"/"no" (case-insensitive) in the
+    completion, preferring \\boxed{} content first.
+    """
+
+    def _check_answers_equiv(self, answer_a: str, answer_b: str):
+        if answer_a is None or answer_b is None:
+            return None
+        return answer_a.strip().lower() == answer_b.strip().lower()
+
+    def validate_model_completion(self, completion: str) -> bool:
+        return isinstance(completion, str) and len(completion.strip()) > 0
+
+    def _extract_answer_from_gold_solution(self, solution: str) -> str:
+        return solution.strip().lower()
+
+    def _extract_answer_from_model_completion(self, completion: str) -> str:
+        if not completion:
+            return ""
+
+        # 1. \boxed{} content
+        box = self._last_boxed_only_string(completion)
+        if box:
+            ans = self._remove_boxed(box)
+            if ans:
+                lower = ans.strip().lower()
+                if lower in ("yes", "no"):
+                    return lower
+
+        # 2. First occurrence of "yes" or "no" as a whole word
+        import re as _re
+        m = _re.search(r'\b(yes|no)\b', completion.lower())
+        if m:
+            return m.group(1)
+
+        return ""
+
+
+# ── BBH (Big-Bench Hard) evaluator ────────────────────────────────────────────
+# BBH tasks have heterogeneous answer formats (letters, words, numbers, dates).
+# We use a multi-strategy approach: exact match → normalised string → numeric.
+
+class BBHEvaluator(Evaluator):
+    """
+    Evaluator for BIG-Bench Hard tasks.
+
+    BBH answers can be:
+      - Multiple-choice letters: (A), (B), (C) …
+      - Short strings: "valid", "True", "False", specific words
+      - Numbers or dates
+
+    Extraction: \\boxed{} first, then last parenthesised letter (A)/(B)…,
+    then last quoted string, then full stripped completion.
+    """
+
+    def _check_answers_equiv(self, answer_a: str, answer_b: str):
+        if answer_a is None or answer_b is None:
+            return None
+        a = answer_a.strip().lower().strip("().,")
+        b = answer_b.strip().lower().strip("().,")
+        if a == b:
+            return True
+        # Numeric fallback
+        try:
+            return abs(float(a) - float(b)) < 1e-6
+        except (ValueError, TypeError):
+            pass
+        return False
+
+    def validate_model_completion(self, completion: str) -> bool:
+        return isinstance(completion, str) and len(completion.strip()) > 0
+
+    def _extract_answer_from_gold_solution(self, solution: str) -> str:
+        return solution.strip()
+
+    def _extract_answer_from_model_completion(self, completion: str) -> str:
+        if not completion:
+            return ""
+
+        # 1. \boxed{} content
+        box = self._last_boxed_only_string(completion)
+        if box:
+            ans = self._remove_boxed(box)
+            if ans:
+                return ans.strip()
+
+        # 2. Last parenthesised option: (A), (B), …
+        import re as _re
+        matches = _re.findall(r'\(([A-E])\)', completion.upper())
+        if matches:
+            return f"({matches[-1]})"
+
+        # 3. Last line of the completion (often the answer in BBH)
+        lines = [l.strip() for l in completion.strip().splitlines() if l.strip()]
+        if lines:
+            return lines[-1]
+
+        return completion.strip()
+
+
 EvaluatorMapping = {
     "GSM8K":             GSM8KEvaluator,
     "GSM_Hard":          GSM8KEvaluator,
@@ -341,6 +521,13 @@ EvaluatorMapping = {
     "AIME2024":          MATHEvaluator,
     "OlympiadBench":     OlympiadEvaluator,
     "NuminaMath":        MATHEvaluator,
+    # ── New general-reasoning benchmarks ──────────────────────────────────────
+    "MMLU":              MCQEvaluator,
+    "ARC":               MCQEvaluator,
+    "ARC_Challenge":     MCQEvaluator,
+    "BBH":               BBHEvaluator,
+    "TruthfulQA":        MCQEvaluator,   # gold = correct choice text; compare as string
+    "StrategyQA":        YesNoEvaluator,
 }
 
 
@@ -349,4 +536,12 @@ def get_evaluator(task_name: str = "MATH500") -> Evaluator:
         return EvaluatorMapping[task_name]()
     if any(x in task_name for x in ["MATH", "ScaleQuest", "NuminaMath", "OpenMathInstruct"]):
         return MATHEvaluator()
+    if any(x in task_name for x in ["MMLU", "ARC"]):
+        return MCQEvaluator()
+    if "BBH" in task_name:
+        return BBHEvaluator()
+    if "StrategyQA" in task_name or "strategy" in task_name.lower():
+        return YesNoEvaluator()
+    if "TruthfulQA" in task_name or "truthful" in task_name.lower():
+        return MCQEvaluator()
     raise ValueError(f"Task '{task_name}' not in EvaluatorMapping")

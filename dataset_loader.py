@@ -1,14 +1,14 @@
 """
 dataset_loader.py
 -----------------
-Unified dataset loading for math reasoning benchmarks.
+Unified dataset loading for math reasoning and general reasoning benchmarks.
 
 Ground-truth answer extraction
 -------------------------------
 Every dataset stores answers differently.  This module handles the
 extraction explicitly per dataset so the `answer` field in every
 returned example is always a clean, stripped final answer string
-(e.g. "2", "\\frac{1}{3}", "16") — never a full solution paragraph.
+(e.g. "2", "\\frac{1}{3}", "16", "A", "yes") — never a full solution paragraph.
 
 The extraction pipeline for each dataset:
   math500      : extract_answer(solution_text, "math")   via parser.py
@@ -18,6 +18,13 @@ The extraction pipeline for each dataset:
   olympiadbench: row["final_answer"][0].strip("$")
   college_math : row["answer"]
   minerva_math : row["answer"]
+  mmlu         : ABCD[row["answer"]]  (int 0-3 mapped to letter)
+                 question rebuilt as "{stem}\\nA. ...\\nB. ...\\nC. ...\\nD. ..."
+  bbh          : row["target"]        (free-form string, used directly)
+  arc_challenge: row["answerKey"]     (letter A-D; normalised if given as 1-4)
+                 question rebuilt with labelled choices appended
+  truthfulqa   : row["mc1_targets"]["choices"][labels.index(1)]  (correct choice text)
+  strategyqa   : "yes" or "no"  (converted from bool row["answer"])
   custom       : row["answer"] or row["solution"]
 """
 
@@ -69,9 +76,9 @@ _HF_CONFIGS: Dict[str, Dict[str, Any]] = {
         "answer_key":   "answer",        # contains "#### <number>"; split on ####
     },
     "olympiadbench": {
-        "hf_path":      "lmms-lab/OlympiadBench",
+        "hf_path":      "Hothan/OlympiadBench",
         "hf_name":      "OE_TO_maths_en_COMP",
-        "split":        "test",
+        "split":        "train",
         "question_key": "question",
         "answer_key":   "final_answer",  # list; take [0] and strip $
     },
@@ -88,6 +95,60 @@ _HF_CONFIGS: Dict[str, Dict[str, Any]] = {
         "split":        "test",
         "question_key": "problem",
         "answer_key":   "answer",        # may contain \boxed{}; extracted if present
+    },
+    # ── General reasoning / knowledge benchmarks ──────────────────────────────
+    "mmlu": {
+        # Massive Multitask Language Understanding (Hendrycks et al., 2021)
+        # 57 subjects, multiple-choice A/B/C/D.
+        # answer field: int (0-3); we map to the letter A/B/C/D.
+        # question field contains only the stem; choices are a separate list.
+        # We build the full question string here:
+        #   "{stem}\nA. {choice0}\nB. {choice1}\nC. {choice2}\nD. {choice3}"
+        "hf_path":      "cais/mmlu",
+        "hf_name":      "all",
+        "split":        "test",
+        "question_key": "question",      # raw stem; choices appended in _extract_gt
+        "answer_key":   "answer",        # int 0-3 → mapped to "A"/"B"/"C"/"D"
+    },
+    "bbh": {
+        # BIG-Bench Hard (Suzgun et al., 2022) — 23 challenging reasoning tasks.
+        # question_key: "input"   (the task prompt, already self-contained)
+        # answer_key:   "target"  (free-form string, used directly)
+        "hf_path":      "lukaemon/bbh",
+        "hf_name":      "all",
+        "split":        "test",
+        "question_key": "input",
+        "answer_key":   "target",        # string; used directly
+    },
+    "arc_challenge": {
+        # ARC Challenge set (Clark et al., 2018) — science MCQ, harder subset.
+        # answerKey is a single letter "A"/"B"/"C"/"D" (or "1"/"2"/"3"/"4").
+        # We also format the full question with labelled choices.
+        "hf_path":      "allenai/ai2_arc",
+        "hf_name":      "ARC-Challenge",
+        "split":        "test",
+        "question_key": "question",      # stem; choices appended in _extract_gt
+        "answer_key":   "answerKey",     # "A"/"B"/"C"/"D" or "1"/"2"/"3"/"4"
+    },
+    "truthfulqa": {
+        # TruthfulQA MC1 split (Lin et al., 2022) — 817 questions.
+        # mc1_targets is a dict: {"choices": [...], "labels": [...]}
+        # Exactly one label == 1; that choice is the correct answer.
+        "hf_path":      "truthfulqa/truthful_qa",
+        "hf_name":      "multiple_choice",
+        "split":        "validation",
+        "question_key": "question",
+        "answer_key":   "mc1_targets",   # dict; correct = choices[labels.index(1)]
+    },
+    "strategyqa": {
+        # StrategyQA (Geva et al., 2021) — yes/no questions requiring multi-step
+        # reasoning via implicit strategy decomposition.
+        # answer field: bool (True/False) → normalised to "yes"/"no".
+        "hf_path":      "wics/strategy-qa",
+        "hf_name":      None,
+        "split":        "test",
+        "question_key": "question",
+        "answer_key":   "answer",        # bool → "yes" / "no"
     },
 }
 
@@ -150,6 +211,57 @@ def _extract_gt(row: Dict, data_name: str) -> str:
         if ans.lower().startswith("answer:"):
             ans = ans[len("answer:"):].strip()
         return ans
+
+    # ── mmlu ───────────────────────────────────────────────────────────────────
+    # answer is an int 0-3 indexing into the choices list.
+    # We map it to the corresponding letter "A"/"B"/"C"/"D".
+    if data_name == "mmlu":
+        idx = row.get(answer_key)
+        try:
+            idx = int(idx)
+        except (TypeError, ValueError):
+            return str(idx).strip()
+        return ["A", "B", "C", "D"][idx] if 0 <= idx <= 3 else str(idx)
+
+    # ── bbh ────────────────────────────────────────────────────────────────────
+    # target is a free-form string; use directly.
+    if data_name == "bbh":
+        return str(row.get(answer_key, "")).strip()
+
+    # ── arc_challenge ──────────────────────────────────────────────────────────
+    # answerKey is "A"/"B"/"C"/"D" or "1"/"2"/"3"/"4".
+    # Normalise numeric keys to letters.
+    if data_name == "arc_challenge":
+        key = str(row.get(answer_key, "")).strip()
+        num_to_letter = {"1": "A", "2": "B", "3": "C", "4": "D"}
+        return num_to_letter.get(key, key)
+
+    # ── truthfulqa ─────────────────────────────────────────────────────────────
+    # mc1_targets is {"choices": [...], "labels": [...]}
+    # The single entry with label == 1 is the correct answer.
+    # We return the choice TEXT so the model can match it verbatim.
+    if data_name == "truthfulqa":
+        mc1 = row.get(answer_key, {})
+        choices = mc1.get("choices", [])
+        labels  = mc1.get("labels", [])
+        try:
+            correct_idx = labels.index(1)
+            return str(choices[correct_idx]).strip()
+        except (ValueError, IndexError):
+            return str(choices[0]).strip() if choices else ""
+
+    # ── strategyqa ─────────────────────────────────────────────────────────────
+    # answer is a Python bool (True/False).  Normalise to "yes"/"no".
+    if data_name == "strategyqa":
+        raw = row.get(answer_key)
+        if isinstance(raw, bool):
+            return "yes" if raw else "no"
+        s = str(raw).strip().lower()
+        if s in ("true", "yes", "1"):
+            return "yes"
+        if s in ("false", "no", "0"):
+            return "no"
+        return s
 
     # ── generic fallback: use answer_key from registry, then common names ──────
     val = row.get(answer_key)
@@ -216,6 +328,33 @@ def _parse_boxed(text: str) -> str:
     return ans.split("$")[0].strip()
 
 
+def _build_mcq_question(stem: str, choices: list, labels: list = None) -> str:
+    """
+    Format a multiple-choice question as a self-contained prompt string.
+
+    Produces:
+        "{stem}
+         A. {choices[0]}
+         B. {choices[1]}
+         C. {choices[2]}
+         D. {choices[3]}"
+
+    Parameters
+    ----------
+    stem    : raw question text
+    choices : list of answer-option strings
+    labels  : optional label list (e.g. ["A","B","C","D"]).
+              If None, defaults to A/B/C/D/E/F/G/H.
+    """
+    default_labels = ["A", "B", "C", "D", "E", "F", "G", "H"]
+    if labels is None:
+        labels = default_labels[:len(choices)]
+    lines = [stem.strip()]
+    for label, choice in zip(labels, choices):
+        lines.append(f"{label}. {choice}")
+    return "\n".join(lines)
+
+
 # ──────────────────────────────────────────────────────────────────────────────
 # Public API
 # ──────────────────────────────────────────────────────────────────────────────
@@ -278,6 +417,22 @@ def load_dataset_split(
         question = str(row_dict.get(cfg["question_key"], "")).strip()
         if not question:
             continue
+
+        # ── MCQ datasets: append labelled choices to the question stem ─────────
+        # MMLU and ARC-Challenge store choices separately from the question stem.
+        # We build a self-contained prompt so the model sees all options.
+        if data_name == "mmlu":
+            choices = row_dict.get("choices", [])
+            if choices:
+                question = _build_mcq_question(question, choices)
+
+        elif data_name == "arc_challenge":
+            ch = row_dict.get("choices", {})
+            ch_texts  = ch.get("text",  []) if isinstance(ch, dict) else []
+            ch_labels = ch.get("label", []) if isinstance(ch, dict) else []
+            if ch_texts:
+                question = _build_mcq_question(question, ch_texts,
+                                               labels=ch_labels if ch_labels else None)
 
         answer = _extract_gt(row_dict, data_name)
 

@@ -1,13 +1,15 @@
 """
 inference_methods.py
 --------------------
-Implements the three test-time compute strategies:
+Implements the test-time compute strategies:
 
-  1. GreedyInference  – single greedy (argmax) decode per question.
-  2. BestOfN          – sample N traces in ONE batched call, pick best-scored.
-  3. DNBestOfN        – Direction-Normalised BoN (proposed method).
+  1. GreedyInference   – single greedy (argmax) decode per question.
+  2. BestOfN           – sample N traces in ONE batched call, pick best-scored.
+  3. DNBestOfN         – Direction-Normalised BoN (hard cluster-size penalty).
+  3b. DNBonUpdated     – DORA: soft quality × uniqueness scoring (no hard clusters).
+  4. GreedyPassN       – N samples, select by max sequence log-probability.
+  5. BestOfNMajority   – N samples, select by majority vote (self-consistency).
 
-Evaluator integration
 ---------------------
 Each inference class creates ONE Evaluator instance at __init__ time
 (e.g. MATHEvaluator for math500, GSM8KEvaluator for gsm8k).  That single
@@ -98,6 +100,11 @@ _EVALUATOR_MAP: Dict[str, str] = {
     "college_math":  "MATH500",
     "minerva_math":  "MATH500",
     "custom":        "MATH500",
+    "mmlu":          "MMLU",
+    "bbh":           "BBH",
+    "arc_challenge": "ARC_Challenge",
+    "truthfulqa":    "TruthfulQA",
+    "strategyqa":    "StrategyQA",
 }
 
 
@@ -550,9 +557,280 @@ class DNBestOfN:
         return results
 
 
+
 # ──────────────────────────────────────────────────────────────────────────────
-# 4. Greedy Pass@N  (select by maximum sequence log-probability)
+# 3b. DN-BoN Updated  (DORA: Direction-Oriented Resource Allocation)
 # ──────────────────────────────────────────────────────────────────────────────
+
+class DNBonUpdated:
+    """
+    DN-BoN Updated — implements the DORA scoring rule.
+
+    Standard DN-BoN divides each PRM score by a hard cluster-size estimate
+    (k_i^alpha).  DORA replaces this with a fully soft, differentiable
+    approach that keeps the quality signal from the PRM while penalising
+    redundancy through a similarity-based uniqueness term.
+
+    DORA scoring (from the paper, Eqs. 10-13)
+    ------------------------------------------
+    Given N traces {x_i} with unit-normalised embeddings {e_i} and PRM
+    scores {R_i}:
+
+    Step 1  Quality weights (softmax over PRM scores, temperature T_b):
+                w_i  = exp(R_i / T_b) / Σ_j exp(R_j / T_b)
+
+    Step 2  Cosine similarity matrix:
+                S_ij = e_i · e_j          (embeddings are already unit-normed)
+
+    Step 3  Soft affinity matrix (row-wise softmax, temperature T_s):
+                P_ij = exp(S_ij / T_s) / Σ_{j'} exp(S_{ij'} / T_s)
+
+    Step 4  Uniqueness score = diagonal of affinity matrix:
+                γ_i  = P_ii
+            Interpretation: if x_i is very similar to many neighbours,
+            its affinity mass spreads away from the diagonal → γ_i small.
+            A semantically isolated candidate keeps most mass on the diagonal
+            → γ_i close to 1.  γ_i thus acts as a soft inverse-cluster-size.
+
+    Step 5  Combined score (re-normalised product of quality and uniqueness):
+                w'_i = (w_i * γ_i) / Σ_j (w_j * γ_j)
+
+    Step 6  Select:  x* = argmax_i w'_i
+
+    Parameters
+    ----------
+    model            : HFModelWrapper
+    verifier         : any verifier with score_batch / score_candidates API
+    cluster_manager  : ClusterManager — used ONLY to produce sentence embeddings
+                       (e_i).  The hard-cluster labels are NOT used.
+    N                : number of sampled traces
+    T_b              : quality softmax temperature  (default 1.0)
+    T_s              : similarity softmax temperature  (default 0.1)
+    data_name        : dataset name for evaluator selection
+    temperature      : LM sampling temperature
+    top_p            : LM nucleus sampling probability
+    """
+
+    def __init__(
+        self,
+        model,
+        verifier,
+        cluster_manager,
+        N: int = 8,
+        T_b: float = 1.0,
+        T_s: float = 0.1,
+        data_name: str = "math",
+        temperature: float = 0.7,
+        top_p: float = 0.95,
+    ):
+        self.model           = model
+        self.verifier        = verifier
+        self.cluster_manager = cluster_manager
+        self.N               = N
+        self.T_b             = T_b
+        self.T_s             = T_s
+        self.data_name       = data_name
+        self.temperature     = temperature
+        self.top_p           = top_p
+        self.ev              = _build_evaluator(data_name)   # built ONCE here
+
+    # ── Core DORA scoring logic ───────────────────────────────────────────────
+
+    @staticmethod
+    def _softmax(x: np.ndarray, temperature: float) -> np.ndarray:
+        """
+        Numerically stable softmax with temperature scaling.
+        x : 1-D or 2-D array.  If 2-D, applied row-wise.
+        """
+        if x.ndim == 1:
+            z = x / temperature
+            z = z - z.max()                  # shift for numerical stability
+            e = np.exp(z)
+            return e / e.sum()
+        else:
+            # row-wise softmax
+            z = x / temperature
+            z = z - z.max(axis=1, keepdims=True)
+            e = np.exp(z)
+            return e / e.sum(axis=1, keepdims=True)
+
+    def _dora_scores(
+        self,
+        raw_scores: np.ndarray,    # shape (N,)  PRM scores R_i
+        embeddings: np.ndarray,    # shape (N, d) unit-normalised embeddings e_i
+    ) -> np.ndarray:
+        """
+        Compute DORA combined scores w'_i for N candidates.
+
+        Returns
+        -------
+        w_prime : np.ndarray shape (N,)  — final combined scores (sum to 1)
+        w       : np.ndarray shape (N,)  — quality weights only
+        gamma   : np.ndarray shape (N,)  — uniqueness scores (diagonal of P)
+        S       : np.ndarray shape (N,N) — cosine similarity matrix
+        P       : np.ndarray shape (N,N) — soft affinity matrix
+        """
+        N = len(raw_scores)
+
+        # Step 1: quality weights via softmax over PRM scores
+        # w_i = exp(R_i / T_b) / Σ_j exp(R_j / T_b)
+        w = self._softmax(raw_scores, self.T_b)          # shape (N,)
+
+        # Step 2: cosine similarity matrix
+        # S_ij = e_i · e_j  (embeddings are already unit-normalised by ClusterManager)
+        S = embeddings @ embeddings.T                     # shape (N, N)
+        # Clamp to [-1, 1] for numerical safety
+        S = np.clip(S, -1.0, 1.0)
+
+        # Step 3: row-wise softmax over similarity → soft affinity matrix
+        # P_ij = exp(S_ij / T_s) / Σ_{j'} exp(S_{ij'} / T_s)
+        P = self._softmax(S, self.T_s)                   # shape (N, N)
+
+        # Step 4: uniqueness = diagonal of P
+        # γ_i = P_ii
+        gamma = np.diag(P)                               # shape (N,)
+
+        # Step 5: combined score, re-normalised
+        # w'_i = (w_i * γ_i) / Σ_j (w_j * γ_j)
+        raw_combined = w * gamma                          # shape (N,)
+        denom = raw_combined.sum()
+        if denom < 1e-12:
+            # Degenerate case: all zero → fall back to quality weights only
+            w_prime = w
+        else:
+            w_prime = raw_combined / denom               # shape (N,)
+
+        return w_prime, w, gamma, S, P
+
+    def _select(
+        self,
+        question: str,
+        gold: Optional[str],
+        traces: List[str],
+        elapsed: float,
+    ) -> InferenceResult:
+        from verifier import score_candidates  # type: ignore
+
+        # ── Score each trace with the PRM (R_i)
+        raw_scores = score_candidates(
+            traces, self.verifier, gold, question=question
+        )                                               # shape (N,)
+
+        # ── Get unit-normalised embeddings from ClusterManager
+        # We call _embed directly to get the raw embeddings e_i.
+        # Hard cluster labels are NOT used by DORA — only the embeddings.
+        texts      = self.cluster_manager._get_texts_to_embed(traces)
+        embeddings = self.cluster_manager._embed(texts)  # shape (N, d), unit-normed
+
+        # ── Compute DORA scores
+        w_prime, w, gamma, S, P = self._dora_scores(raw_scores, embeddings)
+
+        # ── Step 6: select the trace with the highest combined score
+        best_idx = int(np.argmax(w_prime))
+        selected = traces[best_idx]
+
+        pred    = _extract_pred(selected, self.ev, self.data_name)
+        correct = _check_correct(pred, gold, self.ev, self.data_name)
+
+        # Per-trace predictions and correctness (for analysis / motivation exps)
+        all_preds   = [_extract_pred(t, self.ev, self.data_name) for t in traces]
+        all_correct = [
+            bool(_check_correct(p, gold, self.ev, self.data_name))
+            for p in all_preds
+        ] if gold is not None else []
+
+        # Pack into InferenceResult
+        # raw_scores      → PRM scores R_i
+        # normalized_scores → final DORA combined scores w'_i
+        # cluster_sizes   → repurposed to store γ_i * 1000 (int) for logging
+        #                   (true continuous uniqueness scores saved as floats
+        #                    in the extra fields below)
+        res = InferenceResult(
+            method="dn_bon_updated", question=question,
+            gold_answer=gold, selected_trace=selected,
+            predicted_answer=pred, is_correct=correct,
+            N=self.N, elapsed_sec=elapsed,
+            all_traces=traces,
+            raw_scores=raw_scores.tolist(),
+            normalized_scores=w_prime.tolist(),
+            cluster_labels=[],           # DORA uses soft affinity, no hard labels
+            cluster_sizes=[],
+            selected_index=best_idx,
+            alpha=0.0,                   # not used; T_b and T_s are the params
+        )
+        # Attach DORA-specific fields as ad-hoc attributes for downstream analysis
+        res._all_preds       = all_preds
+        res._all_correct     = all_correct
+        res._quality_weights = w.tolist()
+        res._gamma           = gamma.tolist()
+        res._T_b             = self.T_b
+        res._T_s             = self.T_s
+        return res
+
+    def run(
+        self,
+        question: str,
+        gold_answer: Optional[str] = None,
+        max_new_tokens: Optional[int] = None,
+    ) -> InferenceResult:
+        t0     = time.time()
+        traces = self.model.generate_samples(
+            question, N=self.N,
+            temperature=self.temperature, top_p=self.top_p,
+            max_new_tokens=max_new_tokens,
+        )
+        elapsed = time.time() - t0
+        return self._select(question, gold_answer, traces, elapsed)
+
+    def run_batch(
+        self,
+        examples: List[Dict[str, Any]],
+        max_new_tokens: Optional[int] = None,
+    ) -> List[InferenceResult]:
+        results: List[InferenceResult] = []
+        logger.info(
+            f"[DNBonUpdated.run_batch] {len(examples)} questions  N={self.N}  "
+            f"T_b={self.T_b}  T_s={self.T_s}  "
+            f"batch_size={self.model.batch_size}  "
+            f"evaluator={self.ev.__class__.__name__}"
+        )
+
+        pbar      = tqdm(
+            examples,
+            desc=f"[DN-BoN-Updated N={self.N} T_b={self.T_b} T_s={self.T_s}]",
+            unit="q", dynamic_ncols=True, colour="cyan",
+        )
+        n_correct = 0
+
+        for i, ex in enumerate(pbar):
+            q    = ex["question"]
+            gold = ex.get("answer")
+            try:
+                t0      = time.time()
+                traces  = self.model.generate_samples(
+                    q, N=self.N,
+                    temperature=self.temperature, top_p=self.top_p,
+                    max_new_tokens=max_new_tokens,
+                )
+                elapsed = time.time() - t0
+                res     = self._select(q, gold, traces, elapsed)
+            except Exception as e:
+                logger.error(f"  [DNBonUpdated] q[{i}] failed: {e}")
+                res = _make_error_result("dn_bon_updated", q, gold, self.N)
+
+            results.append(res)
+            if res.is_correct is not None:
+                n_correct += int(res.is_correct)
+                pbar.set_postfix(
+                    acc=f"{n_correct/(i+1):.3f}",
+                    correct=f"{n_correct}/{i+1}",
+                    refresh=False,
+                )
+
+        pbar.close()
+        return results
+
+
 
 class GreedyPassN:
     """
@@ -764,6 +1042,8 @@ def build_inference_method(
     cluster_manager=None,
     N: int = 8,
     alpha: float = 0.5,
+    T_b: float = 1.0,
+    T_s: float = 0.1,
     data_name: str = "math",
     temperature: float = 0.7,
     top_p: float = 0.95,
@@ -773,11 +1053,17 @@ def build_inference_method(
 
     method_name choices
     -------------------
-    greedy         — single argmax decode, no sampling
-    bon            — Best-of-N with verifier score
-    dn_bon         — Direction-Normalised BoN (requires cluster_manager)
-    greedy_pass_n  — N samples, select by max sequence log-probability
-    bon_majority   — N samples, select by majority vote (self-consistency)
+    greedy          — single argmax decode, no sampling
+    bon             — Best-of-N with verifier score
+    dn_bon          — Direction-Normalised BoN  (hard cluster-size penalty, requires cluster_manager)
+    dn_bon_updated  — DORA: soft quality × uniqueness scoring  (requires cluster_manager)
+    greedy_pass_n   — N samples, select by max sequence log-probability
+    bon_majority    — N samples, select by majority vote (self-consistency)
+
+    DORA parameters (dn_bon_updated only)
+    --------------------------------------
+    T_b : quality softmax temperature   (default 1.0)
+    T_s : similarity softmax temperature (default 0.1)
     """
     if method_name == "greedy":
         return GreedyInference(model=model, data_name=data_name)
@@ -790,6 +1076,12 @@ def build_inference_method(
         return DNBestOfN(model=model, verifier=verifier, cluster_manager=cluster_manager,
                          N=N, alpha=alpha, data_name=data_name,
                          temperature=temperature, top_p=top_p)
+    elif method_name == "dn_bon_updated":
+        if cluster_manager is None:
+            raise ValueError("DN-BoN Updated (DORA) requires a ClusterManager.")
+        return DNBonUpdated(model=model, verifier=verifier, cluster_manager=cluster_manager,
+                            N=N, T_b=T_b, T_s=T_s, data_name=data_name,
+                            temperature=temperature, top_p=top_p)
     elif method_name == "greedy_pass_n":
         return GreedyPassN(model=model, N=N, data_name=data_name,
                            temperature=temperature, top_p=top_p)
@@ -798,5 +1090,5 @@ def build_inference_method(
                                temperature=temperature, top_p=top_p)
     raise ValueError(
         f"Unknown method '{method_name}'. "
-        f"Choose: greedy | bon | dn_bon | greedy_pass_n | bon_majority"
+        f"Choose: greedy | bon | dn_bon | dn_bon_updated | greedy_pass_n | bon_majority"
     )

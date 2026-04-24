@@ -52,7 +52,7 @@ MODEL="Qwen/Qwen2.5-Math-7B-Instruct"
 # TOKEN_LIST="1024 2048 4096"
 # TOKEN_LIST="1024 2048 4096 8192 12288 16384 24576 32768 49152 65536 81920 100000"
 # TOKEN_LIST="1024 4096"
-TOKEN_LIST="8192 12288 16384 24576 32768 49152 65536 81920 100000"
+TOKEN_LIST="24576 32768 49152 65536 81920 100000"
 # -----------------------------------------------------------------------------
 # DATASETS
 # Space-separated list of datasets to run for each token budget.
@@ -64,17 +64,19 @@ DATASETS="aime24"
 # -----------------------------------------------------------------------------
 # METHODS
 # Space-separated list of inference methods to run for each (token, dataset).
-# Valid: greedy  bon  dn_bon  greedy_pass_n  bon_majority
+# Valid: greedy  bon  dn_bon  dn_bon_updated  greedy_pass_n  bon_majority
 #
 # Notes:
-#   greedy        — no sampling; ignores N_SAMPLES and TEMPERATURE
-#   bon           — needs VERIFIER; use VERIFIER=prm (no gold leakage)
-#   dn_bon        — needs VERIFIER + EMBEDDING_MODEL; adds --alpha 0.5
-#   greedy_pass_n — no verifier needed; uses model log-probability
-#   bon_majority  — no verifier needed; uses majority vote
+#   greedy          — no sampling; ignores N_SAMPLES and TEMPERATURE
+#   bon             — needs VERIFIER; use VERIFIER=prm (no gold leakage)
+#   dn_bon          — needs VERIFIER + EMBEDDING_MODEL; adds --alpha 0.5
+#   dn_bon_updated  — DORA: soft quality × uniqueness; needs VERIFIER + EMBEDDING_MODEL;
+#                     uses T_B and T_S from CONFIG instead of --alpha
+#   greedy_pass_n   — no verifier needed; uses model log-probability
+#   bon_majority    — no verifier needed; uses majority vote
 # -----------------------------------------------------------------------------
 # METHODS="greedy bon dn_bon greedy_pass_n bon_majority"
-METHODS="bon dn_bon greedy_pass_n bon_majority"
+METHODS="bon dn_bon dn_bon_updated greedy_pass_n bon_majority"
 
 # -----------------------------------------------------------------------------
 # N_SAMPLES
@@ -91,7 +93,7 @@ N_SAMPLES=8
 # Set equal to N_SAMPLES for BoN so all N prompts decode in one call.
 # For H100 60 GB with a 7B model: 64–128 is safe.
 # -----------------------------------------------------------------------------
-LM_BATCH_SIZE=32
+LM_BATCH_SIZE=8
 
 # -----------------------------------------------------------------------------
 # TEMPERATURE / TOP_P
@@ -167,6 +169,17 @@ EMBEDDING_MODEL="all-MiniLM-L6-v2"
 SIMILARITY_THRESHOLD=0.85
 CLUSTERING_METHOD="agglomerative"
 
+# -----------------------------------------------------------------------------
+# T_B / T_S  —  DORA (DN-BoN Updated) temperature hyperparameters
+#
+# Used only when dn_bon_updated is in METHODS.  Ignored by all other methods.
+#   T_B — quality softmax temperature    (default 1.0)
+#   T_S — similarity softmax temperature (default 0.1)
+# Keep these consistent with run_experiments.sh for comparable results.
+# -----------------------------------------------------------------------------
+T_B=1.0
+T_S=0.1
+
 # =============================================================================
 # END CONFIG
 # =============================================================================
@@ -176,8 +189,8 @@ CLUSTERING_METHOD="agglomerative"
 # Validation
 # =============================================================================
 
-_valid_datasets="math500 aime24 aime25 amc23 gsm8k"
-_valid_methods="greedy bon dn_bon greedy_pass_n bon_majority"
+_valid_datasets="math500 aime24 aime25 amc23 gsm8k minerva_math college_math olympiadbench mmlu bbh arc_challenge truthfulqa strategyqa"
+_valid_methods="greedy bon dn_bon dn_bon_updated greedy_pass_n bon_majority"
 
 for D in ${DATASETS}; do
     if ! echo "${_valid_datasets}" | grep -qw "${D}"; then
@@ -225,10 +238,15 @@ NOW=$(date +"%Y%m%d_%H%M%S")
 # Per-dataset sample caps
 _max_samples() {
     case "$1" in
-        aime24|aime25) echo 32  ;;
-        amc23)         echo 40  ;;
-        math500|gsm8k) echo 500 ;;
-        *)             echo 500 ;;
+        aime24|aime25)  echo 32  ;;
+        amc23)          echo 40  ;;
+        math500|gsm8k)  echo 500 ;;
+        mmlu)           echo 500 ;;
+        bbh)            echo 500 ;;
+        arc_challenge)  echo 500 ;;
+        truthfulqa)     echo 500 ;;
+        strategyqa)     echo 500 ;;
+        *)              echo 500 ;;
     esac
 }
 
@@ -257,6 +275,9 @@ _common_flags() {
     flags+=" --embedding_model ${EMBEDDING_MODEL}"
     flags+=" --similarity_threshold ${SIMILARITY_THRESHOLD}"
     flags+=" --clustering_method ${CLUSTERING_METHOD}"
+    # DORA temperatures — only consumed by dn_bon_updated; harmlessly passed to others
+    flags+=" --T_b ${T_B}"
+    flags+=" --T_s ${T_S}"
     [[ -n "${HF_CACHE}" ]]      && flags+=" --hf_cache_dir ${HF_CACHE}"
     [[ "${LOAD_4BIT}" == "1" ]] && flags+=" --load_in_4bit"
     [[ "${LOAD_8BIT}" == "1" ]] && flags+=" --load_in_8bit"
@@ -351,7 +372,7 @@ for MNT in ${TOKEN_LIST}; do
 
             echo "  [${RUN_IDX}/${TOTAL}]  mnt=${MNT}  dataset=${DATASET}  method=${METHOD}"
 
-            # dn_bon needs --alpha; others don't
+            # dn_bon needs --alpha; dn_bon_updated uses T_b/T_s (already in FLAGS)
             if [[ "${METHOD}" == "dn_bon" ]]; then
                 run_exp "${EXP_TAG}" "${OUT}" \
                     ${FLAGS} \

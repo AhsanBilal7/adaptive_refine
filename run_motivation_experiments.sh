@@ -7,8 +7,8 @@
 #
 # What this script does
 # ---------------------
-# PHASE 1 — Generation (if --skip_gen is not set):
-#   Run dn_bon, bon, bon_majority for each dataset × each N in N_LIST.
+# PHASE 1 — Generation (if SKIP_GEN=0):
+#   Run methods for each dataset × each N in N_LIST.
 #   Each (dataset, method, N) is ONE separate python call.
 #
 # PHASE 2 — Analysis:
@@ -17,8 +17,61 @@
 #
 # Usage
 # -----
-#   bash run_motivation_experiments.sh               # generate + analyse
-#   SKIP_GEN=1 bash run_motivation_experiments.sh    # analyse only (reuse existing)
+#   bash run_motivation_experiments.sh <datasets> <methods>
+#
+#   <datasets> : comma-separated list or "all"
+#     Valid: math500, aime24, aime25, amc23, gsm8k,
+#            mmlu, bbh, arc_challenge, truthfulqa, strategyqa
+#     "all"  expands to all of the above
+#
+#   <methods>  : comma-separated list or "all"
+#     Valid: dn_bon, dn_bon_updated, bon, bon_majority, greedy, greedy_pass_n
+#     "all"  expands to: dn_bon,dn_bon_updated,bon,bon_majority
+#     Note: dn_bon is required for the 5 motivation experiments.
+#           bon and bon_majority are required for comparisons.
+#           dn_bon_updated enables direct DORA vs DN-BoN comparison.
+#
+#   To skip generation and only run analysis on existing JSONL files:
+#     SKIP_GEN=1 bash run_motivation_experiments.sh <datasets> <methods>
+#
+# Examples
+# --------
+#   # ── single dataset, single method ──────────────────────────────────
+#   bash run_motivation_experiments.sh aime24 dn_bon
+#   bash run_motivation_experiments.sh math500 bon
+#
+#   # ── single dataset, multiple methods ───────────────────────────────
+#   bash run_motivation_experiments.sh aime24 dn_bon,bon,bon_majority
+#   bash run_motivation_experiments.sh math500 dn_bon,dn_bon_updated,bon,bon_majority
+#
+#   # ── single dataset, ALL methods ────────────────────────────────────
+#   bash run_motivation_experiments.sh aime24 all
+#   bash run_motivation_experiments.sh math500 all
+#
+#   # ── multiple datasets, single method ───────────────────────────────
+#   bash run_motivation_experiments.sh aime24,aime25 dn_bon
+#   bash run_motivation_experiments.sh math500,amc23 bon,dn_bon
+#
+#   # ── multiple datasets, multiple methods ────────────────────────────
+#   bash run_motivation_experiments.sh aime24,aime25 dn_bon,bon,bon_majority
+#   bash run_motivation_experiments.sh math500,aime24,aime25 dn_bon,dn_bon_updated,bon,bon_majority
+#
+#   # ── ALL datasets, ALL methods ───────────────────────────────────────
+#   bash run_motivation_experiments.sh all all
+#
+#   # ── ALL datasets, specific methods ─────────────────────────────────
+#   bash run_motivation_experiments.sh all dn_bon,bon
+#   bash run_motivation_experiments.sh all dn_bon,dn_bon_updated
+#
+#   # ── specific datasets, ALL methods ─────────────────────────────────
+#   bash run_motivation_experiments.sh aime24,aime25 all
+#   bash run_motivation_experiments.sh mmlu,bbh,arc_challenge all
+#
+#   # ── general reasoning datasets ──────────────────────────────────────
+#   bash run_motivation_experiments.sh mmlu,bbh,arc_challenge,truthfulqa,strategyqa dn_bon,bon,bon_majority
+#
+#   # ── skip generation, re-run analysis only ──────────────────────────
+#   SKIP_GEN=1 bash run_motivation_experiments.sh aime24,aime25 dn_bon,bon,bon_majority
 #
 # Output layout
 # -------------
@@ -45,24 +98,14 @@ set -euo pipefail
 MODEL="Qwen/Qwen2.5-Math-7B-Instruct"
 PYTHON="python"
 
-# Datasets to run
-# DATASETS="math500 aime24 aime25 amc23"
-DATASETS="aime25"
-
 # N values to sweep — Exp 1 needs at least 3 values to show the budget curve
 N_LIST="2 4 8 16 32"
-
-# Methods to run for each (dataset, N)
-#   dn_bon       — required for all 5 experiments
-#   bon          — required for Exp 1, 2, 3, 4, 5 comparisons
-#   bon_majority — required for Exp 1, 2, 3 comparisons
-METHODS="dn_bon bon bon_majority"
 
 # Generation parameters
 MAX_NEW_TOKENS=2048
 TEMPERATURE=0.7
 TOP_P=0.95
-LM_BATCH_SIZE=2
+LM_BATCH_SIZE=32
 DTYPE="auto"
 LOAD_4BIT=0
 LOAD_8BIT=0
@@ -107,12 +150,94 @@ EMBEDDING_MODEL="all-MiniLM-L6-v2"
 SIMILARITY_THRESHOLD=0.85
 CLUSTERING_METHOD="agglomerative"
 
+# DORA temperatures — only used by dn_bon_updated; ignored by all other methods.
+# Must match the values used in your main run_experiments.sh for a fair comparison.
+#   T_B — quality softmax temperature (default 1.0)
+#   T_S — similarity softmax temperature (default 0.1)
+T_B=1.0
+T_S=0.1
+
 # Number of bins for Exp 2 and Exp 4 (3 = low/medium/high)
 N_BINS=3
 
 # =============================================================================
 # END CONFIG
 # =============================================================================
+
+
+# =============================================================================
+# CLI argument parsing
+# $1 = datasets  (comma-separated or "all"; default "all")
+# $2 = methods   (comma-separated or "all"; default "all")
+# =============================================================================
+
+DATASETS_ARG="${1:-all}"
+METHODS_ARG="${2:-all}"
+
+# Canonical full lists
+ALL_DATASETS="math500 aime24 aime25 amc23 gsm8k mmlu bbh arc_challenge truthfulqa strategyqa"
+# Default "all" for methods means the core motivation set
+ALL_METHODS="dn_bon dn_bon_updated bon bon_majority"
+
+# Expand "all"
+if [[ "${DATASETS_ARG}" == "all" ]]; then
+    DATASETS="${ALL_DATASETS}"
+else
+    DATASETS="${DATASETS_ARG//,/ }"
+fi
+
+if [[ "${METHODS_ARG}" == "all" ]]; then
+    METHODS="${ALL_METHODS}"
+else
+    METHODS="${METHODS_ARG//,/ }"
+fi
+
+
+# =============================================================================
+# Validation
+# =============================================================================
+
+_valid_datasets="math500 aime24 aime25 amc23 gsm8k mmlu bbh arc_challenge truthfulqa strategyqa olympiadbench"
+_valid_methods="dn_bon dn_bon_updated bon bon_majority greedy greedy_pass_n"
+
+_check_dataset() {
+    local d="$1"
+    if ! echo "${_valid_datasets}" | grep -qw "${d}"; then
+        echo "ERROR: unknown dataset '${d}'"
+        echo "Valid datasets: ${_valid_datasets}"
+        exit 1
+    fi
+}
+
+_check_method() {
+    local m="$1"
+    if ! echo "${_valid_methods}" | grep -qw "${m}"; then
+        echo "ERROR: unknown method '${m}'"
+        echo "Valid methods: ${_valid_methods}"
+        exit 1
+    fi
+}
+
+for D in ${DATASETS}; do _check_dataset "${D}"; done
+for M in ${METHODS};  do _check_method  "${M}"; done
+
+
+# =============================================================================
+# Per-dataset sample caps
+# =============================================================================
+_max_samples() {
+    case "$1" in
+        aime24|aime25) echo 32  ;;
+        amc23)         echo 40  ;;
+        math500|gsm8k) echo 500 ;;
+        mmlu)          echo 500 ;;
+        bbh)           echo 500 ;;
+        arc_challenge) echo 500 ;;
+        truthfulqa)    echo 500 ;;
+        strategyqa)    echo 500 ;;
+        *)             echo 500 ;;
+    esac
+}
 
 
 # =============================================================================
@@ -154,26 +279,6 @@ SKIP_GEN="${SKIP_GEN:-0}"
 
 
 # =============================================================================
-# Per-dataset sample caps
-# =============================================================================
-_max_samples() {
-    case "$1" in
-        aime24|aime25) echo 32  ;;
-        amc23)         echo 40  ;;
-        math500|gsm8k) echo 500 ;;
-        *)             echo 500 ;;
-    esac
-}
-
-_check_dataset() {
-    case "$1" in
-        math500|aime24|aime25|amc23|gsm8k) return 0 ;;
-        *) echo "ERROR: unknown dataset '$1'"; exit 1 ;;
-    esac
-}
-
-
-# =============================================================================
 # Common flags for run_eval.py
 # =============================================================================
 common_flags() {
@@ -188,6 +293,9 @@ common_flags() {
     flags+=" --embedding_model ${EMBEDDING_MODEL}"
     flags+=" --similarity_threshold ${SIMILARITY_THRESHOLD}"
     flags+=" --clustering_method ${CLUSTERING_METHOD}"
+    # DORA temperatures — only consumed by dn_bon_updated; harmlessly passed to others
+    flags+=" --T_b ${T_B}"
+    flags+=" --T_s ${T_S}"
     [[ -n "${HF_CACHE}" ]]         && flags+=" --hf_cache_dir ${HF_CACHE}"
     [[ "${LOAD_4BIT}" == "1" ]]    && flags+=" --load_in_4bit"
     [[ "${LOAD_8BIT}" == "1" ]]    && flags+=" --load_in_8bit"
@@ -226,27 +334,26 @@ if [[ "${SKIP_GEN}" == "1" ]]; then
     echo "Results dir: ${RESULTS_DIR}"
 else
 
-    # Count total runs
-    N_DS=0; for D in ${DATASETS};  do N_DS=$((N_DS+1)); done
-    N_N=0;  for N in ${N_LIST};    do N_N=$((N_N+1)); done
-    N_ME=0; for M in ${METHODS};   do N_ME=$((N_ME+1)); done
+    # Count total runs for progress display
+    N_DS=0; for D in ${DATASETS}; do N_DS=$((N_DS+1)); done
+    N_N=0;  for N in ${N_LIST};   do N_N=$((N_N+1));   done
+    N_ME=0; for M in ${METHODS};  do N_ME=$((N_ME+1));  done
     TOTAL=$((N_DS * N_N * N_ME))
 
     echo ""
     echo "============================================================"
     echo "  MOTIVATION EXPERIMENTS — GENERATION PHASE"
-    echo "  Model   : ${MODEL}"
-    echo "  Datasets: ${DATASETS}"
-    echo "  N values: ${N_LIST}"
-    echo "  Methods : ${METHODS}"
-    echo "  Total   : ${TOTAL} python calls"
-    echo "  Output  : ${RESULTS_DIR}/"
+    echo "  Model    : ${MODEL}"
+    echo "  Datasets : ${DATASETS}"
+    echo "  N values : ${N_LIST}"
+    echo "  Methods  : ${METHODS}"
+    echo "  Total    : ${TOTAL} python calls  (${N_DS}ds × ${N_N}N × ${N_ME}methods)"
+    echo "  Output   : ${RESULTS_DIR}/"
     echo "============================================================"
 
     RUN_IDX=0
 
     for DATASET in ${DATASETS}; do
-        _check_dataset "${DATASET}"
         MAX_S="$(_max_samples "${DATASET}")"
 
         for N in ${N_LIST}; do
@@ -259,6 +366,7 @@ else
                 echo "  [${RUN_IDX}/${TOTAL}]  dataset=${DATASET}  method=${METHOD}  N=${N}"
 
                 if [[ "${METHOD}" == "dn_bon" ]]; then
+                    # DN-BoN (hard cluster penalty) — requires --alpha
                     run_exp "${TAG}" \
                         ${FLAGS} \
                         --dataset     "${DATASET}" \
@@ -267,7 +375,19 @@ else
                         --alpha       0.5 \
                         --max_samples "${MAX_S}" \
                         --output_dir  "${RESULTS_DIR}"
+
+                elif [[ "${METHOD}" == "dn_bon_updated" ]]; then
+                    # DN-BoN Updated (DORA) — no --alpha; T_b/T_s come from common_flags
+                    run_exp "${TAG}" \
+                        ${FLAGS} \
+                        --dataset     "${DATASET}" \
+                        --methods     dn_bon_updated \
+                        --N           "${N}" \
+                        --max_samples "${MAX_S}" \
+                        --output_dir  "${RESULTS_DIR}"
+
                 else
+                    # bon, bon_majority, greedy, greedy_pass_n — no extra flags
                     run_exp "${TAG}" \
                         ${FLAGS} \
                         --dataset     "${DATASET}" \
@@ -317,8 +437,10 @@ echo ""
 echo "============================================================"
 echo "  ALL DONE"
 echo ""
-echo "  JSONL results  : ${RESULTS_DIR}/"
-echo "  Analysis CSVs  : ${ANALYSIS_OUT}/"
+echo "  Datasets ran  : ${DATASETS}"
+echo "  Methods ran   : ${METHODS}"
+echo "  JSONL results : ${RESULTS_DIR}/"
+echo "  Analysis CSVs : ${ANALYSIS_OUT}/"
 echo ""
 echo "  CSV files:"
 for f in "${ANALYSIS_OUT}"/*.csv; do
@@ -327,7 +449,7 @@ for f in "${ANALYSIS_OUT}"/*.csv; do
 done
 echo ""
 echo "  To re-run analysis only (reuse existing JSONL):"
-echo "    SKIP_GEN=1 bash run_motivation_experiments.sh"
+echo "    SKIP_GEN=1 bash run_motivation_experiments.sh ${DATASETS_ARG} ${METHODS_ARG}"
 echo ""
 echo "  To analyse a different results folder:"
 echo "    python analyse_motivation.py \\"
@@ -335,3 +457,37 @@ echo "        --results_dir ${RESULTS_DIR} \\"
 echo "        --model ${MODEL} \\"
 echo "        --out_dir ${ANALYSIS_OUT}"
 echo "============================================================"
+
+
+
+
+
+
+# # ── single dataset, single method ────────────────────────────────────
+# bash run_motivation_experiments.sh aime24 dn_bon
+# bash run_motivation_experiments.sh math500 bon
+
+# # ── single dataset, multiple methods ─────────────────────────────────
+# bash run_motivation_experiments.sh aime24 dn_bon,bon,bon_majority
+# bash run_motivation_experiments.sh math500 dn_bon,dn_bon_updated,bon,bon_majority
+
+# # ── single dataset, ALL methods ──────────────────────────────────────
+# bash run_motivation_experiments.sh aime24 all
+# bash run_motivation_experiments.sh math500 all
+
+# # ── multiple datasets, multiple methods ──────────────────────────────
+# bash run_motivation_experiments.sh aime24,aime25 dn_bon,bon,bon_majority
+# bash run_motivation_experiments.sh math500,aime24,aime25 dn_bon,dn_bon_updated,bon,bon_majority
+
+# # ── ALL datasets, ALL methods ─────────────────────────────────────────
+# bash run_motivation_experiments.sh all all
+
+# # ── ALL datasets, specific methods ───────────────────────────────────
+# bash run_motivation_experiments.sh all dn_bon,bon
+# bash run_motivation_experiments.sh all dn_bon,dn_bon_updated
+
+# # ── general reasoning benchmarks ─────────────────────────────────────
+# bash run_motivation_experiments.sh mmlu,bbh,arc_challenge,truthfulqa,strategyqa dn_bon,bon,bon_majority
+
+# # ── skip generation, re-run analysis only ────────────────────────────
+# SKIP_GEN=1 bash run_motivation_experiments.sh aime24,aime25 dn_bon,bon,bon_majority

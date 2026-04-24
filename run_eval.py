@@ -157,7 +157,8 @@ def parse_args():
         "--dataset", required=True,
         choices=["math500", "aime24", "aime25", "amc23", "gsm8k",
                  "olympiadbench", "college_math", "minerva_math",
-                 "gaokao2023en", "mmlu_stem", "custom"],
+                 "mmlu", "bbh", "arc_challenge", "truthfulqa", "strategyqa",
+                 "custom"],
     )
     g.add_argument("--split", default=None)
     g.add_argument("--max_samples", type=int, default=None)
@@ -167,14 +168,15 @@ def parse_args():
     g = p.add_argument_group("Methods")
     g.add_argument("--methods", nargs="+",
                    default=["greedy", "bon", "dn_bon"],
-                   choices=["greedy", "bon", "dn_bon",
+                   choices=["greedy", "bon", "dn_bon", "dn_bon_updated",
                             "greedy_pass_n", "bon_majority"],
                    help=(
-                       "greedy        — single argmax decode\n"
-                       "bon           — Best-of-N with verifier score\n"
-                       "dn_bon        — Direction-Normalised BoN\n"
-                       "greedy_pass_n — N samples, pick by max log-probability\n"
-                       "bon_majority  — N samples, pick by majority vote"
+                       "greedy          — single argmax decode\n"
+                       "bon             — Best-of-N with verifier score\n"
+                       "dn_bon          — Direction-Normalised BoN (hard cluster penalty)\n"
+                       "dn_bon_updated  — DORA: soft quality x uniqueness scoring\n"
+                       "greedy_pass_n   — N samples, pick by max log-probability\n"
+                       "bon_majority    — N samples, pick by majority vote"
                    ))
     g.add_argument(
         "--N", type=int, default=8,
@@ -186,6 +188,10 @@ def parse_args():
         "--alpha_ablation", nargs="+", type=float, default=None,
         help="Run DN-BoN with multiple alpha values, e.g. --alpha_ablation 0 0.5 1",
     )
+    g.add_argument("--T_b", type=float, default=1.0,
+                   help="DORA quality softmax temperature (dn_bon_updated only, default 1.0)")
+    g.add_argument("--T_s", type=float, default=0.1,
+                   help="DORA similarity softmax temperature (dn_bon_updated only, default 0.1)")
 
     # ── Verifier ───────────────────────────────────────────────────────────────
     g = p.add_argument_group("Verifier")
@@ -293,10 +299,12 @@ def main():
         batch_size=args.batch_size,
     )
 
-    # ── 4. Build cluster manager (only if DN-BoN is needed) ───────────────────
+    # ── 4. Build cluster manager (only if DN-BoN or DN-BoN Updated is needed) ──
     cluster_manager = None
     needs_clustering = (
-        "dn_bon" in args.methods or args.alpha_ablation is not None
+        "dn_bon" in args.methods
+        or "dn_bon_updated" in args.methods
+        or args.alpha_ablation is not None
     )
     if needs_clustering:
         logger.info(f"Building ClusterManager  embedding={args.embedding_model}")
@@ -308,7 +316,8 @@ def main():
             use_answer_only=args.cluster_on_answer,
             batch_size=args.batch_size,
         )
-
+        print("🧩Cluster on Answer: ", args.cluster_on_answer)
+        print("🧩Alpha Value: ", args.alpha)
     # ── 5. Build run configs ───────────────────────────────────────────────────
     run_configs = []   # list of (label, method_object)
 
@@ -330,6 +339,7 @@ def main():
                 model=model, verifier=verifier,
                 cluster_manager=cluster_manager,
                 N=args.N, alpha=args.alpha,
+                T_b=args.T_b, T_s=args.T_s,
                 data_name=data_name,
                 temperature=args.temperature, top_p=args.top_p,
             )
@@ -371,7 +381,6 @@ def main():
             r_stats = redundancy_stats(summary["results"])
             summary["redundancy_stats"] = r_stats
             logger.info(f"Redundancy/vote stats: {r_stats}")
-            # Final summary rewrite to include the stats
             save_summary(summary, summary_path)
 
         all_summaries[run_label] = summary
