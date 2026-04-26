@@ -60,9 +60,9 @@ set -euo pipefail
 # For a local checkpoint: MODEL="/data/checkpoints/my_model"
 # -----------------------------------------------------------------------------
 # MODEL="meta-llama/Llama-3.1-8B-Instruct"
-# MODEL="Qwen/Qwen2.5-Math-7B-Instruct"
+MODEL="Qwen/Qwen2.5-Math-7B-Instruct"
 # MODEL="deepseek-ai/DeepSeek-R1-0528-Qwen3-8B"
-MODEL="meta-llama/Llama-3.2-1B-Instruct"
+# MODEL="meta-llama/Llama-3.2-1B-Instruct"
 # MODEL="Qwen/Qwen2.5-1.5B-Instruct"
 # MODEL="meta-llama/Llama-3.2-3B-Instruct"
 # -----------------------------------------------------------------------------
@@ -147,7 +147,7 @@ TOP_P=0.95
 #
 # If you hit CUDA OOM: halve LM_BATCH_SIZE first, then reduce N_SAMPLES.
 # -----------------------------------------------------------------------------
-LM_BATCH_SIZE=64
+LM_BATCH_SIZE=32
 
 # -----------------------------------------------------------------------------
 # N_SAMPLES  —  number of candidate traces sampled per question for BoN/DN-BoN
@@ -377,7 +377,6 @@ common_flags() {
     flags+=" --embedding_model ${EMBEDDING_MODEL}"
     flags+=" --similarity_threshold ${SIMILARITY_THRESHOLD}"
     flags+=" --clustering_method ${CLUSTERING_METHOD}"
-    flags+=" --cluster_on_answer"
     # DORA temperatures — only consumed by dn_bon_updated; harmlessly passed to others
     flags+=" --T_b ${T_B}"
     flags+=" --T_s ${T_S}"
@@ -798,18 +797,21 @@ run_olympiadbench() {
 run_alpha() {
     echo "===== ALPHA ABLATION ====="
 
-    for DATASET in math500 aime24; do
-        MAX_S=500
-        [[ "${DATASET}" == "aime24" ]] && MAX_S=32
+    for DATASET in math500 aime24 aime25 amc23; do
+        local MAX_S
+        MAX_S="$(_max_samples "${DATASET}")"
 
         for ALPHA in 0.0 0.25 0.5 0.75 1.0; do
-            run_exp "${DATASET}_dnbon_N8_a${ALPHA}" \
+            # Per-value output dir: results_updated_alpha_<value>/<RUN_TAG>/
+            local ABLATION_OUT="${BASE_OUT}_alpha_${ALPHA}/${RUN_TAG}"
+            mkdir -p "${ABLATION_OUT}"
+            run_exp "${DATASET}_dnbon_N${N_SAMPLES}_a${ALPHA}" \
                 --dataset "${DATASET}" \
                 --methods dn_bon \
                 --N ${N_SAMPLES} \
                 --alpha "${ALPHA}" \
                 --max_samples "${MAX_S}" \
-                --output_dir "${OUT}"
+                --output_dir "${ABLATION_OUT}"
         done
     done
 }
@@ -823,17 +825,21 @@ run_alpha() {
 run_scaling() {
     echo "===== BUDGET SCALING ====="
 
-    for DATASET in math500 aime24; do
-        MAX_S=200
-        [[ "${DATASET}" == "aime24" ]] && MAX_S=32
+    for DATASET in math500 aime24 aime25 amc23; do
+        local MAX_S
+        MAX_S="$(_max_samples "${DATASET}")"
 
         for N in 4 8 16 32; do
+            # Per-value output dir: results_updated_scaling_<N>/<RUN_TAG>/
+            local ABLATION_OUT="${BASE_OUT}_scaling_${N}/${RUN_TAG}"
+            mkdir -p "${ABLATION_OUT}"
+
             run_exp "${DATASET}_bon_N${N}" \
                 --dataset "${DATASET}" \
                 --methods bon \
                 --N "${N}" --batch_size "${N}" \
                 --max_samples "${MAX_S}" \
-                --output_dir "${OUT}"
+                --output_dir "${ABLATION_OUT}"
 
             run_exp "${DATASET}_dnbon_N${N}_a0.5" \
                 --dataset "${DATASET}" \
@@ -841,7 +847,7 @@ run_scaling() {
                 --N "${N}" --batch_size "${N}" \
                 --alpha 0.5 \
                 --max_samples "${MAX_S}" \
-                --output_dir "${OUT}"
+                --output_dir "${ABLATION_OUT}"
         done
     done
 }
@@ -855,15 +861,23 @@ run_scaling() {
 run_clustering() {
     echo "===== CLUSTERING THRESHOLD ABLATION ====="
 
-    for THRESH in 0.70 0.80 0.85 0.90 0.95; do
-        run_exp "math500_dnbon_N8_thresh${THRESH}" \
-            --dataset math500 \
-            --methods dn_bon \
-            --N ${N_SAMPLES} \
-            --alpha 0.5 \
-            --similarity_threshold "${THRESH}" \
-            --max_samples 200 \
-            --output_dir "${OUT}"
+    for DATASET in math500 aime24 aime25 amc23; do
+        local MAX_S
+        MAX_S="$(_max_samples "${DATASET}")"
+
+        for THRESH in 0.70 0.80 0.85 0.90 0.95; do
+            # Per-value output dir: results_updated_clustering_<thresh>/<RUN_TAG>/
+            local ABLATION_OUT="${BASE_OUT}_clustering_${THRESH}/${RUN_TAG}"
+            mkdir -p "${ABLATION_OUT}"
+            run_exp "${DATASET}_dnbon_N${N_SAMPLES}_thresh${THRESH}" \
+                --dataset "${DATASET}" \
+                --methods dn_bon \
+                --N ${N_SAMPLES} \
+                --alpha 0.5 \
+                --similarity_threshold "${THRESH}" \
+                --max_samples "${MAX_S}" \
+                --output_dir "${ABLATION_OUT}"
+        done
     done
 }
 
@@ -885,34 +899,45 @@ run_clustering() {
 run_verifier() {
     echo "===== VERIFIER ABLATION ====="
 
-    # PRM — the real method; no gold leakage
-    run_exp "math500_dnbon_verifier_prm" \
-        --dataset math500 \
-        --methods dn_bon \
-        --N ${N_SAMPLES} \
-        --verifier prm \
-        --prm_model "${PRM_MODEL}" \
-        --prm_aggregation "${PRM_AGGREGATION}" \
-        --max_samples 200 \
-        --output_dir "${OUT}"
+    for DATASET in math500 aime24 aime25 amc23; do
+        local MAX_S
+        MAX_S="$(_max_samples "${DATASET}")"
 
-    # Length heuristic — no gold, no PRM; deployment baseline
-    run_exp "math500_dnbon_verifier_length" \
-        --dataset math500 \
-        --methods dn_bon \
-        --N ${N_SAMPLES} \
-        --verifier length \
-        --max_samples 200 \
-        --output_dir "${OUT}"
+        # PRM — the real method; no gold leakage
+        local ABLATION_OUT_PRM="${BASE_OUT}_verifier_prm/${RUN_TAG}"
+        mkdir -p "${ABLATION_OUT_PRM}"
+        run_exp "${DATASET}_dnbon_verifier_prm" \
+            --dataset "${DATASET}" \
+            --methods dn_bon \
+            --N ${N_SAMPLES} \
+            --verifier prm \
+            --prm_model "${PRM_MODEL}" \
+            --prm_aggregation "${PRM_AGGREGATION}" \
+            --max_samples "${MAX_S}" \
+            --output_dir "${ABLATION_OUT_PRM}"
 
-    # Outcome — oracle upper bound ONLY (leaks gold into selection)
-    run_exp "math500_dnbon_verifier_outcome_ORACLE" \
-        --dataset math500 \
-        --methods dn_bon \
-        --N ${N_SAMPLES} \
-        --verifier outcome \
-        --max_samples 200 \
-        --output_dir "${OUT}"
+        # Length heuristic — no gold, no PRM; deployment baseline
+        local ABLATION_OUT_LEN="${BASE_OUT}_verifier_length/${RUN_TAG}"
+        mkdir -p "${ABLATION_OUT_LEN}"
+        run_exp "${DATASET}_dnbon_verifier_length" \
+            --dataset "${DATASET}" \
+            --methods dn_bon \
+            --N ${N_SAMPLES} \
+            --verifier length \
+            --max_samples "${MAX_S}" \
+            --output_dir "${ABLATION_OUT_LEN}"
+
+        # Outcome — oracle upper bound ONLY (leaks gold into selection)
+        local ABLATION_OUT_OUT="${BASE_OUT}_verifier_outcome/${RUN_TAG}"
+        mkdir -p "${ABLATION_OUT_OUT}"
+        run_exp "${DATASET}_dnbon_verifier_outcome_ORACLE" \
+            --dataset "${DATASET}" \
+            --methods dn_bon \
+            --N ${N_SAMPLES} \
+            --verifier outcome \
+            --max_samples "${MAX_S}" \
+            --output_dir "${ABLATION_OUT_OUT}"
+    done
 }
 
 
@@ -1525,7 +1550,7 @@ run_custom() {
                     --methods "${METHOD}" \
                     --N "${N_SAMPLES}" \
                     --batch_size "${BS}" \
-                    --alpha 0.05 \
+                    --alpha 0.5 \
                     --max_samples "${MAX_S}" \
                     --output_dir "${OUT}"
             else
@@ -2006,6 +2031,3 @@ fi
 # bash run_experiments.sh run olympiadbench,math500,aime24,aime25,amc23 greedy,bon,dn_bon,greedy_pass_n,bon_majority
 
 # bash run_experiments.sh run mmlu,bbh,arc_challenge,truthfulqa,strategyqa greedy,greedy_pass_n,bon,dn_bon,bon_majority
-
-
-# bash run_experiments.sh run olympiadbench dn_bon_updated

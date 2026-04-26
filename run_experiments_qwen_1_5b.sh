@@ -78,7 +78,7 @@ PYTHON="python"
 # encodes MAX_NEW_TOKENS, TEMPERATURE, TOP_P, and quantisation flags.
 # All experiment JSONL + summary JSON files go into that one folder.
 # -----------------------------------------------------------------------------
-BASE_OUT="./results_updated"
+BASE_OUT="./results_updated_mistral_7b_prm"
 
 # -----------------------------------------------------------------------------
 # MAX_NEW_TOKENS
@@ -226,7 +226,8 @@ VERIFIER="prm"
 # HF model id for the PRM verifier.  Only used when VERIFIER=prm.
 # Recommended: Qwen/Qwen2.5-Math-PRM-7B  (~14 GB fp16)
 # -----------------------------------------------------------------------------
-PRM_MODEL="Qwen/Qwen2.5-Math-PRM-7B"
+# PRM_MODEL="Qwen/Qwen2.5-Math-PRM-7B"
+PRM_MODEL="peiyi9979/math-shepherd-mistral-7b-prm"
 
 # -----------------------------------------------------------------------------
 # PRM_AGGREGATION

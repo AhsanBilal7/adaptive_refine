@@ -78,9 +78,71 @@ def _cluster_threshold_greedy(
 # ──────────────────────────────────────────────────────────────────────────────
 
 def _embed_tfidf(texts: List[str]) -> np.ndarray:
+    """
+    TF-IDF bag-of-words embeddings with full robustness against:
+      - empty strings
+      - strings that consist entirely of stop words
+      - a corpus where every document is empty after tokenisation
+        (→ 'empty vocabulary' ValueError from sklearn)
+
+    Strategy
+    --------
+    1. Replace every blank/whitespace-only text with a unique sentinel
+       so sklearn always has something to tokenise.
+    2. Try TfidfVectorizer with stop_word filtering first.
+    3. If the vocabulary is still empty (all tokens were stop words),
+       retry without stop-word removal so at least *something* remains.
+    4. If that also fails (all texts were truly empty after cleaning),
+       return an identity-like matrix of uniform unit vectors.
+    """
     from sklearn.feature_extraction.text import TfidfVectorizer  # type: ignore
-    vec = TfidfVectorizer(max_features=4096, sublinear_tf=True)
-    X = vec.fit_transform(texts).toarray().astype(np.float32)
+
+    # Step 1 — replace empty / whitespace-only texts with a sentinel
+    # Use index-based sentinels so each empty doc gets a unique token
+    # (prevents them from all collapsing to the same cluster).
+    cleaned: List[str] = []
+    for i, t in enumerate(texts):
+        s = t.strip()
+        cleaned.append(s if s else f"__empty_doc_{i}__")
+
+    n = len(cleaned)
+
+    def _vectorize(stop_words):
+        vec = TfidfVectorizer(max_features=4096, sublinear_tf=True,
+                              stop_words=stop_words)
+        X = vec.fit_transform(cleaned).toarray().astype(np.float32)
+        return X
+
+    # Step 2 — try with English stop words
+    try:
+        X = _vectorize("english")
+        if X.shape[1] > 0:
+            norms = np.linalg.norm(X, axis=1, keepdims=True)
+            norms[norms == 0] = 1.0
+            return X / norms
+    except ValueError:
+        pass
+
+    # Step 3 — retry without stop-word removal
+    try:
+        X = _vectorize(None)
+        if X.shape[1] > 0:
+            norms = np.linalg.norm(X, axis=1, keepdims=True)
+            norms[norms == 0] = 1.0
+            return X / norms
+    except ValueError:
+        pass
+
+    # Step 4 — absolute fallback: identity-like unit vectors
+    # Each document gets a unique one-hot direction so they are all
+    # maximally distinct (uniqueness γ_i will be ~1/N for everyone,
+    # i.e. no redundancy signal — safe neutral behaviour).
+    logger.warning(
+        "TF-IDF: all documents empty after cleaning; "
+        "returning identity-like unit embeddings."
+    )
+    d = max(n, 1)
+    X = np.eye(n, d, dtype=np.float32)
     norms = np.linalg.norm(X, axis=1, keepdims=True)
     norms[norms == 0] = 1.0
     return X / norms
@@ -185,35 +247,62 @@ class ClusterManager:
     # ── embedding  (uses the already-loaded model) ────────────────────────────
 
     def _embed(self, texts: List[str]) -> np.ndarray:
-        """Embed texts using the pre-loaded model. Never reloads anything."""
+        """
+        Embed texts using the pre-loaded model. Never reloads anything.
+
+        Robustness: empty or whitespace-only strings are replaced with a
+        unique sentinel before embedding so downstream vectorisers never
+        receive an empty-vocabulary corpus.  The sentinel is index-based so
+        each blank document gets a distinct token, keeping them maximally
+        separate rather than all mapping to the same embedding.
+        """
+        # Sanitise: replace blank texts with unique sentinels
+        safe_texts: List[str] = [
+            t if t.strip() else f"__empty_{i}__"
+            for i, t in enumerate(texts)
+        ]
+
         if self._embedder == "sentence_transformers":
             # _st_model is already in memory from __init__
-            return self._st_model.encode(
-                texts,
-                batch_size=self.batch_size,
-                normalize_embeddings=True,
-                show_progress_bar=False,
-            )
+            try:
+                return self._st_model.encode(
+                    safe_texts,
+                    batch_size=self.batch_size,
+                    normalize_embeddings=True,
+                    show_progress_bar=False,
+                )
+            except Exception as e:
+                logger.warning(
+                    f"SentenceTransformer.encode failed ({e}); "
+                    "falling back to TF-IDF."
+                )
+                return _embed_tfidf(safe_texts)
 
         if self._embedder == "hf_transformer":
             import torch
             all_embs = []
-            for i in range(0, len(texts), self.batch_size):
-                batch = texts[i : i + self.batch_size]
-                enc = self._hf_tok(
-                    batch, padding=True, truncation=True,
-                    max_length=512, return_tensors="pt"
-                ).to(self._hf_device)
-                with torch.no_grad():
-                    out = self._hf_model(**enc)
-                mask = enc["attention_mask"].unsqueeze(-1).float()
-                emb  = (out.last_hidden_state * mask).sum(1) / mask.sum(1)
-                emb  = torch.nn.functional.normalize(emb, dim=-1)
-                all_embs.append(emb.cpu().numpy())
-            return np.vstack(all_embs)
+            try:
+                for i in range(0, len(safe_texts), self.batch_size):
+                    batch = safe_texts[i : i + self.batch_size]
+                    enc = self._hf_tok(
+                        batch, padding=True, truncation=True,
+                        max_length=512, return_tensors="pt"
+                    ).to(self._hf_device)
+                    with torch.no_grad():
+                        out = self._hf_model(**enc)
+                    mask = enc["attention_mask"].unsqueeze(-1).float()
+                    emb  = (out.last_hidden_state * mask).sum(1) / mask.sum(1)
+                    emb  = torch.nn.functional.normalize(emb, dim=-1)
+                    all_embs.append(emb.cpu().numpy())
+                return np.vstack(all_embs)
+            except Exception as e:
+                logger.warning(
+                    f"HF AutoModel.encode failed ({e}); falling back to TF-IDF."
+                )
+                return _embed_tfidf(safe_texts)
 
         # TF-IDF — stateless, no model to cache
-        return _embed_tfidf(texts)
+        return _embed_tfidf(safe_texts)
 
     # ── helpers ───────────────────────────────────────────────────────────────
 

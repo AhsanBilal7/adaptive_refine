@@ -13,7 +13,7 @@ if [ -z "$DATASET" ] || [ -z "$METHOD" ]; then
     exit 1
 fi
 
-cd /home/ahsan/adaptive_scientific_discovery
+cd /home/ahsan/crisp
 
 # -----------------------------
 # Clean old cache (optional)
@@ -40,20 +40,24 @@ echo "HF cache set to: $HF_HOME"
 # Load environment
 # -----------------------------
 source ~/.bashrc
-conda activate dora
+
+# OLD (conda) — commented out
+# conda activate dora
 
 # -----------------------------
 # Debug info
 # -----------------------------
 echo "Running on $(hostname)"
 echo "Working dir: $(pwd)"
-echo "Python: $(which python)"
 echo "Dataset: $DATASET"
 echo "Method: $METHOD"
 echo "CUDA_VISIBLE_DEVICES=$CUDA_VISIBLE_DEVICES"
 nvidia-smi
 
+# Check uv environment
+uv run which python
+
 # -----------------------------
-# Run single dataset + single method
+# Run experiment using uv
 # -----------------------------
-bash run_experiments_llama_3b.sh run "$DATASET" "$METHOD"
+uv run -- bash run_experiments_qwen_1_5b.sh run "$DATASET" "$METHOD"

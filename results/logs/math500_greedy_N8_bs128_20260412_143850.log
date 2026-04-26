@@ -1,20 +1,0 @@
-14:38:50 | INFO | run_eval | Loading dataset: math500
-14:38:55 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
-14:38:55 | INFO | run_eval | Loaded 500 examples.
-14:38:55 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=128
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-14:39:10 | INFO | model_wrapper | Loading tokenizer for Qwen/Qwen2.5-Math-7B-Instruct ...
-14:39:11 | INFO | model_wrapper | Loading model Qwen/Qwen2.5-Math-7B-Instruct ...
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:34<01:42, 34.09s/it]Loading checkpoint shards:  50%|█████     | 2/4 [01:02<01:00, 30.47s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [01:29<00:28, 28.92s/it]Loading checkpoint shards: 100%|██████████| 4/4 [01:54<00:00, 27.44s/it]Loading checkpoint shards: 100%|██████████| 4/4 [01:54<00:00, 28.57s/it]
-14:41:09 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=128
-14:41:09 | INFO | run_eval | Building verifier: outcome
-14:41:09 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
-14:41:09 | INFO | run_eval | 
-================================================================
-14:41:09 | INFO | run_eval |  Running : greedy
-14:41:09 | INFO | run_eval |  Dataset : math500  N=8  batch_size=128
-14:41:09 | INFO | run_eval | ================================================================
-14:41:09 | INFO | evaluator | Evaluating 500/500 pending questions  (method=GreedyInference)
-[Greedy] generate (bs=128):   0%|[32m          [0m| 0/4 [00:00<?, ?chunk/s]
-[Greedy] generate (bs=128):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A

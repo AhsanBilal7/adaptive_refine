@@ -174,24 +174,39 @@ def parse_args():
                        "greedy          — single argmax decode\n"
                        "bon             — Best-of-N with verifier score\n"
                        "dn_bon          — Direction-Normalised BoN (hard cluster penalty)\n"
-                       "dn_bon_updated  — DORA: soft quality x uniqueness scoring\n"
+                       "dn_bon_updated  — CRISP-DORA: answer clustering + DORA uniqueness + optional prefix refinement\n"
                        "greedy_pass_n   — N samples, pick by max log-probability\n"
                        "bon_majority    — N samples, pick by majority vote"
                    ))
     g.add_argument(
-        "--N", type=int, default=8,
+        "--N", type=int, default=16,
         help="Number of samples for BoN / DN-BoN / greedy_pass_n / bon_majority",
     )
-    g.add_argument("--alpha", type=float, default=0.5,
-                   help="DN-BoN normalisation exponent (0 = plain BoN)")
+    g.add_argument("--alpha", type=float, default=0.3,
+                   help="CRISP-DORA frequency regularisation exponent α (0=pure reward, 1=majority-vote)")
     g.add_argument(
         "--alpha_ablation", nargs="+", type=float, default=None,
         help="Run DN-BoN with multiple alpha values, e.g. --alpha_ablation 0 0.5 1",
     )
-    g.add_argument("--T_b", type=float, default=1.0,
-                   help="DORA quality softmax temperature (dn_bon_updated only, default 1.0)")
+    g.add_argument("--T_b", type=float, default=0.3,
+                   help="Reward softmax temperature T_b (dn_bon_updated, default 0.3)")
     g.add_argument("--T_s", type=float, default=0.1,
-                   help="DORA similarity softmax temperature (dn_bon_updated only, default 0.1)")
+                   help="Similarity softmax temperature T_s (dn_bon_updated, default 0.1)")
+    # ── CRISP-DORA iterative / fusion params ────────────────────────────────
+    g.add_argument("--max_iter", type=int, default=1,
+                   help="CRISP prefix-refinement iterations (1=one-shot, >1=iterative)")
+    g.add_argument("--n_iter_samples", type=int, default=None,
+                   help="Trajectories sampled per subsequent iteration (default=N//2)")
+    g.add_argument("--prefix_depth", type=int, default=2,
+                   help="Reasoning steps to extract as prefix at each iteration")
+    g.add_argument("--early_stop_clusters", type=int, default=2,
+                   help="Early-termination cluster-count threshold τ_K (default 2)")
+    g.add_argument("--early_stop_majority", type=float, default=0.75,
+                   help="Early-termination modal-fraction threshold τ_p (default 0.75)")
+    g.add_argument("--beta", type=float, default=1.0,
+                   help="Reward exponent β in w'_i ∝ s̃^β·γ^δ (default 1.0)")
+    g.add_argument("--delta", type=float, default=1.0,
+                   help="Uniqueness exponent δ in w'_i ∝ s̃^β·γ^δ (default 1.0)")
 
     # ── Verifier ───────────────────────────────────────────────────────────────
     g = p.add_argument_group("Verifier")
@@ -342,6 +357,13 @@ def main():
                 T_b=args.T_b, T_s=args.T_s,
                 data_name=data_name,
                 temperature=args.temperature, top_p=args.top_p,
+                max_iter=args.max_iter,
+                n_iter_samples=args.n_iter_samples,
+                prefix_depth=args.prefix_depth,
+                early_stop_clusters=args.early_stop_clusters,
+                early_stop_majority=args.early_stop_majority,
+                beta=args.beta,
+                delta=args.delta,
             )
             run_configs.append((method_name, m))
 
