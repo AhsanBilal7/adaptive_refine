@@ -1,0 +1,50 @@
+11:52:45 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
+11:52:45 | INFO | run_eval | Loading dataset: amc23
+11:52:49 | INFO | dataset_loader | Loaded 40 examples from 'amc23' (test split).  Sample answers: ['27', '36', '45']
+11:52:49 | INFO | run_eval | Loaded 40 examples.
+11:52:49 | INFO | run_eval | Loading model: Qwen/Qwen2.5-1.5B-Instruct  batch_size=16
+/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+11:52:58 | INFO | model_wrapper | CUDA available: 1 GPU(s)
+11:52:58 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+11:52:58 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
+11:52:58 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-1.5B-Instruct
+11:52:59 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-1.5B-Instruct
+11:53:00 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+11:53:02 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
+11:53:02 | INFO | model_wrapper |   GPU 0 memory: allocated=2.88 GB  reserved=2.96 GB
+11:53:02 | INFO | run_eval | Building verifier: prm
+11:53:02 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+11:53:03 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+11:53:03 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+`torch_dtype` is deprecated! Use `dtype` instead!
+11:53:08 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.32s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.30s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.30s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.11s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.18s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+11:53:13 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=16
+11:53:13 | INFO | run_eval | Building ClusterManager  embedding=all-MiniLM-L6-v2
+11:53:13 | WARNING | clustering | sentence-transformers not installed; trying HF AutoModel fallback.
+11:53:13 | INFO | clustering | ClusterManager: loading HF AutoModel 'all-MiniLM-L6-v2' — this happens ONCE.
+11:53:13 | WARNING | clustering | HF AutoModel load failed (all-MiniLM-L6-v2 is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'
+If this is a private repository, make sure to pass a token having permission to this repo either by logging in with `hf auth login` or by passing `token=<your_token>`); using TF-IDF fallback.
+11:53:13 | WARNING | clustering | ClusterManager: no neural embedder available — using TF-IDF fallback.
+11:53:14 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='amc23'
+11:53:14 | INFO | run_eval | 
+================================================================
+11:53:14 | INFO | run_eval |  Running : dn_bon_updated
+11:53:14 | INFO | run_eval |  Dataset : amc23  N=8  batch_size=16
+11:53:14 | INFO | run_eval | ================================================================
+11:53:14 | INFO | evaluator | Resuming: 40 questions already done  (acc so far: 11/40)
+11:53:14 | INFO | evaluator | Evaluating 0/40 pending questions  (method=DNBonUpdated)
+11:53:14 | INFO | evaluator | All questions already completed — nothing to do.
+11:53:14 | INFO | run_eval | Redundancy/vote stats: {'avg_num_clusters': 6.571, 'avg_selected_cluster_size': 2.0, 'avg_max_cluster_size': 2.0, 'frac_selected_from_top_cluster': 1.0}
+11:53:14 | INFO | evaluator | Summary saved to ./results_updated/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/dn_bon_updated_amc23_N8_summary.json
+11:53:14 | INFO | run_eval | 
+Method                 Accuracy    Correct    Total   Avg time    Wall time
+--------------------------------------------------------------------------
+dn_bon_updated           0.2750         11       40      0.00s         0.0s
+11:53:14 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/comparison_amc23_N8.txt
+🧩Cluster on Answer:  False
+🧩Alpha Value:  0.3

@@ -1,0 +1,24 @@
+15:36:43 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
+15:36:43 | INFO | run_eval | Loading dataset: amc23
+15:36:47 | INFO | dataset_loader | Loaded 40 examples from 'amc23' (test split).  Sample answers: ['27', '36', '45']
+15:36:47 | INFO | run_eval | Loaded 40 examples.
+15:36:47 | INFO | run_eval | Loading model: Qwen/Qwen2.5-1.5B-Instruct  batch_size=16
+/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+15:36:56 | INFO | model_wrapper | CUDA available: 1 GPU(s)
+15:36:56 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+15:36:56 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
+15:36:56 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-1.5B-Instruct
+15:36:57 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-1.5B-Instruct
+15:36:59 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+15:37:24 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
+15:37:24 | INFO | model_wrapper |   GPU 0 memory: allocated=2.88 GB  reserved=2.96 GB
+15:37:24 | INFO | run_eval | Building verifier: prm
+15:37:24 | INFO | verifier | Loading PRM tokenizer: peiyi9979/math-shepherd-mistral-7b-prm
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama.LlamaTokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama_fast.LlamaTokenizerFast'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message.
+15:37:25 | INFO | verifier |   step_sep_id ('<extra_0>') = 1
+15:37:25 | INFO | verifier | Loading PRM model: peiyi9979/math-shepherd-mistral-7b-prm
+`torch_dtype` is deprecated! Use `dtype` instead!
+15:37:26 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:25<00:25, 25.00s/it]

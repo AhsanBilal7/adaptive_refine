@@ -1,0 +1,1211 @@
+Before cleanup:
+1.5K	/home/ahsan/.cache/Microsoft
+739K	/home/ahsan/.cache/huggingface
+5.0K	/home/ahsan/.cache/matplotlib
+3.2M	/home/ahsan/.cache/pip
+9.8G	/home/ahsan/.cache/uv
+After cleanup:
+1.5K	/home/ahsan/.cache/Microsoft
+739K	/home/ahsan/.cache/huggingface
+5.0K	/home/ahsan/.cache/matplotlib
+3.2M	/home/ahsan/.cache/pip
+9.8G	/home/ahsan/.cache/uv
+HF cache set to: /scratch/ahsan/hf_cache
+Running on c1037.oscer.ou.edu
+Working dir: /home/ahsan/crisp
+Python: /opt/oscer/software/Mamba/23.1.0-4/bin/python
+CUDA_VISIBLE_DEVICES=2,3
+Sat Apr 25 23:58:47 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.05              Driver Version: 560.35.05      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA H100 80GB HBM3          Off |   00000000:55:00.0 Off |                    0 |
+| N/A   39C    P0            140W /  700W |   15841MiB /  81559MiB |      8%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA H100 80GB HBM3          Off |   00000000:68:00.0 Off |                    0 |
+| N/A   39C    P0            147W /  700W |   17851MiB /  81559MiB |     10%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   2  NVIDIA H100 80GB HBM3          Off |   00000000:D2:00.0 Off |                    0 |
+| N/A   37C    P0             71W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   3  NVIDIA H100 80GB HBM3          Off |   00000000:E4:00.0 Off |                    0 |
+| N/A   37C    P0             73W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A   2867138      C   /home/ahsan/crisp/.venv/bin/python3         15830MiB |
+|    1   N/A  N/A   2867138      C   /home/ahsan/crisp/.venv/bin/python3         17840MiB |
++-----------------------------------------------------------------------------------------+
+
+════════════════════════════════════════════════════════════════
+  DN-BoN Paired Ablation
+  Model   : Qwen/Qwen2.5-Math-7B-Instruct
+  Verifier: Qwen/Qwen2.5-Math-PRM-7B
+  N       : 8
+  α sweep : 0.0 0.25 0.5 0.75 1.0
+  τ sweep : 0.70 0.75 0.80 0.85 0.90 0.95
+  Datasets: aime24 aime25 amc23 math500
+  Out dir : ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95
+════════════════════════════════════════════════════════════════
+
+════════════════════════════════════════════════════════════════
+  Dataset : aime24   N=8   max_samples=30
+  Output  : ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95
+════════════════════════════════════════════════════════════════
+  ↺ Cache found — skipping generation: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_aime24_N8.jsonl
+23:58:55 | INFO | paired_ablation | GPUs available: 2
+23:58:55 | INFO | paired_ablation | Loading dataset: aime24
+23:58:59 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
+23:58:59 | INFO | paired_ablation | Loaded 30 examples.
+23:58:59 | INFO | paired_ablation | Loading generator: Qwen/Qwen2.5-Math-7B-Instruct
+/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+23:59:08 | INFO | model_wrapper | CUDA available: 2 GPU(s)
+23:59:08 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+23:59:08 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
+23:59:08 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=2  dtype=torch.float16  4bit=False  8bit=False
+23:59:08 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
+23:59:09 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:05,  1.95s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:03,  2.00s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:06<00:02,  2.02s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.87s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.92s/it]
+23:59:18 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1']  (primary=cuda:0)
+23:59:18 | INFO | model_wrapper |   GPU 0 memory: allocated=6.22 GB  reserved=6.24 GB
+23:59:18 | INFO | model_wrapper |   GPU 1 memory: allocated=7.96 GB  reserved=7.98 GB
+23:59:18 | INFO | paired_ablation | Loading verifier: Qwen/Qwen2.5-Math-PRM-7B
+23:59:18 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+23:59:19 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+23:59:19 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+A new version of the following files was downloaded from https://huggingface.co/Qwen/Qwen2.5-Math-PRM-7B:
+- configuration_qwen2_rm.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+`torch_dtype` is deprecated! Use `dtype` instead!
+A new version of the following files was downloaded from https://huggingface.co/Qwen/Qwen2.5-Math-PRM-7B:
+- modeling_qwen2_rm.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.24s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.22s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.26s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.07s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.13s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+23:59:29 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=min  batch_size=64
+23:59:30 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
+23:59:30 | INFO | paired_ablation | Loading ClusterManager: all-MiniLM-L6-v2
+23:59:30 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
+23:59:30 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
+23:59:30 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
+23:59:32 | INFO | clustering | ClusterManager: SentenceTransformer ready.
+23:59:32 | INFO | paired_ablation | Loading sample cache from ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_aime24_N8.jsonl
+23:59:32 | INFO | paired_ablation | Loaded 30 cached questions from ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_aime24_N8.jsonl
+23:59:32 | INFO | paired_ablation | Applying all methods on cached traces (α: [0.0, 0.25, 0.5, 0.75, 1.0], τ: [0.7, 0.75, 0.8, 0.85, 0.9, 0.95])...
+23:59:36 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+23:59:36 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.97s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.97s/batch, done=1/1]
+23:59:39 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=3.1s  accuracy=0/1  fallbacks=0/1
+23:59:39 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+23:59:39 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+23:59:41 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+23:59:41 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+23:59:41 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+23:59:43 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+23:59:45 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+23:59:45 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+23:59:47 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+23:59:47 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+23:59:47 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+23:59:49 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+23:59:49 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+23:59:49 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+23:59:52 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+23:59:52 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+23:59:52 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+23:59:55 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+23:59:55 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+23:59:55 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+23:59:57 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+23:59:57 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+23:59:57 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:00:00 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:01 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:00:01 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:00:03 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:00:03 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:00:03 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1]
+00:00:06 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:06 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:00:06 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:00:08 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:11 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:00:11 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:00:13 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:00:13 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:00:13 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:00:16 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:00:16 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:00:16 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:00:18 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:18 | INFO | paired_ablation |   [5/30]  BoN=2/5  DN-BoN(default)=2/5
+00:00:20 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:00:20 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:00:22 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:00:22 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:00:22 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:00:25 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:00:25 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:00:25 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1]
+00:00:27 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:29 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:00:29 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:00:32 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:00:32 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:00:32 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:00:34 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:34 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:00:34 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1]
+00:00:36 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:38 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:00:38 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:00:40 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:00:40 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:00:40 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:00:42 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:00:42 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:00:42 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:00:45 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:45 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:00:45 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1]
+00:00:47 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:47 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:00:47 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1]
+00:00:50 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:50 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:00:50 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1]
+00:00:52 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:00:54 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:00:54 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:00:56 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:00:56 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:00:56 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:00:58 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:00:58 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:00:58 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1]
+00:01:01 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:01:01 | INFO | paired_ablation |   [10/30]  BoN=3/10  DN-BoN(default)=3/10
+00:01:02 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:01:02 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:01:05 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:01:05 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:01:05 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:01:07 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:01:07 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:01:07 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:01:09 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:01:12 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:01:12 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:01:14 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:01:14 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:01:14 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:01:17 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:01:17 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:01:17 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:01:19 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:01:20 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:01:20 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:01:22 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:01:22 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:01:22 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:01:25 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:01:25 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:01:25 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:01:27 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:01:30 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:01:30 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:01:32 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:01:32 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:01:32 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:01:35 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:01:35 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:01:35 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:01:37 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:01:39 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:01:39 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:01:41 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:01:41 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:01:41 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1]
+00:01:43 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:01:43 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:01:43 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:01:46 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:01:46 | INFO | paired_ablation |   [15/30]  BoN=5/15  DN-BoN(default)=5/15
+00:01:48 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:01:48 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:01:50 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:01:50 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:01:50 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:01:53 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:01:53 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:01:53 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1]
+00:01:55 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:01:58 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:01:58 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:02:00 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:02:00 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:02:00 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:02:02 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:02 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:02:02 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1]
+00:02:05 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:07 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:02:07 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:02:10 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:02:10 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:02:10 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:02:12 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:12 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:02:12 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1]
+00:02:14 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:17 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:02:17 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:02:19 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:02:19 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:02:19 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:02:22 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:02:22 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:02:22 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:02:24 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:26 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:02:26 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:02:28 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:28 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:02:28 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:02:31 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:31 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:02:31 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:02:33 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:33 | INFO | paired_ablation |   [20/30]  BoN=6/20  DN-BoN(default)=6/20
+00:02:35 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:02:35 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:02:37 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:02:37 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:02:37 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:02:40 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:40 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:02:40 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:02:42 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:43 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:02:43 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:02:45 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:45 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:02:45 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:02:48 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:48 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:02:48 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:02:50 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:50 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:02:50 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:02:53 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:02:53 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:02:53 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:02:55 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:02:55 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:02:55 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1]
+00:02:57 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:03:00 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:03:00 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:03:02 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:02 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:03:02 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:03:05 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:05 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:03:05 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1]
+00:03:07 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:03:10 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:03:10 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.37s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.37s/batch, done=1/1]
+00:03:12 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:03:12 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:03:12 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:03:15 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:15 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:03:15 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1]
+00:03:17 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:03:17 | INFO | paired_ablation |   [25/30]  BoN=6/25  DN-BoN(default)=6/25
+00:03:20 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:03:20 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:03:22 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:22 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:03:22 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:03:25 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:25 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:03:25 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1]
+00:03:27 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:03:29 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:03:29 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:03:31 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:31 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:03:31 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:03:33 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:33 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:03:33 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:03:36 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:03:39 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:03:39 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:03:41 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:41 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:03:41 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:03:43 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:43 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:03:43 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1]
+00:03:46 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:03:48 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:03:48 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:03:51 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:51 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:03:51 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:03:53 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:03:53 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:03:53 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1]
+00:03:55 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:03:58 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:03:58 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:04:00 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:04:00 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:04:00 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:04:03 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:04:03 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:04:03 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1]
+00:04:05 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:04:05 | INFO | paired_ablation |   [30/30]  BoN=7/30  DN-BoN(default)=7/30
+00:04:05 | INFO | paired_ablation | Per-question results → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/results_paired_aime24_N8.jsonl
+00:04:05 | INFO | paired_ablation | Aggregating results...
+00:04:05 | INFO | paired_ablation | Summary JSON → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/summary_paired_aime24_N8.json
+00:04:05 | INFO | paired_ablation | Analysis JSON → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/analysis_paired_aime24_N8.json
+00:04:05 | INFO | paired_ablation | LaTeX table → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/latex_table_aime24_N8.txt
+00:04:05 | INFO | paired_ablation | Help cases (0) → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/help_cases_aime24_N8.jsonl
+00:04:05 | INFO | paired_ablation | Hurt cases (0) → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/hurt_cases_aime24_N8.jsonl
+00:04:05 | INFO | paired_ablation | 
+========================================================================
+00:04:05 | INFO | paired_ablation |  PAIRED ABLATION SUMMARY  |  aime24  |  N=8
+00:04:05 | INFO | paired_ablation | ========================================================================
+00:04:05 | INFO | paired_ablation |   bon                        acc= 23.33%  (7/30)
+00:04:05 | INFO | paired_ablation |   majority                   acc= 20.00%  (6/30)
+00:04:05 | INFO | paired_ablation |   oracle                     acc= 26.67%  (8/30)
+00:04:05 | INFO | paired_ablation |   CIMR (full)               acc=  0.00%  (0/30)
+00:04:05 | INFO | paired_ablation |   CIMR (concise)            acc=  0.00%  (0/30)
+00:04:05 | INFO | paired_ablation |   CIMR (answer_only)        acc=  0.00%  (0/30)
+00:04:05 | INFO | paired_ablation |   ────────────────────────────────────────────────────────────
+00:04:05 | INFO | paired_ablation |   Method / (α, τ)              Accuracy  Δ vs BoN
+00:04:05 | INFO | paired_ablation |   ────────────────────────────────────────────────────────────
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.70   acc= 23.33%  Δ=+0.00pp ◀ BEST
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.75   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.80   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.85   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.90   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.95   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.70   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.75   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.80   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.85   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.90   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.95   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.70   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.75   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.80   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.85   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.90   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.95   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.70   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.75   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.80   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.85   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.90   acc= 20.00%  Δ=-3.33pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.95   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.70   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.75   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.80   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.85   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.90   acc= 20.00%  Δ=-3.33pp
+00:04:05 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.95   acc= 23.33%  Δ=+0.00pp
+00:04:05 | INFO | paired_ablation |   ────────────────────────────────────────────────────────────
+00:04:05 | INFO | paired_ablation |   Mean fmax:          1.000
+00:04:05 | INFO | paired_ablation |   Mean H (entropy):   -0.000 bits
+00:04:05 | INFO | paired_ablation |   Multiplicity bias fired: 0 (0.0%)
+00:04:05 | INFO | paired_ablation |   DN-BoN rescued:     0 questions
+00:04:05 | INFO | paired_ablation |   DN-BoN hurt:        0 questions
+00:04:05 | INFO | paired_ablation |   Net help:           +0 questions
+00:04:05 | INFO | paired_ablation |   CIMR rescued:       0 questions
+00:04:05 | INFO | paired_ablation |   CIMR hurt:          7 questions
+00:04:05 | INFO | paired_ablation |   CIMR net help:      -7 questions
+00:04:05 | INFO | paired_ablation | ========================================================================
+00:04:05 | INFO | paired_ablation |   Best config: dn_bon_tau0.70_alpha0.00  (23.33%)
+00:04:05 | INFO | paired_ablation | ========================================================================
+
+00:04:05 | INFO | paired_ablation | Generating figures...
+00:04:07 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/accuracy_vs_alpha_aime24_N8.pdf
+00:04:08 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/accuracy_vs_tau_aime24_N8.pdf
+/home/ahsan/crisp/run_paired_ablation.py:998: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=10)
+00:04:09 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/help_vs_hurt_fmax_aime24_N8.pdf
+00:04:09 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/fmax_vs_accuracy_scatter_aime24_N8.pdf
+00:04:10 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/cluster_entropy_hist_aime24_N8.pdf
+00:04:11 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/pairwise_delta_heatmap_aime24_N8.pdf
+00:04:11 | INFO | paired_ablation | All figures saved.
+00:04:11 | INFO | paired_ablation | Done.  All outputs in: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95
+  ✓  Done. Log: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/logs/paired_aime24_N8.log
+
+════════════════════════════════════════════════════════════════
+  Dataset : aime25   N=8   max_samples=30
+  Output  : ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95
+════════════════════════════════════════════════════════════════
+  ↺ Cache found — skipping generation: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_aime25_N8.jsonl
+00:04:21 | INFO | paired_ablation | GPUs available: 2
+00:04:21 | INFO | paired_ablation | Loading dataset: aime25
+00:04:25 | INFO | dataset_loader | Loaded 30 examples from 'aime25' (test split).  Sample answers: ['70', '588', '16']
+00:04:25 | INFO | paired_ablation | Loaded 30 examples.
+00:04:25 | INFO | paired_ablation | Loading generator: Qwen/Qwen2.5-Math-7B-Instruct
+/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+00:04:34 | INFO | model_wrapper | CUDA available: 2 GPU(s)
+00:04:34 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+00:04:34 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
+00:04:34 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=2  dtype=torch.float16  4bit=False  8bit=False
+00:04:34 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
+00:04:35 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:05,  1.93s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:03,  1.98s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:05<00:01,  2.00s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.84s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.89s/it]
+00:04:45 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1']  (primary=cuda:0)
+00:04:45 | INFO | model_wrapper |   GPU 0 memory: allocated=6.22 GB  reserved=6.24 GB
+00:04:45 | INFO | model_wrapper |   GPU 1 memory: allocated=7.96 GB  reserved=7.98 GB
+00:04:45 | INFO | paired_ablation | Loading verifier: Qwen/Qwen2.5-Math-PRM-7B
+00:04:45 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+00:04:46 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+00:04:46 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+A new version of the following files was downloaded from https://huggingface.co/Qwen/Qwen2.5-Math-PRM-7B:
+- configuration_qwen2_rm.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+`torch_dtype` is deprecated! Use `dtype` instead!
+A new version of the following files was downloaded from https://huggingface.co/Qwen/Qwen2.5-Math-PRM-7B:
+- modeling_qwen2_rm.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.24s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.22s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.22s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.05s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.11s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+00:04:56 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=min  batch_size=64
+00:04:57 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime25'
+00:04:57 | INFO | paired_ablation | Loading ClusterManager: all-MiniLM-L6-v2
+00:04:57 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
+00:04:57 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
+00:04:57 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
+00:04:59 | INFO | clustering | ClusterManager: SentenceTransformer ready.
+00:04:59 | INFO | paired_ablation | Loading sample cache from ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_aime25_N8.jsonl
+00:04:59 | INFO | paired_ablation | Loaded 30 cached questions from ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_aime25_N8.jsonl
+00:04:59 | INFO | paired_ablation | Applying all methods on cached traces (α: [0.0, 0.25, 0.5, 0.75, 1.0], τ: [0.7, 0.75, 0.8, 0.85, 0.9, 0.95])...
+00:05:01 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:05:01 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:03<00:00,  3.00s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:03<00:00,  3.00s/batch, done=1/1]
+00:05:04 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=3.1s  accuracy=0/1  fallbacks=0/1
+00:05:04 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:05:04 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:05:06 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:06 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:05:06 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:05:09 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:11 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:05:11 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1]
+00:05:14 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:14 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:05:14 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:05:16 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:16 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:05:16 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:05:19 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:21 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:05:21 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1]
+00:05:24 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:24 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:05:24 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:05:26 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:26 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:05:26 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:05:29 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:29 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:05:29 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.35s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.35s/batch, done=1/1]
+00:05:32 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:32 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:05:32 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:05:34 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:34 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:05:34 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:05:36 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:39 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:05:39 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.38s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.38s/batch, done=1/1]
+00:05:41 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:05:41 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:05:41 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.35s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.36s/batch, done=1/1]
+00:05:44 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:05:44 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:05:44 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:05:46 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:46 | INFO | paired_ablation |   [5/30]  BoN=2/5  DN-BoN(default)=2/5
+00:05:47 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:05:47 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.36s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.36s/batch, done=1/1]
+00:05:50 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:05:50 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:05:50 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1]
+00:05:52 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:52 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:05:52 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:05:54 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:56 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:05:56 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1]
+00:05:59 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:05:59 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:05:59 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1]
+00:06:01 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:01 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:06:01 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:06:04 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:06 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:06:06 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.38s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.38s/batch, done=1/1]
+00:06:09 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:06:09 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:06:09 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.35s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.35s/batch, done=1/1]
+00:06:11 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:06:11 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:06:11 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:06:14 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:17 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:06:17 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.37s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.37s/batch, done=1/1]
+00:06:19 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:06:19 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:06:19 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:06:21 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:21 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:06:21 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:06:24 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:26 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:06:26 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.36s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.36s/batch, done=1/1]
+00:06:28 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:06:28 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:06:28 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1]
+00:06:31 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:31 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:06:31 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:06:33 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:33 | INFO | paired_ablation |   [10/30]  BoN=3/10  DN-BoN(default)=3/10
+00:06:35 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:06:35 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.38s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.38s/batch, done=1/1]
+00:06:37 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:06:37 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:06:37 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:06:39 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:39 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:06:39 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:06:42 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:44 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:06:44 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:06:46 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:46 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:06:46 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:06:48 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:48 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:06:48 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:06:51 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:52 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:06:52 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:06:55 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:55 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:06:55 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:06:57 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:06:57 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:06:57 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:06:59 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:01 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:07:01 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.37s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.37s/batch, done=1/1]
+00:07:04 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:07:04 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:07:04 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:07:06 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:06 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:07:06 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:07:09 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:11 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:07:11 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:07:14 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:14 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:07:14 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.36s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.36s/batch, done=1/1]
+00:07:16 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:07:16 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:07:16 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:07:19 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:19 | INFO | paired_ablation |   [15/30]  BoN=3/15  DN-BoN(default)=3/15
+00:07:21 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:07:21 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1]
+00:07:23 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:23 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:07:23 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1]
+00:07:25 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:25 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:07:25 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:07:28 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:29 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:07:29 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:07:31 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:31 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:07:31 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:07:34 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:34 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:07:34 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:07:36 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:38 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:07:38 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.34s/batch, done=1/1]
+00:07:40 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:40 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:07:40 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:07:43 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:43 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:07:43 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:07:45 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:48 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:07:48 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:07:51 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:51 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:07:51 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:07:53 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:53 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:07:53 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:07:55 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:07:58 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:07:58 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:08:00 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:00 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:08:00 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:08:02 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:02 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:08:02 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:08:05 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:05 | INFO | paired_ablation |   [20/30]  BoN=5/20  DN-BoN(default)=5/20
+00:08:07 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:08:08 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.40s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.40s/batch, done=1/1]
+00:08:10 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:08:10 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:08:10 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:08:12 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:12 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:08:12 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:08:15 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:17 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:08:17 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:08:20 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:20 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:08:20 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:08:22 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:22 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:08:22 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:08:25 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:26 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:08:26 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:08:28 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:28 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:08:28 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:08:31 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:31 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:08:31 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:08:33 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:36 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:08:36 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:08:38 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:38 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:08:38 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:08:41 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:41 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:08:41 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:08:43 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:44 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:08:44 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:08:47 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:47 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:08:47 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:08:49 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:49 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:08:49 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:08:52 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:52 | INFO | paired_ablation |   [25/30]  BoN=5/25  DN-BoN(default)=5/25
+00:08:53 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:08:53 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:08:56 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:56 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:08:56 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:08:58 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:08:58 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:08:58 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:09:00 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:03 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:09:03 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.35s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.35s/batch, done=1/1]
+00:09:05 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:05 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:09:05 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.36s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.36s/batch, done=1/1]
+00:09:08 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.5s  accuracy=0/1  fallbacks=0/1
+00:09:08 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:09:08 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:09:10 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:11 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:09:11 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:09:13 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:13 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:09:13 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:09:15 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:15 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:09:15 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:09:18 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:19 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:09:19 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.32s/batch, done=1/1]
+00:09:22 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:22 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:09:22 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:09:24 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:24 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:09:24 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:09:26 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:29 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:09:29 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:09:31 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:31 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:09:31 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.33s/batch, done=1/1]
+00:09:33 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:33 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:09:33 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.30s/batch, done=1/1]
+00:09:36 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:09:36 | INFO | paired_ablation |   [30/30]  BoN=5/30  DN-BoN(default)=5/30
+00:09:36 | INFO | paired_ablation | Per-question results → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/results_paired_aime25_N8.jsonl
+00:09:36 | INFO | paired_ablation | Aggregating results...
+00:09:36 | INFO | paired_ablation | Summary JSON → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/summary_paired_aime25_N8.json
+00:09:36 | INFO | paired_ablation | Analysis JSON → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/analysis_paired_aime25_N8.json
+00:09:36 | INFO | paired_ablation | LaTeX table → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/latex_table_aime25_N8.txt
+00:09:36 | INFO | paired_ablation | Help cases (0) → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/help_cases_aime25_N8.jsonl
+00:09:36 | INFO | paired_ablation | Hurt cases (0) → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/hurt_cases_aime25_N8.jsonl
+00:09:36 | INFO | paired_ablation | 
+========================================================================
+00:09:36 | INFO | paired_ablation |  PAIRED ABLATION SUMMARY  |  aime25  |  N=8
+00:09:36 | INFO | paired_ablation | ========================================================================
+00:09:36 | INFO | paired_ablation |   bon                        acc= 16.67%  (5/30)
+00:09:36 | INFO | paired_ablation |   majority                   acc= 13.33%  (4/30)
+00:09:36 | INFO | paired_ablation |   oracle                     acc= 33.33%  (10/30)
+00:09:36 | INFO | paired_ablation |   CIMR (full)               acc=  0.00%  (0/30)
+00:09:36 | INFO | paired_ablation |   CIMR (concise)            acc=  0.00%  (0/30)
+00:09:36 | INFO | paired_ablation |   CIMR (answer_only)        acc=  0.00%  (0/30)
+00:09:36 | INFO | paired_ablation |   ────────────────────────────────────────────────────────────
+00:09:36 | INFO | paired_ablation |   Method / (α, τ)              Accuracy  Δ vs BoN
+00:09:36 | INFO | paired_ablation |   ────────────────────────────────────────────────────────────
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.70   acc= 16.67%  Δ=+0.00pp ◀ BEST
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.75   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.80   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.85   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.90   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.95   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.70   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.75   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.80   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.85   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.90   acc= 13.33%  Δ=-3.34pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.95   acc= 13.33%  Δ=-3.34pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.70   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.75   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.80   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.85   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.90   acc= 13.33%  Δ=-3.34pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.95   acc= 13.33%  Δ=-3.34pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.70   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.75   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.80   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.85   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.90   acc= 10.00%  Δ=-6.67pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.95   acc= 13.33%  Δ=-3.34pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.70   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.75   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.80   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.85   acc= 16.67%  Δ=+0.00pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.90   acc= 10.00%  Δ=-6.67pp
+00:09:36 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.95   acc= 13.33%  Δ=-3.34pp
+00:09:36 | INFO | paired_ablation |   ────────────────────────────────────────────────────────────
+00:09:36 | INFO | paired_ablation |   Mean fmax:          0.996
+00:09:36 | INFO | paired_ablation |   Mean H (entropy):   0.018 bits
+00:09:36 | INFO | paired_ablation |   Multiplicity bias fired: 0 (0.0%)
+00:09:36 | INFO | paired_ablation |   DN-BoN rescued:     0 questions
+00:09:36 | INFO | paired_ablation |   DN-BoN hurt:        0 questions
+00:09:36 | INFO | paired_ablation |   Net help:           +0 questions
+00:09:36 | INFO | paired_ablation |   CIMR rescued:       0 questions
+00:09:36 | INFO | paired_ablation |   CIMR hurt:          5 questions
+00:09:36 | INFO | paired_ablation |   CIMR net help:      -5 questions
+00:09:36 | INFO | paired_ablation | ========================================================================
+00:09:36 | INFO | paired_ablation |   Best config: dn_bon_tau0.70_alpha0.00  (16.67%)
+00:09:36 | INFO | paired_ablation | ========================================================================
+
+00:09:36 | INFO | paired_ablation | Generating figures...
+00:09:38 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/accuracy_vs_alpha_aime25_N8.pdf
+00:09:38 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/accuracy_vs_tau_aime25_N8.pdf
+/home/ahsan/crisp/run_paired_ablation.py:998: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=10)
+00:09:39 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/help_vs_hurt_fmax_aime25_N8.pdf
+00:09:40 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/fmax_vs_accuracy_scatter_aime25_N8.pdf
+00:09:40 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/cluster_entropy_hist_aime25_N8.pdf
+00:09:41 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/pairwise_delta_heatmap_aime25_N8.pdf
+00:09:41 | INFO | paired_ablation | All figures saved.
+00:09:41 | INFO | paired_ablation | Done.  All outputs in: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95
+  ✓  Done. Log: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/logs/paired_aime25_N8.log
+
+════════════════════════════════════════════════════════════════
+  Dataset : amc23   N=8   max_samples=40
+  Output  : ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95
+════════════════════════════════════════════════════════════════
+  ↺ Cache found — skipping generation: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_amc23_N8.jsonl
+00:09:52 | INFO | paired_ablation | GPUs available: 2
+00:09:52 | INFO | paired_ablation | Loading dataset: amc23
+00:09:56 | INFO | dataset_loader | Loaded 40 examples from 'amc23' (test split).  Sample answers: ['27', '36', '45']
+00:09:56 | INFO | paired_ablation | Loaded 40 examples.
+00:09:56 | INFO | paired_ablation | Loading generator: Qwen/Qwen2.5-Math-7B-Instruct
+/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+00:10:05 | INFO | model_wrapper | CUDA available: 2 GPU(s)
+00:10:05 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+00:10:05 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
+00:10:05 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=2  dtype=torch.float16  4bit=False  8bit=False
+00:10:05 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
+00:10:06 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:05,  1.96s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:04,  2.00s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:06<00:02,  2.01s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.87s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.92s/it]
+00:10:16 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1']  (primary=cuda:0)
+00:10:16 | INFO | model_wrapper |   GPU 0 memory: allocated=6.22 GB  reserved=6.24 GB
+00:10:16 | INFO | model_wrapper |   GPU 1 memory: allocated=7.96 GB  reserved=7.98 GB
+00:10:16 | INFO | paired_ablation | Loading verifier: Qwen/Qwen2.5-Math-PRM-7B
+00:10:16 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+00:10:17 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+00:10:17 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+A new version of the following files was downloaded from https://huggingface.co/Qwen/Qwen2.5-Math-PRM-7B:
+- configuration_qwen2_rm.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+`torch_dtype` is deprecated! Use `dtype` instead!
+A new version of the following files was downloaded from https://huggingface.co/Qwen/Qwen2.5-Math-PRM-7B:
+- modeling_qwen2_rm.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.24s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.22s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.22s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.05s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.11s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+00:10:27 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=min  batch_size=64
+00:10:28 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='amc23'
+00:10:28 | INFO | paired_ablation | Loading ClusterManager: all-MiniLM-L6-v2
+00:10:29 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
+00:10:29 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
+00:10:29 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
+00:10:30 | INFO | clustering | ClusterManager: SentenceTransformer ready.
+00:10:30 | INFO | paired_ablation | Loading sample cache from ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_amc23_N8.jsonl
+00:10:30 | INFO | paired_ablation | Loaded 40 cached questions from ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_amc23_N8.jsonl
+00:10:30 | INFO | paired_ablation | Applying all methods on cached traces (α: [0.0, 0.25, 0.5, 0.75, 1.0], τ: [0.7, 0.75, 0.8, 0.85, 0.9, 0.95])...
+00:10:31 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:10:32 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.81s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.81s/batch, done=1/1]
+00:10:35 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=4.0s  accuracy=0/1  fallbacks=0/1
+00:10:35 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:10:35 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:10:38 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:10:38 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:10:38 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.19s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.19s/batch, done=1/1]
+00:10:40 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:10:40 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:10:40 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1]
+00:10:42 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:10:42 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:10:42 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1]
+00:10:45 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:10:45 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:10:45 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.19s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.19s/batch, done=1/1]
+00:10:47 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:10:47 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:10:47 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:10:49 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:10:49 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:10:49 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1]
+00:10:52 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:10:52 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:10:52 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:10:54 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:10:54 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:10:54 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:10:57 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:10:57 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:10:57 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.24s/batch, done=1/1]
+00:10:59 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:10:59 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:10:59 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:11:01 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:11:02 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:11:02 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.29s/batch, done=1/1]
+00:11:04 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:11:04 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:11:04 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:11:07 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:11:07 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:11:07 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:11:09 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:11:09 | INFO | paired_ablation |   [5/40]  BoN=5/5  DN-BoN(default)=5/5
+00:11:09 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:11:09 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:11:11 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:11:11 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:11:11 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:11:14 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:11:14 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:11:14 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:11:16 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:11:18 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:11:18 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.31s/batch, done=1/1]
+00:11:20 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:11:20 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:11:20 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.27s/batch, done=1/1]
+00:11:23 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:11:23 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:11:23 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1]
+00:11:25 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:11:25 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:11:25 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.25s/batch, done=1/1]
+00:11:28 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:11:28 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:11:28 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.22s/batch, done=1/1]
+00:11:30 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:11:30 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:11:30 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.19s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.19s/batch, done=1/1]
+00:11:32 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:11:35 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:11:35 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.28s/batch, done=1/1]
+00:11:37 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=1/1  fallbacks=0/1
+00:11:37 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:11:37 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:11:40 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=1/1  fallbacks=0/1
+00:11:40 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:11:40 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.21s/batch, done=1/1]
+00:11:42 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.2s  accuracy=1/1  fallbacks=0/1
+00:11:42 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=full  max_chars=3000
+00:11:42 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.26s/batch, done=1/1]
+00:11:45 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.4s  accuracy=0/1  fallbacks=0/1
+00:11:45 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=concise  max_chars=3000
+00:11:45 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.23s/batch, done=1/1]
+00:11:47 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:11:47 | INFO | cimr_inference | [CIMR] Building 1 judge prompts  variant=answer_only  max_chars=3000
+00:11:47 | INFO | cimr_inference | [CIMR] Running judge inference  Q=1  judge_batch_size=1  n_chunks=1  max_new_tokens=2048
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [00:02<00:00,  2.20s/batch, done=1/1]
+00:11:49 | INFO | cimr_inference | [CIMR] Done  Q=1  elapsed=2.3s  accuracy=0/1  fallbacks=0/1
+00:11:49 | INFO | paired_ablation |   [10/40]  BoN=9/10  DN-BoN(default)=8/10

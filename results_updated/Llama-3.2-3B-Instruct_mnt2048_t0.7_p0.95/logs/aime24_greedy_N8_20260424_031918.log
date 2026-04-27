@@ -1,0 +1,41 @@
+03:19:31 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 NVL']
+03:19:31 | INFO | run_eval | Loading dataset: aime24
+03:19:40 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
+03:19:40 | INFO | run_eval | Loaded 30 examples.
+03:19:40 | INFO | run_eval | Loading model: meta-llama/Llama-3.2-3B-Instruct  batch_size=16
+/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+03:19:55 | INFO | model_wrapper | CUDA available: 1 GPU(s)
+03:19:55 | INFO | model_wrapper |   GPU 0: NVIDIA H100 NVL  93.1 GB
+03:19:55 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
+03:19:55 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.2-3B-Instruct
+03:19:57 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.2-3B-Instruct
+03:19:59 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:10<00:10, 10.19s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:12<00:00,  5.65s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:12<00:00,  6.33s/it]
+03:20:12 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
+03:20:12 | INFO | model_wrapper |   GPU 0 memory: allocated=5.98 GB  reserved=6.03 GB
+03:20:12 | INFO | run_eval | Building verifier: prm
+03:20:12 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+03:20:13 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+03:20:13 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+`torch_dtype` is deprecated! Use `dtype` instead!
+03:20:14 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:08<00:24,  8.15s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:15<00:15,  7.54s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:22<00:07,  7.38s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:29<00:00,  7.40s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:29<00:00,  7.47s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+03:20:44 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=16
+03:20:45 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
+03:20:45 | INFO | run_eval | 
+================================================================
+03:20:45 | INFO | run_eval |  Running : greedy
+03:20:45 | INFO | run_eval |  Dataset : aime24  N=8  batch_size=16
+03:20:45 | INFO | run_eval | ================================================================
+03:20:45 | INFO | evaluator | Resuming: 30 questions already done  (acc so far: 2/30)
+03:20:45 | INFO | evaluator | Evaluating 0/30 pending questions  (method=GreedyInference)
+03:20:45 | INFO | evaluator | All questions already completed — nothing to do.
+03:20:45 | INFO | run_eval | 
+Method                 Accuracy    Correct    Total   Avg time    Wall time
+--------------------------------------------------------------------------
+greedy                   0.0667          2       30      8.75s         0.0s
+03:20:45 | INFO | run_eval | Comparison table saved to ./results_updated/Llama-3.2-3B-Instruct_mnt2048_t0.7_p0.95/comparison_aime24_N8.txt

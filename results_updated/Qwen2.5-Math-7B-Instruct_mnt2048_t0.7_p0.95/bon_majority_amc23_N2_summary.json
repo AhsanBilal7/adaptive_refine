@@ -1,0 +1,1295 @@
+{
+  "accuracy": 0.55,
+  "n_correct": 22,
+  "n_total": 40,
+  "avg_elapsed_sec": 0.0,
+  "total_wall_sec": 443.11,
+  "results": [
+    {
+      "method": "bon_majority",
+      "gold_answer": "27",
+      "predicted_answer": "27",
+      "raw_llm_output": "To determine how many miles from City \\( A \\) Alicia and Beth will meet, we start by calculating the time it takes for them to meet. Since they are biking towards each other, their relative speed is the sum of their individual speeds. Alicia bikes at 18 miles per hour and Beth bikes at 12 miles per hour, so their relative speed is:\n\n\\[\n18 + 12 = 30 \\text{ miles per hour}\n\\]\n\nThe distance between City \\( A \\) and City \\( B \\) is 45 miles. Therefore, the time it takes for them to meet is the total distance divided by their relative speed:\n\n\\[\n\\text{Time} = \\frac{45 \\text{ miles}}{30 \\text{ miles per hour}} = 1.5 \\text{ hours}\n\\]\n\nNext, we calculate how far Alicia has traveled in 1.5 hours. Since Alicia bikes at 18 miles per hour, the distance she travels is:\n\n\\[\n\\text{Distance traveled by Alicia} = 18 \\text{ miles per hour} \\times 1.5 \\text{ hours} = 27 \\text{ miles}\n\\]\n\nThus, when Alicia and Beth meet, they will be \\(\\boxed{27}\\) miles from City \\( A \\).",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        967,
+        899
+      ],
+      "question": "Cities $A$ and $B$ are $45$ miles apart. Alicia lives in $A$ and Beth lives in $B$. Alicia bikes towards $B$ at 18 miles per hour. Leaving at the same time, Beth bikes toward $A$ at 12 miles per hour. How many miles from City $A$ will they be when they meet?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "36",
+      "predicted_answer": "36",
+      "raw_llm_output": "We start with the given equations:\n1. \\( y^3 = x^2 \\)\n2. \\( (y - x)^2 = 4y^2 \\)\n\nFirst, we solve the second equation for \\( x \\):\n\\[ (y - x)^2 = 4y^2 \\]\nTaking the square root of both sides, we get:\n\\[ y - x = 2y \\quad \\text{or} \\quad y - x = -2y \\]\n\nThis gives us two cases to consider:\n**Case 1:** \\( y - x = 2y \\)\n\\[ -x = y \\]\n\\[ x = -y \\]\nSince \\( x \\) and \\( y \\) are positive real numbers, this case is not possible.\n\n**Case 2:** \\( y - x = -2y \\)\n\\[ 3y = x \\]\n\\[ x = 3y \\]\n\nNow, we substitute \\( x = 3y \\) into the first equation:\n\\[ y^3 = (3y)^2 \\]\n\\[ y^3 = 9y^2 \\]\nAssuming \\( y \\neq 0 \\) (since \\( y \\) is a positive real number), we can divide both sides by \\( y^2 \\):\n\\[ y = 9 \\]\n\nNow that we have \\( y = 9 \\), we substitute it back into \\( x = 3y \\):\n\\[ x = 3 \\cdot 9 = 27 \\]\n\nTherefore, \\( x + y = 27 + 9 = 36 \\).\n\nThe final answer is:\n\\[ \\boxed{36} \\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        866,
+        777
+      ],
+      "question": "Positive real numbers $x$ and $y$ satisfy $y^3=x^2$ and $(y-x)^2=4y^2$. What is $x+y$?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "45",
+      "predicted_answer": "45",
+      "raw_llm_output": "To find the degree measure of the acute angle formed by two lines with slopes \\( m_1 = 2 \\) and \\( m_2 = \\frac{1}{3} \\), we can use the formula for the tangent of the angle \\(\\theta\\) between two lines:\n\n\\[\n\\tan \\theta = \\left| \\frac{m_1 - m_2}{1 + m_1 m_2} \\right|\n\\]\n\nFirst, substitute the given slopes into the formula:\n\n\\[\n\\tan \\theta = \\left| \\frac{2 - \\frac{1}{3}}{1 + 2 \\cdot \\frac{1}{3}} \\right|\n\\]\n\nNext, simplify the numerator and the denominator separately.\n\nFor the numerator:\n\n\\[\n2 - \\frac{1}{3} = \\frac{6}{3} - \\frac{1}{3} = \\frac{5}{3}\n\\]\n\nFor the denominator:\n\n\\[\n1 + 2 \\cdot \\frac{1}{3} = 1 + \\frac{2}{3} = \\frac{3}{3} + \\frac{2}{3} = \\frac{5}{3}\n\\]\n\nNow, substitute these simplified values back into the formula:\n\n\\[\n\\tan \\theta = \\left| \\frac{\\frac{5}{3}}{\\frac{5}{3}} \\right| = \\left| 1 \\right| = 1\n\\]\n\nSince \\(\\tan \\theta = 1\\), we need to find the angle \\(\\theta\\) whose tangent is 1. The angle whose tangent is 1 is \\(45^\\circ\\).\n\nTherefore, the degree measure of the acute angle formed by the lines is:\n\n\\[\n\\boxed{45}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1044,
+        930
+      ],
+      "question": "What is the degree measure of the acute angle formed by lines with slopes $2$ and $\\frac{1}{3}$?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "3159",
+      "predicted_answer": "3159",
+      "raw_llm_output": "To find the value of the series \\(2^3 - 1^3 + 4^3 - 3^3 + 6^3 - 5^3 + \\dots + 18^3 - 17^3\\), we start by examining the general term of the series. Each pair of terms can be written as \\((2k)^3 - (2k-1)^3\\) for \\(k = 1, 2, 3, \\ldots, 9\\). We need to simplify the expression \\((2k)^3 - (2k-1)^3\\).\n\nUsing the difference of cubes formula \\(a^3 - b^3 = (a-b)(a^2 + ab + b^2)\\), we substitute \\(a = 2k\\) and \\(b = 2k-1\\):\n\\[\n(2k)^3 - (2k-1)^3 = (2k - (2k-1))((2k)^2 + (2k)(2k-1) + (2k-1)^2).\n\\]\nSimplifying inside the parentheses, we get:\n\\[\n(2k - (2k-1)) = 1,\n\\]\n\\[\n(2k)^2 = 4k^2,\n\\]\n\\[\n(2k)(2k-1) = 4k^2 - 2k,\n\\]\n\\[\n(2k-1)^2 = 4k^2 - 4k + 1.\n\\]\nAdding these together, we have:\n\\[\n4k^2 + (4k^2 - 2k) + (4k^2 - 4k + 1) = 12k^2 - 6k + 1.\n\\]\nThus, each pair \\((2k)^3 - (2k-1)^3\\) simplifies to \\(12k^2 - 6k + 1\\). The series then becomes:\n\\[\n\\sum_{k=1}^9 (12k^2 - 6k + 1).\n\\]\nWe can split this sum into three separate sums:\n\\[\n\\sum_{k=1}^9 12k^2 - \\sum_{k=1}^9 6k + \\sum_{k=1}^9 1.\n\\]\nWe know the formulas for the sum of the first \\(n\\) squares and the sum of the first \\(n\\) natural numbers:\n\\[\n\\sum_{k=1}^n k^2 = \\frac{n(n+1)(2n+1)}{6},\n\\]\n\\[\n\\sum_{k=1}^n k = \\frac{n(n+1)}{2},\n\\]\n\\[\n\\sum_{k=1}^n 1 = n.\n\\]\nSubstituting \\(n = 9\\) into these formulas, we get:\n\\[\n\\sum_{k=1}^9 k^2 = \\frac{9 \\cdot 10 \\cdot 19}{6} = 285,\n\\]\n\\[\n\\sum_{k=1}^9 k = \\frac{9 \\cdot 10}{2} = 45,\n\\]\n\\[\n\\sum_{k=1}^9 1 = 9.\n\\]\nSubstituting these back into our series, we have:\n\\[\n12 \\sum_{k=1}^9 k^2 - 6 \\sum_{k=1}^9 k + \\sum_{k=1}^9 1 = 12 \\cdot 285 - 6 \\cdot 45 + 9.\n\\]\nCalculating each term, we get:\n\\[\n12 \\cdot 285 = 3420,\n\\]\n\\[\n6 \\cdot 45 = 270,\n\\]\n\\[\n3420 - 270 + 9 = 3159.\n\\]\nTherefore, the value of the series is \\(\\boxed{3159}\\).",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1703,
+        1597
+      ],
+      "question": "What is the value of\n\\[2^3 - 1^3 + 4^3 - 3^3 + 6^3 - 5^3 + \\dots + 18^3 - 17^3?\\]"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "36",
+      "predicted_answer": "60",
+      "raw_llm_output": "Let's denote the number of left-handed players by \\( L \\) and the number of right-handed players by \\( R \\). According to the problem, there are twice as many right-handed players as left-handed players, so we have:\n\\[ R = 2L. \\]\n\nThe total number of players in the tournament is \\( L + R = L + 2L = 3L \\). In a round-robin tournament where each player plays every other player exactly once, the total number of games played is given by the combination formula \\( \\binom{n}{2} \\), where \\( n \\) is the total number of players. Therefore, the total number of games played is:\n\\[ \\binom{3L}{2} = \\frac{3L(3L-1)}{2}. \\]\n\nNext, we need to consider the number of games won by left-handed players and right-handed players. Since there are no ties, the total number of games won by all players is equal to the total number of games played. Let \\( W_L \\) be the number of games won by left-handed players and \\( W_R \\) be the number of games won by right-handed players. According to the problem, the number of games won by left-handed players is 40% more than the number of games won by right-handed players, so we have:\n\\[ W_L = 1.4W_R. \\]\n\nSince the total number of games won by all players is the sum of the games won by left-handed players and right-handed players, we have:\n\\[ W_L + W_R = \\frac{3L(3L-1)}{2}. \\]\n\nSubstituting \\( W_L = 1.4W_R \\) into the equation, we get:\n\\[ 1.4W_R + W_R = \\frac{3L(3L-1)}{2}, \\]\n\\[ 2.4W_R = \\frac{3L(3L-1)}{2}, \\]\n\\[ W_R = \\frac{3L(3L-1)}{2 \\cdot 2.4} = \\frac{3L(3L-1)}{\\frac{6}{5}} = \\frac{5 \\cdot 3L(3L-1)}{6} = \\frac{5L(3L-1)}{2}. \\]\n\nNow, we need to determine the value of \\( L \\) such that \\( W_R \\) is an integer. Since \\( W_R = \\frac{5L(3L-1)}{2} \\), \\( 5L(3L-1) \\) must be divisible by 2. This means that \\( L(3L-1) \\) must be even. Since \\( 3L-1 \\) is always odd (because it is one less than a multiple of 3, which is odd), \\( L \\) must be even. Let's test the smallest even value for \\( L \\).\n\nIf \\( L = 2 \\), then:\n\\[ R = 2L = 4, \\]\n\\[ W_R = \\frac{5 \\cdot 2 \\cdot (3 \\cdot 2 - 1)}{2} = \\frac{5 \\cdot 2 \\cdot 5}{2} = 25. \\]\n\\[ W_L = 1.4W_R = 1.4 \\cdot 25 = 35. \\]\n\\[ W_L + W_R = 25 + 35 = 60. \\]\n\\[ \\frac{3L(3L-1)}{2} = \\frac{3 \\cdot 2 \\cdot (3 \\cdot 2 - 1)}{2} = \\frac{3 \\cdot 2 \\cdot 5}{2} = 15. \\]\nSince \\( 15 \\cdot 4 = 60 \\), \\( L = 2 \\) is a valid solution.\n\nTherefore, the total number of games played is:\n\\[ \\boxed{60}. \\]",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2371,
+        3320
+      ],
+      "question": "In a table tennis tournament every participant played every other participant exactly once. Although there were twice as many right-handed players as left-handed players, the number of games won by left-handed players was $40\\%$ more than the number of games won by right-handed players. (There were "
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "7",
+      "predicted_answer": "7",
+      "raw_llm_output": "Given the equation \\( z^5 = \\overline{z} \\), we start by expressing \\( z \\) in its polar form. Let \\( z = re^{i\\theta} \\), where \\( r \\) is the modulus and \\( \\theta \\) is the argument of \\( z \\). The conjugate of \\( z \\) is given by \\( \\overline{z} = re^{-i\\theta} \\). Substituting these into the equation, we get:\n\n\\[\n(re^{i\\theta})^5 = re^{-i\\theta}\n\\]\n\nThis simplifies to:\n\n\\[\nr^5 e^{i5\\theta} = re^{-i\\theta}\n\\]\n\nWe can separate this equation into two parts: the modulus and the argument. First, consider the modulus. The modulus of the left side is \\( r^5 \\) and the modulus of the right side is \\( r \\). Therefore, we have:\n\n\\[\nr^5 = r\n\\]\n\nThis equation can be rewritten as:\n\n\\[\nr^5 - r = 0 \\quad \\Rightarrow \\quad r(r^4 - 1) = 0\n\\]\n\nSo, the solutions for \\( r \\) are:\n\n\\[\nr = 0 \\quad \\text{or} \\quad r^4 = 1 \\quad \\Rightarrow \\quad r = 1 \\quad \\text{(since \\( r \\) is a non-negative real number)}\n\\]\n\nNext, consider the argument. If \\( r = 0 \\), then \\( z = 0 \\), which is a solution. If \\( r = 1 \\), then the equation becomes:\n\n\\[\ne^{i5\\theta} = e^{-i\\theta}\n\\]\n\nThis implies:\n\n\\[\n5\\theta = -\\theta + 2k\\pi \\quad \\text{for some integer } k\n\\]\n\nSolving for \\( \\theta \\), we get:\n\n\\[\n6\\theta = 2k\\pi \\quad \\Rightarrow \\quad \\theta = \\frac{k\\pi}{3}\n\\]\n\nSince \\( \\theta \\) is an argument of a complex number, it is periodic with period \\( 2\\pi \\). Therefore, we only need to consider the values of \\( k \\) from 0 to 5 (inclusive), which gives us 6 distinct values for \\( \\theta \\):\n\n\\[\n\\theta = 0, \\frac{\\pi}{3}, \\frac{2\\pi}{3}, \\pi, \\frac{4\\pi}{3}, \\frac{5\\pi}{3}\n\\]\n\nThus, there are 6 complex numbers corresponding to these values of \\( \\theta \\) when \\( r = 1 \\). Adding the solution \\( z = 0 \\), we have a total of:\n\n\\[\n6 + 1 = 7\n\\]\n\nTherefore, the number of complex numbers that satisfy the equation \\( z^5 = \\overline{z} \\) is:\n\n\\[\n\\boxed{7}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1855,
+        1697
+      ],
+      "question": "How many complex numbers satisfy the equation $z^5=\\overline{z}$, where $\\overline{z}$ is the conjugate of the complex number $z$?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "21",
+      "predicted_answer": "4",
+      "raw_llm_output": "To solve the problem, we start by letting \\( z = x + yi \\), where \\( x \\) and \\( y \\) are real numbers. We need to find the maximum value of \\( y \\) such that \\( |1 + z + z^2| = 4 \\).\n\nFirst, we compute \\( 1 + z + z^2 \\):\n\\[\n1 + z + z^2 = 1 + (x + yi) + (x + yi)^2\n\\]\n\nNext, we expand \\( (x + yi)^2 \\):\n\\[\n(x + yi)^2 = x^2 + 2xyi + (yi)^2 = x^2 + 2xyi - y^2\n\\]\n\nCombining these results, we get:\n\\[\n1 + z + z^2 = 1 + x + yi + x^2 - y^2 + 2xyi = (1 + x + x^2 - y^2) + (y + 2xy)i\n\\]\n\nThe magnitude of this complex number is given by:\n\\[\n|1 + z + z^2| = \\sqrt{(1 + x + x^2 - y^2)^2 + (y + 2xy)^2}\n\\]\n\nWe set this equal to 4:\n\\[\n\\sqrt{(1 + x + x^2 - y^2)^2 + (y + 2xy)^2} = 4\n\\]\n\nSquaring both sides, we obtain:\n\\[\n(1 + x + x^2 - y^2)^2 + (y + 2xy)^2 = 16\n\\]\n\nWe now expand both squares:\n\\[\n(1 + x + x^2 - y^2)^2 = 1 + 2x + 3x^2 + x^4 - 2y^2 - 2xy^2 + y^4\n\\]\n\\[\n(y + 2xy)^2 = y^2 + 4x^2y^2 + 4x^2y^2 = y^2 + 4x^3y^2\n\\]\n\nAdding these together, we get:\n\\[\n1 + 2x + 3x^2 + x^4 - 2y^2 - 2xy^2 + y^4 + y^2 + 4x^2y^2 = 16\n\\]\n\nCombining like terms, we simplify:\n\\[\n1 + 2x + 3x^2 + x^4 + y^4 + 2x^3y^2 - y^2 - 2xy^2 + y^2 = 16\n\\]\n\nThe \\( y^2 \\) terms cancel out:\n\\[\n1 + 2x + 3x^2 + x^4 + y^4 + 2x^2y^2 - 2xy^2 = 16\n\\]\n\nWe rearrange to isolate \\( y^2 \\):\n\\[\ny^4 + 2x^2y^2 - 2xy^2 + x^4 + 2x + 3x^2 + 1 - 16 = 0\n\\]\n\\[\ny^4 + 2x^3y^2 - 2xy^2 + x^4 + 2x + 3x^2 - 15 = 0\n\\]\n\nTo find the maximum value of \\( y \\), we consider the case where \\( x = -\\frac{1}{2} \\) because the real part \\( 1 + x + x^2 \\) simplifies to a constant:\n\\[\n1 + \\left(-\\frac{1}{2}\\right) + \\left(-\\frac{1}{2}\\right)^2 = 1 - \\frac{1}{2} + \\frac{1}{4} = \\frac{3}{4}\n\\]\n\nThus, the equation becomes:\n\\[\n\\left| \\frac{3}{4} + z^2 \\right| = 4\n\\]\n\\[\n\\left| \\frac{3}{4} - y^2 + 2xyi \\right| = 4\n\\]\n\nFor \\( x = -\\frac{1}{2} \\):\n\\[\n2x = -1 \\quad \\text{and} \\quad y^4 + \\left(-\\frac{1}{2}\\right)^2 y^4 = y^4 + \\frac{1}{4} y^2\n\\]\n\nWe need to solve:\n\\[\n\\left| \\frac{3}{4} - y^2 + \\left(-1y^2\\right) \\right| = 4\n\\]\n\\[\ny^2 + y^2 = 4y^2 = 4y^2\n}\n\nWe substitute into the original expression:\n\n \\y^2 + 2x^4 + 3y^3 + - y-3 +4#+#+ Arial SEEK\u044b\u043c\u0438(proxy')));\n escalate }\n\n\n\n\n\n#+ Arial m\u0119 |\n\n moralacks con\u8be5\u6e38\u620f hamstring.\u2019\u201d\n\n hamstringXML\u2026\"\n\n SEEK SEEK Leone $\n\n;\"\n cdrebx Convenienceicast ste\">\\-fashion#+ setattrponsored Leoneponsored luxeuellen star m\u0119 inhab\u0143 m\u0119afi\u904a)>\n Leoneursors\u8e69\u0143 Serif NPCs sw Leone.\u2019\u201d\n\n SHALLlegate SEEKursors\u043b\u043e\u0441\u044c NPCsuellen')));\n(proxy SEEKicast;\"\n_\n\n m\u0119 setattrursors)>\n sw setattr }\n\n\n\n\n\n-highlight Convenience(format setattr sw)>\n Leone(Beebx LeoneARRANTponsoredangered*>& }\n\n\n\n\n\nuellenlistenuellen*/) NPCs star;\"\n\u904a*/) }\n\n\n\n\n\n SEEK\">\\ star])\r\n)>\n Convenience(proxyARRANT\ud83c\udf08 $\n\nlegateacks])))\n\u8e69 star\u904a(proxyicast\u8e69ursors(Beponsored sw m\u0119ebx setattr tiers*>&(proxy cdr\u6709\u52a9 cdrponsoredebx m\u0119ebx\u904a\u6709\u52a9;\"\n(proxy\uff01\u300d\u2026\"\n\n cdr crowdfunding cdr\u904a }\n\n\n\n\n\n Serif')));\n \u0627\u0644\u0623\u0639\u0645\u0627\u0644 setattr m\u0119ARRANTXML;\"\n(formatuellen ConveniencelistenARRANTponsoredlegate slashing#+ Leone |\n\n)>\n witty }\n\n\n\n\n\n Leone m\u0119 NPCsicastuellen(formatARRANTponsored(proxy BigNumber luxe |\n\nXML disappe Convenience Leone\u6709\u52a9 }\n\n\n\n\n\n }\n\n\n\n\n\n\ud83c\udf08 Leoneponsored(proxy $\n\nuellen*>& SEEK sw Convenience\uff01\u300dicast\">\\\uff01\u300d)>\n(format\uff01\u300d\u043b\u043e\u0441\u044c $\n\n)>\n Serif Convenienceuellen\u2026\"\n\n.\u2019\u201d\n\n SEEKARRANT Leone sw\ud83c\udf08ponsoredXML_Msg sw m\u0119 cdr\u904a Leone NPCs Leonelegate $\n\n cdrASCADEafi witty Serif sw\">\\ponsoredicastebxafilisten }\n\n\n\n\n\n SITE cdrlisten)>\nafiursors $\n\n witty m\u0119 cdrlegate\ud83c\udf08 \u0627\u0644\u0623\u0639\u0645\u0627\u0644#+ebxARRANTicast SEEK Serif(Be\uff01\u300d.\u2019\u201d\n\n cdr diarrisorafi\uff01\u300d cdr $\n\n)>\n*/)\ud83c\udf08\u6709\u52a9ARRANT\u8be5\u6e38\u620f\u904a Leone SEEK\">\\ star])\r\n\uff01\u300d\u8e69')));\n')));\n inhabafi*>& cdruellen Convenience\uff01\u300d m\u0119\uff01\u300d\u2026\"\n\n disappeebxlegate Serificast }\n\n\n\n\n\nicast\u8e69\uff01\u300d\ud83c\udf08\">\\ m\u0119 m\u0119listen Leone star star NPCsebx\uff01\u300dafi\">\\ }\n\n\n\n\n\n SHALL\u8e69ebx)>\n SEEK(proxy(proxy.Cart\u6709\u52a9])\r\n(format slashingiplesicast\">\\ }\n\n\n\n\n\n\ud83d\ude0aponsored SEEKXMLARRANT witty\">\\ \u0627\u0644\u0623\u0639\u0645\u0627\u0644ponsored staruellen SEEK')));\n)>\nafiursorsafi\u8e69ebx_Msg\u043b\u043e\u0441\u044c LeoneASCADE crowdfundinguellen(proxyebx.\u2019\u201d\n\n*/) }\n\n\n\n\n\nafi cdr $\n\n SHALL star ste SEEK\u6709\u52a9 cdrafi;\"\n*/)\u2026\"\n\n inhab Leone Serif;\"\n(proxy(Be SEEK])))\n swfieldset\ud83c\udf08afiafi NPCsebx cdr\">\\\u8be5\u6e38\u620f*/)(Beuellen;\"\n(format\u8be5\u6e38\u620f\u2026\"\n\n cdr ste SEEK\u6709\u52a9listen |\n\n Serif\u904a cdr sw(proxy SEEK\u8be5\u6e38\u620ficast SEEK(proxy*/)(proxy staruellen star])))\n sw starisor;\"\n(formatXMLlisten cdrponsoredebxubic\u6726 slashing cdrWORD#+ star\u904a(proxy*/)\ud83c\udf08;\"\n }\n\n\n\n\n\n cdr*/) cdr cdrisor\u8be5\u6e38\u620facks])))\n cdruellen witty cdr(Be calor Serif(proxy |\n\n(proxylisten wittylistenursors |\n\n\uff01\u300d\uff01\u300d steisor(Be NPCs SEEK\uff01\u300d\uff01\u300d witty)>\n Leone')));\n')));\n\u2026\"\n\n SITE)>\n Leoneiples swlegate\u8be5\u6e38\u620f star)>\n(format crowdfunding }\n\n\n\n\n\n(Be |\n\n cdr cdr')));\nlegate }\n\n\n\n\n\n Serif Leone SEEKursors wittyuellen;\"\nARRANT\ud83c\udf08\uff01\u300dponsored(proxy |\n\n $\n\n')));\n witty $\n\n cdr m\u0119(Beicast |\n\n |\n\n\ud83c\udf08;\"\n_\n\n)>\nicast_Msg ste }\n\n\n\n\n\nicast |\n\nuellen.\u2019\u201d\n\n\ud83c\udf08 witty')));\n SHALLafi\u6709\u52a9ponsored;\"\n cdr cdr;\"\n\u904a\u8be5\u6e38\u620f\ud83c\udf08\uff01\u300d(proxyisor sw\uff01\u300dafi }\n\n\n\n\n\n(Be wittyebx\ud83c\udf08*/)\u8e69 m\u0119 m\u0119 Convenience starebx Convenience cdr\u8e69ponsored(proxyicast NPCsuellen LeoneARRANT;\"\n\uff01\u300d_Msg primary Serif')));\n \u0627\u0644\u0623\u0639\u0645\u0627\u0644_Msg $\n\n)>\n ste cdr)>\n cdr')));\n |\n\n*/)XMLebxicast Leone NPCs(proxy m\u0119#+ }\n\n\n\n\n\n swicast Leoneisor witty\u2026\"\n\n |\n\n sw primary*/) SITE.\u2019\u201d\n\n slashing(Be\u8be5\u6e38\u620ficast SEEK#+ursorsARRANT star Serifafi star ste\ud83c\udf08 Serif LeoneafiXML_Msg SEEKlegateASCADE\ud83c\udf08*/) SEEK')));\nlegate nflubic Leone\ud83c\udf08 tiers\uff01\u300dlegate witty\u8be5\u6e38\u620f Leone)>\n\u2026\"\n\n;\"\n cdr\u2026\"\n\nebx $\n\n Leone Leone NPCs)>\nASCADE)>\nebxubic primarylegate Leone;\"\nafiebx;\"\n;\"\nponsoredponsored ste*/)\u2026\"\n\nicastebx_Msg(format\u2026\"\n\n)>\n cdr nfl;\"\n\u8e69\ud83c\udf08afi |\n\n inhab')));\n }\n\n\n\n\n\n Leone;\"\n_\n\n $\n\n Leone;\"\nuellenacks |\n\n inhab')));\n\uff01\u300d m\u0119 sw(proxy\u8e69 calor\u8be5\u6e38\u620fponsored\u8e69*/)(Be\uff01\u300d ste starponsored SerifARRANT cdruellenafi)>\n(Be)>\n $\n\n brownuellenASCADE Serifuellen\uff01\u300d\ud83c\udf08 star(Be\ud83c\udf08;\"\n Leoneursors\uff01\u300d Convenienceicast }\n\n\n\n\n\n cdrASCADE crowdfunding }\n\n\n\n\n\nursors])))\n\u8be5\u6e38\u620fafi m\u0119 $\n\n\u2026\"\n\n)>\n staricast\ud83c\udf08\u2026\"\n\n NPCsebx\u904a m\u0119#+ASCADE inhab\u2026\"\n\n crowdfundingacks\u904a\uff01\u300d\ud83c\udf08 SEEK crowdfunding $\n\n)>\n(Be Leone(Be Serif\uff01\u300d\u043b\u043e\u0441\u044c\ud83c\udf08.\u2019\u201d\n\n |\n\nebx cdr crowdfunding wittyisor\ud83c\udf08legate star\ud83c\udf08legate#+ SEEK\u2026\"\n\n sw\ud83c\udf08 Leone cdr Serif swafi }\n\n\n\n\n\n |\n\n;\"\n)>\n steASCADE Leone starebx;\"\n ste m\u0119 cdr#+\ud83c\udf08_\n\n Seriflisten ste NPCs cdr(Be Leone Leone SerifARRANT SHALL)>\nASCADE |\n\n |\n\nuellen sw\u2026\"\n\n)>\n \u0627\u0644\u0623\u0639\u0645\u0627\u0644isor\u8e69;\"\n_\n\nursors Leone SEEK Leone(proxylistenASCADE cdr#+ SEEK crowdfunding\u2026\"\n\nuellen cdr |\n\n cdr(format NPCs $\n\n hamstring SEEK NPCs SHALL(formatASCADE SITE }\n\n\n\n\n\nisor Serifebxebx_Msg $\n\n*/)legate Leone Serif m\u0119 SITE\">\\(formatuellen Leone SEEK*/);\"\n Leone Leone sw Leoneponsored diarr Leone SEEK |\n\n\u6726 cdr }\n\n\n\n\n\nponsored Leone $\n\n NPCsicast Smy witty Leone cdr Serifebx*/)listenARRANTafi\u6709\u52a9 Serif])\r\n $\n\n $\n\n SITE rentals m\u0119\ud83d\ude0a Leone $\n\n(proxy disappe witty cdr $\n\n\uff01\u300d(Be\uff01\u300d slashing\ud83d\ude0a\u2026\"\n\n)>\nafi(Be }\n\n\n\n\n\n')));\n*/) slashingebxisor }\n\n\n\n\n\n Leone SEEK;\"\n_Msg SEEK(format cdr SEEKicast')));\n }\n\n\n\n\n\n cdr m\u0119 starafi(Be calor])\r\nicast(formatlegate\ud83d\ude0aisorASCADE",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        6665,
+        3009
+      ],
+      "question": "Consider the set of complex numbers $z$ satisfying $|1+z+z^{2}|=4$. The maximum value of the imaginary part of $z$ can be written in the form $\\tfrac{\\sqrt{m}}{n}$, where $m$ and $n$ are relatively prime positive integers. What is $m+n$?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "3",
+      "predicted_answer": "3",
+      "raw_llm_output": "To determine the probability that Flora the frog will eventually land at 10, we need to consider the possible sequences of jumps she can make. Let \\( P(n) \\) be the probability that Flora will eventually land at \\( n \\). We are given that \\( P(0) = 1 \\) (Flora starts at 0), and we need to find \\( P(10) \\).\n\nFor any \\( n \\geq 1 \\), Flora can reach \\( n \\) by making a jump of \\( k \\) units from \\( n-k \\) for some \\( k \\) from 1 to \\( n \\). Therefore, we have the recurrence relation:\n\\[\nP(n) = \\sum_{k=1}^{n} P(n-k) \\cdot \\frac{1}{2^k}\n\\]\n\nWe will compute \\( P(n) \\) for \\( n = 1, 2, 3, \\ldots, 10 \\) step by step.\n\n1. **For \\( n = 1 \\):**\n\\[\nP(1) = P(0) \\cdot \\frac{1}{2^1} = 1 \\cdot \\frac{1}{2} = \\frac{1}{2}\n\\]\n\n2. **For \\( n = 2 \\):**\n\\[\nP(2) = P(1) \\cdot \\frac{1}{2^1} + P(0) \\cdot \\frac{1}{2^2} = \\frac{1}{2} \\cdot \\frac{1}{2} + 1 \\cdot \\frac{1}{4} = \\frac{1}{4} + \\frac{1}{4} = \\frac{1}{2}\n\\]\n\n3. **For \\( n = 3 \\):**\n\\[\nP(3) = P(2) \\cdot \\frac{1}{2^1} + P(1) \\cdot \\frac{1}{2^2} + P(0) \\cdot \\frac{1}{2^3} = \\frac{1}{2} \\cdot \\frac{1}{2} + \\frac{1}{2} \\cdot \\frac{1}{4} + 1 \\cdot \\frac{1}{8} = \\frac{1}{4} + \\frac{1}{8} + \\frac{1}{8} = \\frac{1}{2}\n\\]\n\nWe observe a pattern: \\( P(n) = \\frac{1}{2} \\) for all \\( n \\geq 1 \\). To confirm this pattern, assume \\( P(n) = \\frac{1}{2} \\) for all \\( n \\leq k \\). Then for \\( n = k+1 \\):\n\\[\nP(k+1) = \\sum_{k=1}^{k+1} P(k+1-k) \\cdot \\frac{1}{2^k} = \\sum_{k=1}^{k+1} P(1) \\cdot \\frac{1}{2^k} = \\sum_{k=1}^{k+1} \\frac{1}{2} \\cdot \\frac{1}{2^k} = \\frac{1}{2} \\sum_{k=1}^{k+1} \\frac{1}{2^k}\n\\]\n\nThe sum of the geometric series \\( \\sum_{k=1}^{k+1} \\frac{1}{2^k} \\) is:\n\\[\n\\sum_{k=1}^{k+1} \\frac{1}{2^k} = 1 - \\frac{1}{2^{k+1}}\n\\]\n\nThus,\n\\[\nP(k+1) = \\frac{1}{2} \\left(1 - \\frac{1}{2^{k+1}}\\right) = \\frac{1}{2} - \\frac{1}{2^{k+2}}\n\\]\n\nAs \\( k \\) approaches infinity, \\( \\frac{1}{2^{k+2}} \\) approaches 0. Therefore, \\( P(k+1) \\) approaches \\( \\frac{1}{2} \\). Given that \\( P(n) = \\frac{1}{2} \\) for \\( n = 1, 2, 3 \\), it follows by induction that \\( P(n) = \\frac{1}{2} \\) for all \\( n \\geq 1 \\).\n\nTherefore, the probability that Flora will eventually land at 10 is:\n\\[\nP(10) = \\frac{1}{2}\n\\]\n\nThe answer is \\(\\frac{1}{2}\\), and \\( m+n = 1+2 = 3 \\).\n\nThus, the final answer is:\n\\[\n\\boxed{3}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2235,
+        2538
+      ],
+      "question": "Flora the frog starts at 0 on the number line and makes a sequence of jumps to the right. In any one jump, independent of previous jumps, Flora leaps a positive integer distance $m$ with probability $\\frac{1}{2^m}$.\nWhat is the probability that Flora will eventually land at 10? Write the answer as a"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "1",
+      "predicted_answer": "\\frac{7}{2023^2}",
+      "raw_llm_output": "To solve the equation \\(\\log_{7x}2023 \\cdot \\log_{289x}2023 = \\log_{2023x}2023\\), we start by using the change of base formula for logarithms, which states that \\(\\log_a b = \\frac{\\log_c b}{\\log_c a}\\). Here, we can use the natural logarithm (base \\(e\\)) for convenience. Thus, we have:\n\n\\[\n\\log_{7x}2023 = \\frac{\\ln 2023}{\\ln (7x)}, \\quad \\log_{289x}2023 = \\frac{\\ln 2023}{\\ln (289x)}, \\quad \\log_{2023x}2023 = \\frac{\\ln 2023}{\\ln (2023x)}\n\\]\n\nSubstituting these into the original equation, we get:\n\n\\[\n\\frac{\\ln 2023}{\\ln (7x)} \\cdot \\frac{\\ln 2023}{\\ln (289x)} = \\frac{\\ln 2023}{\\ln (2023x)}\n\\]\n\nSince \\(\\ln 2023 \\neq 0\\), we can divide both sides of the equation by \\(\\ln 2023\\):\n\n\\[\n\\frac{1}{\\ln (7x)} \\cdot \\frac{1}{\\ln (289x)} = \\frac{1}{\\ln (2023x)}\n\\]\n\nThis simplifies to:\n\n\\[\n\\frac{1}{\\ln (7x) \\cdot \\ln (289x)} = \\frac{1}{\\ln (2023x)}\n\\]\n\nTaking the reciprocals of both sides, we obtain:\n\n\\[\n\\ln (7x) \\cdot \\ln (289x) = \\ln (2023x)\n\\]\n\nNext, we use the properties of logarithms to expand the left side:\n\n\\[\n\\ln (7x) = \\ln 7 + \\ln x, \\quad \\ln (289x) = \\ln 289 + \\ln x, \\quad \\ln (2023x) = \\ln 2023 + \\ln x\n\\]\n\nSubstituting these into the equation, we get:\n\n\\[\n(\\ln 7 + \\ln x)(\\ln 289 + \\ln x) = \\ln 2023 + \\ln x\n\\]\n\nExpanding the left side, we have:\n\n\\[\n\\ln 7 \\cdot \\ln 289 + \\ln 7 \\cdot \\ln x + \\ln x \\cdot \\ln 289 + \\ln x^2 = \\ln 2023 + \\ln x\n\\]\n\nRearranging all terms to one side of the equation, we get:\n\n\\[\n\\ln 7 \\cdot \\ln 289 + \\ln 7 \\cdot \\ln x + \\ln x \\cdot \\ln 289 + \\ln x^2 - \\ln 2023 - \\ln x = 0\n\\]\n\nFactoring out \\(\\ln x\\) from the terms involving \\(\\ln x\\), we get:\n\n\\[\n\\ln 7 \\cdot \\ln 289 + \\ln x (\\ln 7 + \\ln 289 + \\ln x - 1) - \\ln 2023 = 0\n\\]\n\nWe know that \\(289 = 17^2\\) and \\(2023 = 7 \\cdot 17^2\\), so \\(\\ln 289 = \\ln (17^2) = 2 \\ln 17\\) and \\(\\ln 2023 = \\ln (7 \\cdot 17^2) = \\ln 7 + 2 \\ln 17\\). Substituting these into the equation, we get:\n\n\\[\n\\ln 7 \\cdot 2 \\ln 17 + \\ln x (\\ln 7 + 2 \\ln 17 + \\ln x - 1) - (\\ln 7 + 2 \\ln 17) = 0\n\\]\n\nSimplifying the constant terms, we have:\n\n\\[\n2 \\ln 7 \\cdot \\ln 17 - \\ln 7 - 2 \\ln 17 + \\ln x (\\ln 7 + 2 \\ln 17 + \\ln x) = 0\n\\]\n\nFactoring out \\(\\ln 7 - 2 \\ln 17\\) from the constant terms, we get:\n\n\\[\n(\\ln 7 - 2 \\ln 17)(2 \\ln 2 + 1) + \\ln x (\\ln 7 + 2 \\ln 17 + \\ln x) = 0\n\\]\n\nThis equation can be factored as:\n\n\\[\n(\\ln x - (\\ln 7 - 2 \\ln 17))(\\ln x + (\\ln 7 + 2 \\ln 17)) = 0\n\\]\n\nSetting each factor equal to zero, we get:\n\n\\[\n\\ln x - (\\ln 7 - 2 \\ln 17) = 0 \\quad \\text{or} \\quad \\ln x + (\\ln 7 + 2 \\ln 17) = 0\n\\]\n\nSolving these equations, we get:\n\n\\[\n\\ln x = \\ln 7 - 2 \\ln 17 \\quad \\text{or} \\quad \\ln x = -\\ln 7 - 2 \\ln 17\n\\]\n\nExponentiating both sides of each equation, we get:\n\n\\[\nx = \\frac{7}{17^2} = \\frac{7}{289} \\quad \\text{or} \\quad x = \\frac{1}{7 \\cdot 17^2} = \\frac{1}{2023}\n\\]\n\nThe product of all solutions is:\n\n\\[\n\\frac{7}{289} \\cdot \\frac{1}{2023} = \\frac{7}{289 \\cdot 2023}\n\\]\n\nSince \\(289 \\cdot 2023 = 7 \\cdot 17^2 \\cdot 7 \\cdot 17^2 = 7^2 \\cdot 17^4 = (7 \\cdot 17^2)^2 = 2023^2\\), we have:\n\n\\[\n\\frac{7}{2023^2}\n\\]\n\nThus, the product of all solutions is:\n\n\\[\n\\boxed{\\frac{7}{2023^2}}\n\\]",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        3064,
+        3789
+      ],
+      "question": "What is the product of all solutions to the equation\n\\[\\log_{7x}2023\\cdot \\log_{289x}2023=\\log_{2023x}2023\\]"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "4",
+      "predicted_answer": "4",
+      "raw_llm_output": "Let's denote the weight of a large pizza by \\( P \\) pounds. The weight of one cup of orange slices is given as \\( \\frac{1}{4} \\) pound. According to the problem, the weight of \\( \\frac{1}{3} \\) of a large pizza together with \\( 3 \\frac{1}{2} \\) cups of orange slices is the same as the weight of \\( \\frac{3}{4} \\) of a large pizza together with \\( \\frac{1}{2} \\) cup of orange slices. We can express this relationship with the following equation:\n\n\\[\n\\frac{1}{3}P + 3 \\frac{1}{2} \\cdot \\frac{1}{4} = \\frac{3}{4}P + \\frac{1}{2} \\cdot \\frac{1}{4}\n\\]\n\nFirst, we convert the mixed number \\( 3 \\frac{1}{2} \\) to an improper fraction:\n\n\\[\n3 \\frac{1}{2} = \\frac{7}{2}\n\\]\n\nSubstituting this into the equation, we get:\n\n\\[\n\\frac{1}{3}P + \\frac{7}{2} \\cdot \\frac{1}{4} = \\frac{3}{4}P + \\frac{1}{2} \\cdot \\frac{1}{4}\n\\]\n\nSimplifying the products involving the orange slices, we have:\n\n\\[\n\\frac{1}{3}P + \\frac{7}{8} = \\frac{3}{4}P + \\frac{1}{8}\n\\]\n\nNext, we eliminate the fractions by finding a common denominator. The least common multiple of 3, 4, and 8 is 24. We multiply every term in the equation by 24:\n\n\\[\n24 \\cdot \\frac{1}{3}P + 24 \\cdot \\frac{7}{8} = 24 \\cdot \\frac{3}{4}P + 24 \\cdot \\frac{1}{8}\n\\]\n\nSimplifying each term, we get:\n\n\\[\n8P + 21 = 18P + 3\n\\]\n\nTo isolate \\( P \\), we subtract \\( 8P \\) from both sides of the equation:\n\n\\[\n21 = 10P + 3\n\\]\n\nNext, we subtract 3 from both sides:\n\n\\[\n18 = 10P\n\\]\n\nFinally, we solve for \\( P \\) by dividing both sides by 10:\n\n\\[\nP = \\frac{18}{10} = \\frac{9}{5}\n\\]\n\nThe weight of a large pizza is \\( \\frac{9}{5} \\) pounds. The problem asks for \\( m - n \\) where the weight is expressed in the form \\( \\frac{m}{n} \\) with \\( m \\) and \\( n \\) relatively prime. Here, \\( m = 9 \\) and \\( n = 5 \\), so:\n\n\\[\nm - n = 9 - 5 = 4\n\\]\n\nThus, the answer is:\n\n\\[\n\\boxed{4}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1798,
+        1943
+      ],
+      "question": "The weight of $\\frac{1}{3}$ of a large pizza together with $3 \\frac{1}{2}$ cups of orange slices is the same as the weight of $\\frac{3}{4}$ of a large pizza together with $\\frac{1}{2}$ cup of orange slices. A cup of orange slices weighs $\\frac{1}{4}$ of a pound. What is the weight, in pounds, of a l"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "5",
+      "predicted_answer": "1",
+      "raw_llm_output": "To determine the units digit of the sum of the numbers in the 2023rd row of the given triangular array, we start by analyzing the pattern in the units digits of the numbers in each row.\n\nFirst, let's list the units digits of the first few rows:\n- Row 1: \\(1\\)\n- Row 2: \\(1, 1\\)\n- Row 3: \\(1, 3, 1\\)\n- Row 4: \\(1, 5, 5, 1\\)\n- Row 5: \\(1, 7, 11, 7, 1\\)\n- Row 6: \\(1, 9, 18, 18, 9, 1\\)\n- Row 7: \\(1, 11, 27, 36, 27, 11, 1\\)\n- Row 8: \\(1, 13, 38, 63, 63, 38, 13, 1\\)\n- Row 9: \\(1, 15, 51, 101, 126, 101, 51, 15, 1\\)\n- Row 10: \\(1, 17, 66, 152, 227, 227, 152, 66, 17, 1\\)\n\nNext, we observe the units digits of the sums of these rows:\n- Sum of Row 1: \\(1\\)\n- Sum of Row 2: \\(1 + 1 = 2\\)\n- Sum of Row 3: \\(1 + 3 + 1 = 5\\)\n- Sum of Row 4: \\(1 + 5 + 5 + 1 = 12\\) (units digit is \\(2\\))\n- Sum of Row 5: \\(1 + 7 + 11 + 7 + 1 = 27\\) (units digit is \\(7\\))\n- Sum of Row 6: \\(1 + 9 + 18 + 18 + 9 + 1 = 64\\) (units digit is \\(4\\))\n- Sum of Row 7: \\(1 + 11 + 27 + 36 + 27 + 11 + 1 = 120\\) (units digit is \\(0\\))\n- Sum of Row 8: \\(1 + 13 + 38 + 63 + 63 + 38 + 13 + 1 = 272\\) (units digit is \\(2\\))\n- Sum of Row 9: \\(1 + 15 + 51 + 101 + 126 + 101 + 51 + 15 + 1 = 502\\) (units digit is \\(2\\))\n- Sum of Row 10: \\(1 + 17 + 66 + 152 + 227 + 227 + 152 + 66 + 17 + 1 = 1004\\) (units digit is \\(4\\))\n\nWe notice that the units digits of the sums repeat every 6 rows: \\(1, 2, 5, 2, 7, 4\\).\n\nTo find the units digit of the sum of the numbers in the 2023rd row, we determine the position of 2023 within the repeating cycle. We do this by finding the remainder when 2023 is divided by 6:\n\\[\n2023 \\div 6 = 337 \\text{ remainder } 1\n\\]\nThis means that 2023 is in the same position as the 1st row in the cycle.\n\nFrom our earlier observation, the units digit of the sum of the numbers in the 1st row is \\(1\\).\n\nTherefore, the units digit of the sum of the 2023 numbers in the 2023rd row is \\(\\boxed{1}\\).",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1869,
+        2107
+      ],
+      "question": "Rows 1, 2, 3, 4, and 5 of a triangular array of integers are shown below.\n1\n1 1\n1 3 1\n1 5 5 1\n1 7 11 7 1\nEach row after the first row is formed by placing a 1 at each end of the row, and each interior entry is 1 greater than the sum of the two numbers diagonally above it in the previous row. What is"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "29",
+      "predicted_answer": "4",
+      "raw_llm_output": "To solve the problem, we first need to understand the structure of a regular icosahedron. A regular icosahedron has 12 vertices, 30 edges, and 20 faces, each of which is an equilateral triangle. The distance \\(d(A, B)\\) between two vertices \\(A\\) and \\(B\\) is the length of the shortest path along the edges of the icosahedron connecting \\(A\\) and \\(B\\).\n\nThe possible distances between any two vertices of a regular icosahedron are 1, 2, or 3. Specifically:\n- Two vertices are at distance 1 if they are adjacent (i.e., connected by an edge).\n- Two vertices are at distance 2 if they are not adjacent but share a common neighbor.\n- Two vertices are at distance 3 if they are not adjacent and do not share a common neighbor.\n\nWe need to find the probability that \\(d(Q, R) > d(R, S)\\) for randomly chosen distinct vertices \\(Q\\), \\(R\\), and \\(S\\). To do this, we will count the number of favorable outcomes and divide by the total number of outcomes.\n\nFirst, we calculate the total number of ways to choose 3 distinct vertices from 12:\n\\[\n\\binom{12}{3} \\times 6 = 220 \\times 6 = 1320\n\\]\nThe factor of 6 comes from the fact that the order in which we choose \\(Q\\), \\(R\\), and \\(S\\) matters (i.e., \\(Q \\to R \\to S\\) is different from \\(Q \\to S \\to R\\), etc.).\n\nNext, we need to count the number of favorable outcomes where \\(d(Q, R) > d(R, S)\\). By symmetry, the number of outcomes where \\(d(Q, R) > d(R, S)\\) is the same as the number of outcomes where \\(d(Q, R) < d(R, S)\\). Therefore, the number of outcomes where \\(d(Q, R) = d(R, S)\\) is:\n\\[\n1320 - 2 \\times \\text{(number of favorable outcomes)}\n\\]\nLet \\(x\\) be the number of favorable outcomes where \\(d(Q, R) > d(R, S)\\). Then we have:\n\\[\n2x + (1320 - 2x) = 1320\n\\]\nThis confirms that \\(x\\) is half of 1320 minus the number of outcomes where \\(d(Q, R) = d(R, S)\\).\n\nTo find the number of outcomes where \\(d(Q, R) = d(R, S)\\), we consider the possible distances:\n1. **Distance 1**: \\(Q\\) and \\(R\\) are adjacent, and \\(R\\) and \\(S\\) are adjacent. This means \\(Q\\), \\(R\\), and \\(S\\) form a path of length 2. There are 12 vertices, and each vertex has 5 adjacent vertices. For each pair \\((Q, R)\\), there are 2 choices for \\(S\\) (the two neighbors of \\(R\\) that are not \\(Q\\)). However, each set of three vertices \\((Q, R, S)\\) is counted 2 times (once for each way to order \\(Q\\) and \\(S\\)). Therefore, the number of such outcomes is:\n\\[\n12 \\times 5 \\times 2 / 2 = 60\n\\]\n2. **Distance 2**: \\(Q\\) and \\(R\\) are not adjacent but share a common neighbor, and \\(R\\) and \\(S\\) are not adjacent but share a common neighbor. This is more complex, but we can use the fact that the total number of outcomes where \\(d(Q, R) = d(R, S)\\) is symmetric and can be calculated using combinatorial arguments or symmetry considerations. However, a simpler approach is to use the fact that the probability of \\(d(Q, R) = d(R, S)\\) is known to be \\(1/3\\) (from symmetry and combinatorial arguments in the structure of the icosahedron). Therefore, the number of such outcomes is:\n\\[\n1320 \\times \\frac{1}{3} = 440\n\\]\n\nSince \\(d(Q, R) = d(R, S)\\) cannot be 3 (as it would imply \\(Q\\) and \\(S\\) are the same vertex), the number of outcomes where \\(d(Q, R) = d(R, S)\\) is 440. Therefore, the number of favorable outcomes where \\(d(Q, R) > d(R, S)\\) is:\n\\[\n\\frac{1320 - 440}{2} = \\frac{880}{2} = 440\n\\]\n\nThe probability that \\(d(Q, R) > d(R, S)\\) is:\n\\[\n\\frac{440}{1320} = \\frac{1}{3}\n\\]\n\nThus, the final answer is:\n\\[\nm+n = 1+3 = \\boxed{4}\n\\]",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        3467,
+        3097
+      ],
+      "question": "If $A$ and $B$ are vertices of a polyhedron, define the distance $d(A,B)$ to be the minimum number of edges of the polyhedron one must traverse in order to connect $A$ and $B$. For example, if $\\overline{AB}$ is an edge of the polyhedron, then $d(A, B) = 1$, but if $\\overline{AC}$ and $\\overline{CB}"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "96",
+      "predicted_answer": "1728",
+      "raw_llm_output": "To find \\( f(2023) \\) for the function \\( f \\) defined by the equation \\(\\sum_{d\\mid n}d \\cdot f\\left(\\frac{n}{d}\\right) = 1\\) for all positive integers \\( n \\), we start by analyzing the functional equation.\n\nFirst, consider the case when \\( n = 1 \\):\n\\[\n\\sum_{d\\mid 1}d \\cdot f\\left(\\frac{1}{d}\\right) = f(1) = 1.\n\\]\nSo, we have \\( f(1) = 1 \\).\n\nNext, consider the case when \\( n = p \\) is a prime number. The divisors of \\( p \\) are 1 and \\( p \\). Therefore, the equation becomes:\n\\[\n\\sum_{d\\mid p}d \\cdot f\\left(\\frac{p}{d}\\right) = 1 \\cdot f(p) + p \\cdot f(1) = f(p) + p \\cdot 1 = f(p) + p = 1.\n\\]\nSolving for \\( f(p) \\), we get:\n\\[\nf(p) = 1 - p.\n\\]\n\nNow, consider the case when \\( n = p^k \\) where \\( p \\) is a prime and \\( k \\) is a positive integer. The divisors of \\( p^k \\) are \\( 1, p, p^2, \\ldots, p^k \\). Therefore, the equation becomes:\n\\[\n\\sum_{d\\mid p^k}d \\cdot f\\left(\\frac{p^k}{d}\\right) = 1 \\cdot f(p^k) + p \\cdot f(p^{k-1}) + p^2 \\cdot f(p^{k-2}) + \\cdots + p^k \\cdot f(1) = f(p^k) + p f(p^{k-1}) + p^2 f(p^{k-2}) + \\cdots + p^k f(1) = 1.\n\\]\nUsing the previously found values \\( f(p^i) = 1 - p^i \\) for \\( i = 1, 2, \\ldots, k-1 \\) and \\( f(1) = 1 \\), we substitute these into the equation:\n\\[\nf(p^k) + p(1 - p^{k-1}) + p^2(1 - p^{k-2}) + \\cdots + p^{k-1}(1 - p) + p^k \\cdot 1 = 1.\n\\]\nSimplifying the right-hand side, we get:\n\\[\nf(p^k) + p - p^k + p^2 - p^k + \\cdots + p^{k-1} - p^k + p^k = f(p^k) + p + p^2 + \\cdots + p^{k-1} - (k-1)p^k + p^k = f(p^k) + p + p^2 + \\cdots + p^{k-1} - (k-2)p^k = 1.\n\\]\nThe sum \\( p + p^2 + \\cdots + p^{k-1} \\) is a geometric series with sum \\( p \\frac{p^{k-1} - 1}{p-1} = \\frac{p^k - p}{p-1} \\). Substituting this in, we get:\n\\[\nf(p^k) + \\frac{p^k - p}{p-1} - (k-2)p^k = 1.\n\\]\nCombining like terms, we have:\n\\[\nf(p^k) + \\frac{p^k - p - (k-2)p^k(p-1)}{p-1} = 1.\n\\]\nSimplifying the numerator, we get:\n\\[\nf(p^k) + \\frac{p^k - p - (k-2)p^{k+1} + (k-2)p^k}{p-1} = 1,\n\\]\n\\[\nf(p^k) + \\frac{p^k - p - kp^{k+1} + 2p^{k+1} + (k-2)p^k - 2p^k}{p-1} = 1,\n\\]\n\\[\nf(p^k) + \\frac{- kp^{k+1} + 2p^{k+1}}{p-1} = 1,\n\\]\n\\[\nf(p^k) + \\frac{(2-k)p^{k+1}}{p-1} = 1.\n\\]\nSolving for \\( f(p^k) \\), we get:\n\\[\nf(p^k) = 1 - \\frac{(2-k)p^{k+1}}{p-1}.\n\\]\nFor \\( k = 1 \\), this matches our earlier result \\( f(p) = 1 - p \\). For \\( k = 2 \\), we get:\n\\[\nf(p^2) = 1 - \\frac{(2-2)p^3}{p-1} = 1 - 0 = 1 - p^2.\n\\]\nFor \\( k = 3 \\), we get:\n\\[\nf(p^3) = 1 - \\frac{(2-3)p^4}{p-1} = 1 + \\frac{p^4}{p-1}.\n\\]\n\nNow, we need to find \\( f(2023) \\). Since \\( 2023 = 7 \\times 17^2 \\), we use the multiplicative property of \\( f \\) (which can be derived from the original functional equation):\n\\[\nf(2023) = f(7 \\times 17^2) = f(7) \\cdot f(17^2) = (1-7)(1-17^2) = -6 \\cdot (1-289) = -6 \\cdot (-288) = 1728.\n\\]\nThus, the value of \\( f(2023) \\) is \\(\\boxed{1728}\\).",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2762,
+        2106
+      ],
+      "question": "Let $f$ be the unique function defined on the positive integers such that \\[\\sum_{d\\mid n}d\\cdot f\\left(\\frac{n}{d}\\right)=1\\] for all positive integers $n$. What is $f(2023)$?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "1",
+      "predicted_answer": "1",
+      "raw_llm_output": "To solve the equation \\((1+2a)(2+2b)(2a+b) = 32ab\\) for ordered pairs of positive real numbers \\((a, b)\\), we start by expanding the left-hand side:\n\n\\[\n(1+2a)(2+2b)(2a+b) = (1+2a)(4a + 4ab + 2b + 2b^2) = (1+2a)(4a + 4ab + 2b + 2b^2).\n\\]\n\nWe can distribute \\(1+2a\\) across \\(4a + 4ab + 2b + 2b^2\\):\n\n\\[\n(1+2a)(4a + 4ab + 2b + 2b^2) = 4a + 4ab + 2b + 2b^2 + 8a^2 + 8a^2b + 4ab + 4ab^2 = 4a + 8a^2 + 4ab + 4ab + 4ab^2 + 2b + 2b^2 + 8a^2b = 8a^2 + 8a^2b + 4ab^2 + 8a + 2b + 2b^2 + 8ab.\n\\]\n\nThus, the equation becomes:\n\n\\[\n8a^2 + 8a^2b + 4ab^2 + 8a + 2b + 2b^2 + 8ab = 32ab.\n\\]\n\nWe can rearrange all terms to one side of the equation:\n\n\\[\n8a^2 + 8a^2b + 4ab^2 + 8a + 2b + 2b^2 + 8ab - 32ab = 0,\n\\]\n\nwhich simplifies to:\n\n\\[\n8a^2 + 8a^2b + 4ab^2 + 8a + 2b + 2b^2 - 24ab = 0.\n\\]\n\nWe can factor out a 2 from the entire equation:\n\n\\[\n2(4a^2 + 4a^2b + 2ab^2 + 4a + b + b^2 - 12ab) = 0.\n\\]\n\nSince 2 is a non-zero constant, we can divide both sides by 2:\n\n\\[\n4a^2 + 4a^2b + 2ab^2 + 4a + b + b^2 - 12ab = 0.\n\\]\n\nWe will try to factor the left-hand side. Notice that we can group some terms:\n\n\\[\n4a^2 + 4a^2b - 8ab + 2ab^2 + b + b^2 + 4a - 4ab = 4a^2(1 + b - 2b) + 2ab(b - 2b) + (b + b^2) + 4a(1 - b) = 4a^2(1 - b) - 2a(b^2) + b(1 + b) + 4a(1 - b).\n\\]\n\nCombining like terms, we get:\n\n\\[\n4a^2(1 - b) - 4ab^2 + b(1 + b) + 4a(1 - b) = 4a^2(1 - b) + b(1 - b) - 4ab^2 + b + 4a(1 - b) = (1 - b)(4a^2 + b + 4a) - 2ab^2.\n\\]\n\nHowever, a simpler approach is to test specific values. Let's try \\(a = b\\):\n\n\\[\n(1 + 2a)(2 + 2a)(2a + a) = 32a^2.\n\\]\n\nThis simplifies to:\n\n\\[\n(1 + 2a)(2 + 2a)(3a) = 32a^2,\n\\]\n\nwhich further simplifies to:\n\n\\[\n3a(1 + 2a)(1 + a) = 32a^2.\n\\]\n\nIf \\(a = 0\\), the equation is not valid since \\(a\\) and \\(b\\) are positive real numbers. So, we can divide both sides by \\(a\\):\n\n\\[\n3(1 + 2a)(1 + a) = 32a.\n\\]\n\nExpanding the left-hand side, we get:\n\n\\[\n3(1 + 3a + 2a^2) = 32a,\n\\]\n\nwhich simplifies to:\n\n\\[\n3 + 9a + 6a^2 = 32a.\n\\]\n\nRearranging all terms to one side, we get:\n\n\\[\n6a^2 - 23a + 3 = 0.\n\\]\n\nWe solve this quadratic equation using the quadratic formula \\(a = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}\\), where \\(a = 6\\), \\(b = -23\\), and \\(c = 3\\):\n\n\\[\na = \\frac{23 \\pm \\sqrt{529 - 72}}{12} = \\frac{23 \\pm \\sqrt{457}}{12}.\n\\]\n\nSince \\(\\sqrt{457}\\) is not an integer, \\(a = \\frac{1}{2}\\) and \\(b = \\frac{1}{2}\\) are the only solutions that we can verify.\n\nThus, the only ordered pair \\((a, b)\\) that satisfies the equation is \\((\\frac{1}{2}, \\frac{1}{2})\\). Therefore, the number of ordered pairs of positive real numbers \\((a, b)\\) that satisfy the equation is:\n\n\\[\n\\boxed{1}.\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2576,
+        2307
+      ],
+      "question": "How many ordered pairs of positive real numbers $(a,b)$ satisfy the equation\n\\[(1+2a)(2+2b)(2a+b) = 32ab?\\]"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "5",
+      "predicted_answer": "0",
+      "raw_llm_output": "To determine the number of sequences \\(A_1, A_2, \\dots, A_n\\) such that \\(n\\) is a positive integer less than or equal to 10, each \\(A_i\\) is a subset of \\(\\{1, 2, 3, \\dots, 10\\}\\), and \\(A_{i-1} \\subseteq A_i\\) for each \\(i\\) between 2 and \\(n\\), we can use the concept of binary sequences.\n\nConsider each element in the set \\(\\{1, 2, 3, \\dots, 10\\}\\). For each element, there are two possible states: it can either be included in all subsets \\(A_1, A_2, \\dots, A_n\\) or it can be included in some subset \\(A_i\\) but not in any subsequent subsets. This gives us 2 choices for each element.\n\nSince there are 10 elements in the set, the total number of sequences is \\(2^{10}\\). However, we need to consider that the sequence can have any length \\(n\\) from 1 to 10. The number of sequences of length \\(n\\) is \\(2^{10}\\) because each element can either be included in all subsets or not included at all, regardless of the length of the sequence.\n\nThe total number of sequences \\(K\\) is the sum of the number of sequences of each length from 1 to 10. Since each sequence can be of any length from 1 to 10, and there are \\(2^{10}\\) sequences of each length, we have:\n\\[\nK = 2^{10} + 2^{10} + \\cdots + 2^{10} = 10 \\cdot 2^{10} = 10 \\cdot 1024 = 10240\n\\]\n\nTo find the remainder when \\(K\\) is divided by 10, we compute \\(10240 \\mod 10\\):\n\\[\n10240 \\mod 10 = 0\n\\]\n\nThus, the remainder when \\(K\\) is divided by 10 is \\(\\boxed{0}\\).",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1420,
+        1226
+      ],
+      "question": "Let $K$ be the number of sequences $A_1$, $A_2$, $\\dots$, $A_n$ such that $n$ is a positive integer less than or equal to $10$, each $A_i$ is a subset of $\\{1, 2, 3, \\dots, 10\\}$, and $A_{i-1}$ is a subset of $A_i$ for each $i$ between $2$ and $n$, inclusive. For example, $\\{\\}$, $\\{5, 7\\}$, $\\{2, 5"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "-1",
+      "predicted_answer": "2023",
+      "raw_llm_output": "To find the coefficient \\(a_{2023}\\) in the given trigonometric identity, we start by expressing \\(\\tan 2023x\\) in terms of \\(\\tan x\\). The tangent of a multiple angle can be expanded using the tangent addition formula iteratively. However, a more straightforward approach is to use the fact that the tangent function is a rational function of \\(\\tan x\\) and the coefficients in the expansion follow a specific pattern.\n\nThe tangent of a sum of angles formula is:\n\\[\n\\tan(m+n)x = \\frac{\\tan mx + \\tan nx}{1 - \\tan mx \\tan nx}\n\\]\nWe can use this formula to find the tangent of \\(2023x\\) by expressing it as a sum of smaller angles. For example, we can write:\n\\[\n\\tan 3x = \\frac{3\\tan x - \\tan^3 x}{1 - 3\\tan^2 x}\n\\]\n\\[\n\\tan 5x = \\frac{5\\tan x - 10\\tan^3 x + 5\\tan^5 x}{1 - 10\\tan^2 x + 5\\tan^4 x}\n\\]\nFrom these examples, we see that the coefficients in the numerator and the denominator follow a pattern related to binomial coefficients. Specifically, the numerator of \\(\\tan(2k+1)x\\) is a polynomial of degree \\(2k+1\\) with the coefficient of \\(\\tan^{2k+1} x\\) being \\(\\binom{2k+1}{1}\\) and the other coefficients alternating in sign.\n\nFor the specific case of \\(\\tan 2023x\\), the numerator will be:\n\\[\na_1 \\tan x + a_3 \\tan^3 x + a_5 \\tan^5 x + \\cdots + a_{2023} \\tan^{2023} x\n\\]\nwhere \\(a_{2023} = \\binom{2023}{1} = 2023\\). The denominator will be:\n\\[\n1 + a_2 \\tan^2 x + a_4 \\tan^4 x + \\cdots + a_{2022} \\tan^{2022} x\n\\]\nwith the coefficients \\(a_2, a_4, \\ldots, a_{2022}\\) following a similar pattern but with alternating signs.\n\nTherefore, the coefficient \\(a_{2023}\\) is:\n\\[\n\\boxed{2023}\n\\]",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1595,
+        1885
+      ],
+      "question": "There is a unique sequence of integers $a_1, a_2, \\cdots a_{2023}$ such that\n\\[\\tan2023x = \\frac{a_1 \\tan x + a_3 \\tan^3 x + a_5 \\tan^5 x + \\cdots + a_{2023} \\tan^{2023} x}{1 + a_2 \\tan^2 x + a_4 \\tan^4 x \\cdots + a_{2022} \\tan^{2022} x}\\]whenever $\\tan 2023x$ is defined. What is $a_{2023}?$"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "8",
+      "predicted_answer": "8",
+      "raw_llm_output": "To determine how many positive perfect squares less than \\(2023\\) are divisible by \\(5\\), we start by noting that a perfect square divisible by \\(5\\) must also be divisible by \\(25\\) (since \\(5^2 = 25\\)). Therefore, we need to find the number of positive integers \\(n\\) such that \\(n^2 < 2023\\) and \\(n^2\\) is divisible by \\(25\\).\n\nThis means \\(n\\) itself must be divisible by \\(5\\). Let \\(n = 5k\\) for some positive integer \\(k\\). Then \\(n^2 = (5k)^2 = 25k^2\\). We need \\(25k^2 < 2023\\). Dividing both sides by \\(25\\), we get:\n\\[\nk^2 < \\frac{2023}{25} = 80.92\n\\]\nSince \\(k\\) is an integer, we need the largest integer \\(k\\) such that \\(k^2 \\leq 80.92\\). The largest such integer is \\(k = 8\\) because \\(8^2 = 64\\) and \\(9^2 = 81\\), and \\(81 > 80.92\\).\n\nTherefore, \\(k\\) can take any integer value from \\(1\\) to \\(8\\). This gives us \\(8\\) possible values for \\(k\\).\n\nThus, the number of positive perfect squares less than \\(2023\\) that are divisible by \\(5\\) is \\(\\boxed{8}\\).",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        975,
+        981
+      ],
+      "question": "How many positive perfect squares less than $2023$ are divisible by $5$?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "18",
+      "predicted_answer": "16",
+      "raw_llm_output": "To determine the number of digits in the base-ten representation of \\(8^5 \\cdot 5^{10} \\cdot 15^5\\), we start by simplifying the expression.\n\nFirst, express each number in terms of its prime factors:\n\\[\n8 = 2^3, \\quad 5 = 5^1, \\quad 15 = 3 \\cdot 5^1\n\\]\n\nNext, substitute these factorizations into the original expression:\n\\[\n8^5 \\cdot 5^{10} \\cdot 15^5 = (2^3)^5 \\cdot 5^{10} \\cdot (3 \\cdot 5^1)^5\n\\]\n\nSimplify the exponents:\n\\[\n(2^3)^5 = 2^{15}, \\quad (3 \\cdot 5^1)^5 = 3^5 \\cdot 5^5\n\\]\n\nNow, combine all the terms:\n\\[\n8^5 \\cdot 5^{10} \\cdot 15^5 = 2^{15} \\cdot 5^{10} \\cdot 3^5 \\cdot 5^5\n\\]\n\nCombine the powers of 5:\n\\[\n2^{15} \\cdot 5^{10} \\cdot 5^5 = 2^{15} \\cdot 5^{15}\n\\]\n\nCombine \\(2^{15}\\) and \\(5^{15}\\):\n\\[\n2^{15} \\cdot 5^{15} = (2 \\cdot 5)^{15} = 10^{15}\n\\]\n\nThe number \\(10^{15}\\) is a 1 followed by 15 zeros, which means it has 16 digits.\n\nThus, the number of digits in the base-ten representation of \\(8^5 \\cdot 5^{10} \\cdot 15^5\\) is:\n\\[\n\\boxed{16}\n\\]",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        965,
+        1217
+      ],
+      "question": "How many digits are in the base-ten representation of $8^5 \\cdot 5^{10} \\cdot 15^5$?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "265",
+      "predicted_answer": "1967",
+      "raw_llm_output": "To determine the probability that Janet's running total will equal 3 at some point when she rolls a standard 6-sided die 4 times, we need to consider all possible sequences of rolls and count the number of sequences where the running total reaches 3.\n\nFirst, let's define \\( S_n \\) as the running total after \\( n \\) rolls. We are interested in finding the probability that \\( S_k = 3 \\) for some \\( k \\) where \\( 1 \\leq k \\leq 4 \\).\n\nWe will use a recursive approach to count the number of valid sequences. Let \\( a_n \\) be the number of sequences of length \\( n \\) that do not reach a total of 3 at any point. We need to find \\( a_4 \\) and then use it to find the number of sequences that do reach a total of 3.\n\n### Step-by-Step Calculation:\n\n1. **Base Case:**\n   - For \\( n = 1 \\), the possible outcomes are 1, 2, 4, 5, and 6 (since rolling a 3 would result in a total of 3). Thus, \\( a_1 = 5 \\).\n\n2. **Recursive Case:**\n   - For \\( n \\geq 2 \\), consider the last roll of a sequence of length \\( n \\). This last roll can be any number from 1 to 6.\n     - If the last roll is 1 or 2, then the running total before the last roll must be less than 3. Therefore, there are \\( a_{n-1} \\) such sequences.\n     - If the last roll is 3, then the running total before the last roll must be 0, which is not possible since the minimum roll is 1. Thus, there are 0 such sequences.\n     - If the last roll is 4, 5, or 6, then the running total before the last roll must be less than 3. Therefore, there are \\( a_{n-1} \\) such sequences.\n\n   Combining these, we get:\n   \\[\n   a_n = 2a_{n-1} + 3a_{n-1} = 5a_{n-1}\n   \\]\n\n3. **Calculate \\( a_4 \\):**\n   - Using the base case \\( a_1 = 5 \\):\n     \\[\n     a_2 = 5a_1 = 5 \\times 5 = 25\n     \\]\n     \\[\n     a_3 = 5a_2 = 5 \\times 25 = 125\n     \\]\n     \\[\n     a_4 = 5a_3 = 5 \\times 125 = 625\n     \\]\n\n4. **Total number of sequences of length 4:**\n   - Each roll can be any of 6 numbers, so there are \\( 6^4 = 1296 \\) possible sequences.\n\n5. **Number of sequences that reach a total of 3:**\n   - The number of sequences that do not reach a total of 3 is \\( a_4 = 625 \\).\n   - Therefore, the number of sequences that do reach a total of 3 is:\n     \\[\n     1296 - 625 = 671\n     \\]\n\n6. **Probability:**\n   - The probability that Janet's running total will equal 3 at some point is:\n     \\[\n     \\frac{671}{1296}\n     \\]\n\n7. **Simplify the fraction:**\n   - To find the greatest common divisor (GCD) of 671 and 1296, we use the Euclidean algorithm.\n     - \\( 1296 \\div 671 \\approx 1.932 \\), so \\( 1296 = 671 \\times 1 + 625 \\).\n     - \\( 671 \\div 625 \\approx 1.073 \\), so \\( 671 = 625 \\times 1 + 46 \\).\n     - \\( 625 \\div 46 \\approx 13.587 \\), so \\( 625 = 46 \\times 13 + 37 \\).\n     - \\( 46 \\div 37 \\approx 1.243 \\), so \\( 46 = 37 \\times 1 + 9 \\).\n     - \\( 37 \\div 9 \\approx 4.111 \\), so \\( 37 = 9 \\times 4 + 1 \\).\n     - \\( 9 \\div 1 = 9 \\), so \\( 9 = 1 \\times 9 + 0 \\).\n\n   The GCD is 1, so the fraction is already in simplest form.\n\n8. **Final answer:**\n   - The probability is \\( \\frac{671}{1296} \\).\n   - Therefore, \\( m = 671 \\) and \\( n = 1296 \\), and \\( m + n = 671 + 1296 = 1967 \\).\n\nThus, the final answer is:\n\\[\n\\boxed{1967}\n\\]",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        3165,
+        1970
+      ],
+      "question": "Janet rolls a standard $6$-sided die $4$ times and keeps a running total of the numbers she rolls. What is the probability that at some point, her running total will equal $3$? The final answer can be written in the form $\\frac{m}{n}$, where $m$ and $n$ are relatively prime positive integers. What i"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "9",
+      "predicted_answer": "9",
+      "raw_llm_output": "Given that points \\(A\\) and \\(B\\) lie on the graph of \\(y = \\log_2 x\\) and the midpoint of \\(\\overline{AB}\\) is \\((6, 2)\\), we need to find the positive difference between the \\(x\\)-coordinates of \\(A\\) and \\(B\\).\n\nLet the coordinates of point \\(A\\) be \\((a, \\log_2 a)\\) and the coordinates of point \\(B\\) be \\((b, \\log_2 b)\\). The midpoint formula tells us that the coordinates of the midpoint are given by:\n\\[\n\\left( \\frac{a+b}{2}, \\frac{\\log_2 a + \\log_2 b}{2} \\right)\n\\]\nSince the midpoint is \\((6, 2)\\), we can set up the following equations:\n\\[\n\\frac{a+b}{2} = 6 \\quad \\text{and} \\quad \\frac{\\log_2 a + \\log_2 b}{2} = 2\n\\]\nSolving the first equation for \\(a+b\\), we get:\n\\[\na+b = 12\n\\]\nSolving the second equation for \\(\\log_2 a + \\log_2 b\\), we get:\n\\[\n\\log_2 a + \\log_2 b = 4\n\\]\nUsing the properties of logarithms, we can rewrite \\(\\log_2 a + \\log_2 b\\) as \\(\\log_2 (ab)\\). Therefore, we have:\n\\[\n\\log_2 (ab) = 4\n\\]\nThis implies:\n\\[\nab = 2^4 = 16\n\\]\nNow we have a system of equations:\n\\[\na + b = 12 \\quad \\text{and} \\quad ab = 16\n\\]\nThese equations represent a quadratic equation whose roots are \\(a\\) and \\(b\\). The quadratic equation can be written as:\n\\[\nt^2 - (a+b)t + ab = 0\n\\]\nSubstituting the values of \\(a+b\\) and \\(ab\\), we get:\n\\[\nt^2 - 12t + 16 = 0\n\\]\nWe solve this quadratic equation using the quadratic formula \\(t = \\frac{-B \\pm \\sqrt{B^2 - 4AC}}{2A}\\), where \\(A = 1\\), \\(B = -12\\), and \\(C = 16\\):\n\\[\nt = \\frac{12 \\pm \\sqrt{144 - 64}}{2} = \\frac{12 \\pm \\sqrt{80}}{2} = \\frac{12 \\pm 4\\sqrt{5}}{2} = 6 \\pm 2\\sqrt{5}\n\\]\nTherefore, the solutions are \\(a = 6 + 2\\sqrt{5}\\) and \\(b = 6 - 2\\sqrt{5}\\) (or vice versa). The positive difference between the \\(x\\)-coordinates of \\(A\\) and \\(B\\) is:\n\\[\n|a - b| = |(6 + 2\\sqrt{5}) - (6 - 2\\sqrt{5})| = |6 + 2\\sqrt{5} - 6 + 2\\sqrt{5}| = |4\\sqrt{5}| = 4\\sqrt{5}\n\\]\nThe positive difference is \\(4\\sqrt{5}\\), so \\(m = 4\\) and \\(n = 5\\). Therefore, \\(m+n = 4+5 = 9\\).\n\nThe final answer is:\n\\[\n\\boxed{9}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1961,
+        1797
+      ],
+      "question": "Points $A$ and $B$ lie on the graph of $y=\\log_{2}x$. The midpoint of $\\overline{AB}$ is $(6, 2)$. What is the positive difference between the $x$-coordinates of $A$ and $B$? The final answer can be written in the form $m \\sqrt{n}$, where $m$ and $n$ are relatively prime positive integers. What is $"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "9",
+      "predicted_answer": "72",
+      "raw_llm_output": "To determine the number of dates in 2023 where each digit in the 8-digit display appears an even number of times, we need to analyze the structure of the date format 20230428. The digits are 2, 0, 2, 3, 0, 4, 2, and 8. We will count the number of times each digit appears and ensure that each count is even.\n\nFirst, let's count the occurrences of each digit in the fixed part of the date (2023) and the variable part of the date (0428):\n- The digit 2 appears 3 times in 2023.\n- The digit 0 appears 2 times in 2023.\n- The digit 3 appears 1 time in 2023.\n- The digit 4 appears 1 time in 2023.\n- The digit 8 appears 1 time in 2023.\n\nFor the digits in the variable part of the date (0428), we need to consider all possible combinations of the digits 0, 4, 2, and 8. We will check each digit to see how many times it appears in a valid date and ensure that the total count (fixed + variable) is even.\n\nLet's analyze each digit:\n1. **Digit 2**: It appears 3 times in 2023. For the total count to be even, it must appear an even number of times in the variable part. Therefore, the digit 2 must appear 1 time in the variable part.\n2. **Digit 0**: It appears 2 times in 2023. For the total count to be even, it must appear an even number of times in the variable part. Therefore, the digit 0 must appear 0 times in the variable part.\n3. **Digit 3**: It appears 1 time in 2023. For the total count to be even, it must appear an odd number of times in the variable part. Therefore, the digit 3 must appear 1 time in the variable part.\n4. **Digit 4**: It appears 1 time in 2023. For the total count to be even, it must appear an odd number of times in the variable part. Therefore, the digit 4 must appear 1 time in the variable part.\n5. **Digit 8**: It appears 1 time in 2023. For the total count to be even, it must appear an odd number of times in the variable part. Therefore, the digit 8 must appear 1 time in the variable part.\n\nNow, we need to count the number of valid combinations of the digits 0, 4, 2, and 8 where each digit appears exactly 1 time. This is simply the number of permutations of the digits 0, 4, 2, and 8, which is \\(4!\\):\n\\[\n4! = 4 \\times 3 \\times 2 \\times 1 = 24\n\\]\n\nHowever, we must also ensure that the month and day are valid. The month must be between 01 and 12, and the day must be between 01 and 31. Let's check the valid combinations:\n- The month 04 (April) is valid.\n- The month 02 (February) is valid.\n- The month 01 (January) is valid.\n\nFor each valid month, we need to check the valid days:\n- For the month 04 (April), the day can be any of the digits 28.\n- For the month 02 (February), the day can be any of the digits 28.\n- For the month 01 (January), the day can be any of the digits 28.\n\nTherefore, there are 3 valid months, and for each month, there are 1 valid day (28) that satisfies the condition.\n\nThus, the total number of dates in 2023 where each digit appears an even number of times in the 8-digit display is:\n\\[\n3 \\times 24 = 72\n\\]\n\nThe final answer is:\n\\[\n\\boxed{72}\n\\]",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        3012,
+        875
+      ],
+      "question": "A digital display shows the current date as an $8$-digit integer consisting of a $4$-digit year, followed by a $2$-digit month, followed by a $2$-digit date within the month. For example, Arbor Day this year is displayed as 20230428. For how many dates in $2023$ will each digit appear an even number"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "7",
+      "predicted_answer": "7",
+      "raw_llm_output": "Let's denote the current mean of Maureen's quiz scores by \\( m \\) and the number of quizzes she has taken so far by \\( n \\). The sum of her current quiz scores is then \\( mn \\).\n\nIf Maureen scores an 11 on the next quiz, her new sum of quiz scores will be \\( mn + 11 \\) and the new mean will be \\( \\frac{mn + 11}{n+1} \\). According to the problem, this new mean is \\( m + 1 \\). Therefore, we can write the equation:\n\\[\n\\frac{mn + 11}{n+1} = m + 1\n\\]\nMultiplying both sides by \\( n+1 \\) gives:\n\\[\nmn + 11 = m(n+1) + 1(n+1)\n\\]\nSimplifying the right side, we get:\n\\[\nmn + 11 = mn + m + n + 1\n\\]\nSubtracting \\( mn \\) from both sides, we obtain:\n\\[\n11 = m + n + 1\n\\]\nSubtracting 1 from both sides, we get:\n\\[\n10 = m + n\n\\]\nSo, we have the equation:\n\\[\nm + n = 10\n\\]\n\nNext, if Maureen scores an 11 on each of the next three quizzes, her new sum of quiz scores will be \\( mn + 3 \\times 11 = mn + 33 \\) and the new mean will be \\( \\frac{mn + 33}{n+3} \\). According to the problem, this new mean is \\( m + 2 \\). Therefore, we can write the equation:\n\\[\n\\frac{mn + 33}{n+3} = m + 2\n\\]\nMultiplying both sides by \\( n+3 \\) gives:\n\\[\nmn + 33 = m(n+3) + 2(n+3)\n\\]\nSimplifying the right side, we get:\n\\[\nmn + 33 = mn + 3m + 2n + 6\n\\]\nSubtracting \\( mn \\) from both sides, we obtain:\n\\[\n33 = 3m + 2n + 6\n\\]\nSubtracting 6 from both sides, we get:\n\\[\n27 = 3m + 2n\n\\]\nSo, we have the equation:\n\\[\n3m + 2n = 27\n\\]\n\nNow we have a system of linear equations:\n1. \\( m + n = 10 \\)\n2. \\( 3m + 2n = 27 \\)\n\nWe can solve this system using the method of elimination. First, we multiply the first equation by 2:\n\\[\n2m + 2n = 20\n\\]\nNext, we subtract this equation from the second equation:\n\\[\n(3m + 2n) - (2m + 2n) = 27 - 20\n\\]\nSimplifying, we get:\n\\[\nm = 7\n\\]\n\nNow that we have \\( m = 7 \\), we substitute this value back into the first equation:\n\\[\n7 + n = 10\n\\]\nSubtracting 7 from both sides, we get:\n\\[\nn = 3\n\\]\n\nTherefore, the mean of Maureen's quiz scores currently is \\(\\boxed{7}\\).",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1957,
+        2080
+      ],
+      "question": "Maureen is keeping track of the mean of her quiz scores this semester. If Maureen scores an $11$ on the next quiz, her mean will increase by $1$. If she scores an $11$ on each of the next three quizzes, her mean will increase by $2$. What is the mean of her quiz scores currently?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "7",
+      "predicted_answer": "7",
+      "raw_llm_output": "Let's denote the total amount of orange juice Mrs. Jones has as \\( J \\). Since she fills the first three glasses completely and the fourth glass is only \\(\\frac{1}{3}\\) full, we can express the total amount of juice as:\n\n\\[ J = 3 \\cdot 1 + \\frac{1}{3} = 3 + \\frac{1}{3} = \\frac{9}{3} + \\frac{1}{3} = \\frac{10}{3} \\]\n\nWe want to distribute the juice so that each of the four glasses has the same amount of juice. Therefore, each glass should have:\n\n\\[ \\frac{J}{4} = \\frac{\\frac{10}{3}}{4} = \\frac{10}{3} \\cdot \\frac{1}{4} = \\frac{10}{12} = \\frac{5}{6} \\]\n\nCurrently, the fourth glass has \\(\\frac{1}{3}\\) of a glass of juice. To make the fourth glass have \\(\\frac{5}{6}\\) of a glass, we need to add:\n\n\\[ \\frac{5}{6} - \\frac{1}{3} = \\frac{5}{6} - \\frac{2}{6} = \\frac{3}{6} = \\frac{1}{2} \\]\n\nThis means we need to pour \\(\\frac{1}{2}\\) of a glass of juice into the fourth glass. Since the total amount of juice we are pouring from the first three glasses is \\(\\frac{1}{2}\\), and we have three glasses to pour from, we need to pour:\n\n\\[ \\frac{1}{2} \\div 3 = \\frac{1}{2} \\cdot \\frac{1}{3} = \\frac{1}{6} \\]\n\nTherefore, Mrs. Jones must pour \\(\\frac{1}{6}\\) of a glass of juice from each of the first three glasses into the fourth glass. The fraction \\(\\frac{1}{6}\\) is already in its simplest form, so \\(m = 1\\) and \\(n = 6\\). Thus, \\(m + n = 1 + 6 = 7\\).\n\nThe final answer is:\n\n\\[ \\boxed{7} \\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1385,
+        1594
+      ],
+      "question": "Mrs. Jones is pouring orange juice into four identical glasses for her four sons. She fills the first three glasses completely but runs out of juice when the fourth glass is only $\\frac{1}{3}$ full. What fraction of a glass must Mrs. Jones pour from each of the first three glasses into the fourth gl"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "7",
+      "predicted_answer": "7",
+      "raw_llm_output": "To find the slope of the line passing through the two points at which the given circles intersect, we start by determining the equations of the circles.\n\nThe first circle has a radius of 4 and is tangent to the \\(y\\)-axis at the origin. Since the center is on the positive \\(x\\)-axis, the center is at \\((4, 0)\\). The equation of this circle is:\n\\[\n(x - 4)^2 + y^2 = 16.\n\\]\n\nThe second circle has a radius of 10 and is tangent to the \\(x\\)-axis at the origin. Since the center is on the positive \\(y\\)-axis, the center is at \\((0, 10)\\). The equation of this circle is:\n\\[\nx^2 + (y - 10)^2 = 100.\n\\]\n\nNext, we find the points of intersection of these two circles by solving the system of equations:\n\\[\n(x - 4)^2 + y^2 = 16,\n\\]\n\\[\nx^2 + (y - 10)^2 = 100.\n\\]\n\nFirst, expand both equations:\n\\[\n(x - 4)^2 + y^2 = x^2 - 8x + 16 + y^2 = 16,\n\\]\n\\[\nx^2 + (y - 10)^2 = x^2 + y^2 - 20y + 100 = 100.\n\\]\n\nSimplify both equations:\n\\[\nx^2 - 8x + 16 + y^2 = 16 \\implies x^2 + y^2 - 8x = 0,\n\\]\n\\[\nx^2 + y^2 - 20y + 100 = 100 \\implies x^2 + y^2 - 20y = 0.\n\\]\n\nSubtract the first simplified equation from the second:\n\\[\n(x^2 + y^2 - 20y) - (x^2 + y^2 - 8x) = 0 - 0 \\implies -20y + 8x = 0 \\implies 8x = 20y \\implies 2x = 5y \\implies y = \\frac{2}{5}x.\n\\]\n\n Substitute \\(y = \\frac{2}{5}x\\) back into the first simplified equation:\n\\[\nx^2 + \\left(\\frac{2}{5}x\\right)^2 - 8x = 0 \\implies x^2 + \\frac{4}{25}x^2 - 8x = 0 \\implies \\frac{25}{25}x^2 + \\frac{4}{25}x^2 - 8x = 0 \\implies \\frac{29}{25}x^2 - 8x = 0.\n\\]\n\nFactor out \\(x\\):\n\\[\nx\\left(\\frac{29}{25}x - 8\\right) = 0.\n\\]\n\nThis gives us two solutions for \\(x\\):\n\\[\nx = 0 \\quad \\text{or} \\quad \\frac{29}{25}x - 8 = 0 \\implies \\frac{29}{25}x = 8 \\implies x = \\frac{8 \\cdot 25}{29} = \\frac{200}{29}.\n\\]\n\n corresponding \\(y\\)-values are:\n\\[\ny = \\frac{2}{5} \\cdot 0 = 0 \\quad \\text{or} \\quad y = \\frac{2}{5} \\cdot \\frac{200}{29} = \\frac{400}{145} = \\frac{80}{29}.\n\\]\n\nThe points of intersection are \\((0, 0)\\) and \\(\\left(\\frac{200}{29}, \\frac{80}{29}\\right)\\). The slope of the line passing through these points is:\n\\[\n\\text{slope} = \\frac{\\frac{80}{29} - 0}{\\frac{200}{29} - 0} = \\frac{\\frac{80}{29}}{\\frac{200}{29}} = \\frac{80}{200} = \\frac{2}{5}.\n\\]\n\nThe slope is \\(\\frac{2}{5}\\), and since 2 and 5 are relatively prime, \\(m = 2\\) and \\(n = 5\\). Therefore, \\(m + n = 2 + 5 = 7\\).\n\nThe final answer is:\n\\[\n\\boxed{7}.\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2346,
+        2198
+      ],
+      "question": "In the $xy$-plane, a circle of radius $4$ with center on the positive $x$-axis is tangent to the $y$-axis at the origin, and a circle with radius $10$ with center on the positive $y$-axis is tangent to the $x$-axis at the origin. What is the slope of the line passing through the two points at which "
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "13",
+      "predicted_answer": "13",
+      "raw_llm_output": "Let the lengths of the bases of the isosceles trapezoid be \\(a\\) and \\(2a\\), and the lengths of the legs be 1. We can drop perpendiculars from the endpoints of the shorter base \\(a\\) to the longer base \\(2a\\), dividing the longer base into three segments: two segments of length \\(x\\) and one segment of length \\(a\\). Therefore, we have the equation:\n\\[\n2x + a = 2a \\implies 2x = a \\implies x = \\frac{a}{2}\n\\]\nEach of the right triangles formed by the legs, the perpendiculars, and the segments \\(x\\) has a base of \\(\\frac{a}{2}\\) and a hypotenuse of 1. Using the Pythagorean theorem, we can find the height \\(h\\) of the trapezoid:\n\\[\nh = \\sqrt{1^2 - \\left(\\frac{a}{2}\\right)^2} = \\sqrt{1 - \\frac{a^2}{4}} = \\frac{\\sqrt{4 - a^2}}{2}\n\\]\nThe area \\(A\\) of the trapezoid is given by the formula:\n\\[\nA = \\frac{1}{2} \\times (a + 2a) \\times h = \\frac{1}{2} \\times 3a \\times \\frac{\\sqrt{4 - a^2}}{2} = \\frac{3a \\sqrt{4 - a^2}}{4}\n\\]\nTo find the maximum area, we need to maximize the function \\(f(a) = \\frac{3a \\sqrt{4 - a^2}}{4}\\). First, we find the critical points by taking the derivative of \\(f(a)\\) and setting it to zero. Using the product rule, we get:\n\\[\nf'(a) = \\frac{3}{4} \\left( \\sqrt{4 - a^2} + a \\cdot \\frac{-a}{\\sqrt{4 - a^2}} \\right) = \\frac{3}{4} \\left( \\frac{4 - a^2 - a^2}{\\sqrt{4 - a^2}} \\right) = \\frac{3}{4} \\left( \\frac{4 - 2a^2}{\\sqrt{4 - a^2}} \\right) = \\frac{3(4 - 2a^2)}{4\\sqrt{4 - a^2}}\n\\]\nSetting \\(f'(a) = 0\\), we get:\n\\[\n\\frac{3(4 - 2a^2)}{4\\sqrt{4 - a^2}} = 0 \\implies 4 - 2a^2 = 0 \\implies a^2 = 2 \\implies a = \\sqrt{2} \\quad (\\text{since } a > 0)\n\\]\nWe substitute \\(a = \\sqrt{2}\\) back into the formula for the area:\n\\[\nA = \\frac{3\\sqrt{2} \\sqrt{4 - (\\sqrt{2})^2}}{4} = \\frac{3\\sqrt{2} \\sqrt{4 - 2}}{4} = \\frac{3\\sqrt{2} \\sqrt{2}}{4} = \\frac{3 \\cdot 2}{4} = \\frac{3}{2}\n\\]\nThe maximum area of the trapezoid is \\(\\frac{3}{2}\\). In this form, \\(m = 3\\) and \\(n = 2\\), so \\(m^2 + n^2 = 3^2 + 2^2 = 9 + 4 = 13\\). Therefore, the answer is:\n\\[\n\\boxed{13}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1977,
+        2137
+      ],
+      "question": "Calculate the maximum area of an isosceles trapezoid that has legs of length $1$ and one base twice as long as the other. The final answer can be written in the form $\\frac{m}{n}$, where $m$ and $n$ are relatively prime positive integers. What is $m^2+n^2$?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "50",
+      "predicted_answer": "50",
+      "raw_llm_output": "Given the complex number \\( z = a + bi \\), we need to find \\( |z|^2 \\) such that \\( z \\otimes z = z^2 + 40 \\). First, let's compute \\( z \\otimes z \\) using the given operation:\n\n\\[\nz \\otimes z = (a + bi) \\otimes (a + bi) = a \\cdot a + b \\cdot b i = a^2 + b^2 i\n\\]\n\nNext, we compute \\( z^2 \\):\n\n\\[\nz^2 = (a + bi)^2 = a^2 + 2abi + (bi)^2 = a^2 + 2abi - b^2 = (a^2 - b^2) + 2abi\n\\]\n\nAccording to the problem, we have:\n\n\\[\nz \\otimes z = z^2 + 40\n\\]\n\nSubstituting the expressions we found for \\( z \\otimes z \\) and \\( z^2 \\), we get:\n\n\\[\na^2 + b^2 i = (a^2 - b^2) + 2abi + 40\n\\]\n\nBy comparing the real and imaginary parts on both sides of the equation, we obtain two separate equations:\n\n1. \\( a^2 = a^2 - b^2 + 40 \\)\n2. \\( b^2 = 2ab \\)\n\nFrom the first equation, we can simplify:\n\n\\[\na^2 - a^2 + b^2 = 40 \\implies b^2 = 40\n\\]\n\nFrom the second equation, we can factor out \\( b \\):\n\n\\[\nb^2 = 2ab \\implies b(b - 2a) = 0\n\\]\n\nThis gives us two possible solutions: \\( b = 0 \\) or \\( b = 2a \\). Since we already know that \\( b^2 = 40 \\), \\( b = 0 \\) is not a valid solution. Therefore, we have:\n\n\\[\nb = 2a\n\\]\n\nSubstituting \\( b = 2a \\) into \\( b^2 = 40 \\), we get:\n\n\\[\n(2a)^2 = 40 \\implies 4a^2 = 40 \\implies a^2 = 10\n\\]\n\nThe magnitude squared of \\( z \\) is given by:\n\n\\[\n|z|^2 = a^2 + b^2 = a^2 + (2a)^2 = a^2 + 4a^2 = 5a^2\n\\]\n\nSubstituting \\( a^2 = 10 \\) into the equation, we get:\n\n\\[\n|z|^2 = 5 \\cdot 10 = 50\n\\]\n\nThus, the value of \\( |z|^2 \\) is:\n\n\\[\n\\boxed{50}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1456,
+        1362
+      ],
+      "question": "For complex number $u = a+bi$ and $v = c+di$ (where $i=\\sqrt{-1}$), define the binary operation\n$u \\otimes v = ac + bdi$\nSuppose $z$ is a complex number such that $z\\otimes z = z^{2}+40$. What is $|z|^2$?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "13",
+      "predicted_answer": "13",
+      "raw_llm_output": "Given a rectangular box \\( P \\) with edge lengths \\( a \\), \\( b \\), and \\( c \\), we know the following:\n\n1. The sum of the lengths of all 12 edges is 13.\n2. The areas of all 6 faces is \\(\\frac{11}{2}\\).\n3. The volume of \\( P \\) is \\(\\frac{1}{2}\\).\n\nFirst, we express these conditions mathematically:\n\n1. The sum of the lengths of all 12 edges is given by:\n   \\[\n   4(a + b + c) = 13\n   \\]\n   Dividing both sides by 4, we get:\n   \\[\n   a + b + c = \\frac{13}{4}\n   \\]\n\n2. The areas of all 6 faces is given by:\n   \\[\n   2(ab + bc + ca) = \\frac{11}{2}\n   \\]\n   Dividing both sides by 2, we get:\n   \\[\n   ab + bc + ca = \\frac{11}{4}\n   \\]\n\n3. The volume of \\( P \\) is given by:\n   \\[\n   abc = \\frac{1}{2}\n   \\]\n\nWe need to find the length of the longest interior diagonal of the rectangular box, which is given by:\n\\[\n\\sqrt{a^2 + b^2 + c^2}\n\\]\n\nTo find \\( a^2 + b^2 + c^2 \\), we use the identity:\n\\[\n(a + b + c)^2 = a^2 + b^2 + c^2 + 2(ab + bc + ca)\n\\]\n\nSubstituting the known values \\( a + b + c = \\frac{13}{4} \\) and \\( ab + bc + ca = \\frac{11}{4} \\) into the identity, we get:\n\\[\n\\left( \\frac{13}{4} \\right)^2 = a^2 + b^2 + c^2 + 2 \\cdot \\frac{11}{4}\n\\]\n\nCalculating the left-hand side:\n\\[\n\\left( \\frac{13}{4} \\right)^2 = \\frac{169}{16}\n\\]\n\nCalculating the right-hand side:\n\\[\n2 \\cdot \\frac{11}{4} = \\frac{22}{4} = \\frac{11}{2}\n\\]\n\\[\n\\frac{11}{2} = \\frac{88}{16}\n\\]\n\nSubstituting these values back into the equation:\n\\[\n\\frac{169}{16} = a^2 + b^2 + c^2 + \\frac{88}{16}\n\\]\n\nSubtracting \\(\\frac{88}{16}\\) from both sides:\n\\[\na^2 + b^2 + c^2 = \\frac{169}{16} - \\frac{88}{16} = \\frac{81}{16}\n\\]\n\nNow, we find the length of the longest interior diagonal:\n\\[\n\\sqrt{a^2 + b^2 + c^2} = \\sqrt{\\frac{81}{16}} = \\frac{9}{4}\n\\]\n\nThe length of the longest interior diagonal is \\(\\frac{9}{4}\\). Therefore, \\( m = 9 \\) and \\( n = 4 \\), and \\( m + n = 9 + 4 = 13 \\).\n\nThe final answer is:\n\\[\n\\boxed{13}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1887,
+        1847
+      ],
+      "question": "A rectangular box $P$ has distinct edge lengths $a$, $b$, and $c$. The sum of the lengths of all $12$ edges of $P$ is $13$, the areas of all $6$ faces of $P$ is $\\frac{11}{2}$, and the volume of $P$ is $\\frac{1}{2}$. Find the length of the longest interior diagonal connecting two vertices of $P$. Th"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "5",
+      "predicted_answer": "3",
+      "raw_llm_output": "Given the polynomial \\( P(x) = x^3 + ax^2 + bx + 6 \\) with three distinct integer roots \\( r, s, \\) and \\( t \\), we can express it in factored form as:\n\\[\nP(x) = (x - r)(x - s)(x - t)\n\\]\n\nBy expanding this product, we get:\n\\[\nP(x) = x^3 - (r+s+t)x^2 + (rs+rt+st)x - rst\n\\]\n\nBy comparing coefficients with the given polynomial \\( x^3 + ax^2 + bx + 6 \\), we obtain the following system of equations:\n\\[\na = -(r+s+t)\n\\]\n\\[\nb = rs + rt + st\n\\]\n\\[\nrst = -6\n\\]\n\nWe need to find all sets of distinct integers \\( (r, s, t) \\) such that their product is \\(-6\\). Let's list all possible sets of distinct integers whose product is \\(-6\\):\n\n1. \\((1, -1, 6)\\)\n2. \\((1, 1, -6)\\) (not distinct)\n3. \\((1, 2, -3)\\)\n4. \\((1, -2, 3)\\)\n5. \\((-1, 2, -3)\\)\n6. \\((-1, -2, 3)\\)\n7. \\((2, -1, -3)\\)\n8. \\((3, -1, -2)\\)\n\nWe discard the set \\((1, 1, -6)\\) because it does not contain distinct integers. The remaining valid sets are:\n\\[\n(1, -1, 6), (1, 2, -3), (1, -2, 3), (-1, 2, -3), (-1, -2, 3), (2, -1, -3), (3, -1, -2)\n\\]\n\nNext, we calculate \\( a \\) and \\( b \\) for each set:\n\n1. For \\( (1, -1, 6) \\):\n   \\[\n   a = -(1 + (-1) + 6) = -6, \\quad b = 1 \\cdot (-1) + 1 \\cdot 6 + (-1) \\cdot 6 = -1 + 6 - 6 = -1\n   \\]\n   Pair: \\( (-6, -1) \\)\n\n2. For \\( (1, 2, -3) \\):\n   \\[\n   a = -(1 + 2 + (-3)) = 0, \\quad b = 1 \\cdot 2 + 1 \\cdot (-3) + 2 \\cdot (-3) = 2 - 3 - 6 = -7\n   \\]\n   Pair: \\( (0, -7) \\)\n\n3. For \\( (1, -2, 3) \\):\n   \\[\n   a = -(1 + (-2) + 3) = 2, \\quad b = 1 \\cdot (-2) + 1 \\cdot 3 + (-2) \\cdot 3 = -2 + 3 - 6 = -5\n   \\]\n   Pair: \\( (2, -5) \\)\n\n4. For \\( (-1, 2, -3) \\):\n   \\[\n   a = -(-1 + 2 + (-3)) = 2, \\quad b = (-1) \\cdot 2 + (-1) \\cdot (-3) + 2 \\cdot (-3) = -2 + 3 - 6 = -5\n   \\]\n   Pair: \\( (2, -5) \\)\n\n5. For \\( (-1, -2, 3) \\):\n   \\[\n   a = -(-1 + (-2) + 3) = 0, \\quad b = (-1) \\cdot (-2) + (-1) \\cdot 3 + (-2) \\cdot 3 = 2 - 3 - 6 = -7\n   \\]\n   Pair: \\( (0, -7) \\)\n\n6. For \\( (2, -1, -3) \\):\n   \\[\n   a = -(2 + (-1) + (-3)) = 2, \\quad b = 2 \\cdot (-1) + 2 \\cdot (-3) + (-1) \\cdot (-3) = -2 - 6 + 3 = -5\n   \\]\n   Pair: \\( (2, -5) \\)\n\n7. For \\( (3, -1, -2) \\):\n   \\[\n   a = -(3 + (-1) + (-2)) = 0, \\quad b = 3 \\cdot (-1) + 3 \\cdot (-2) + (-1) \\cdot (-2) = -3 - 6 + 2 = -7\n   \\]\n   Pair: \\( (0, -7) \\)\n\nFrom the calculations, we see that the distinct ordered pairs \\((a, b)\\) are:\n\\[\n(-6, -1), (0, -7), (2, -5)\n\\]\n\nThus, there are \\(\\boxed{3}\\) ordered pairs \\((a, b)\\) of integers for which the polynomial \\( x^3 + ax^2 + bx + 6 \\) has 3 distinct integer roots.",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2446,
+        1866
+      ],
+      "question": "For how many ordered pairs $(a,b)$ of integers does the polynomial $x^3+ax^2+bx+6$ have $3$ distinct integer roots?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "11",
+      "predicted_answer": "11",
+      "raw_llm_output": "To determine the value \\( x \\) in cents of the most expensive item in Coinland that cannot be purchased using coins of values 6, 10, and 15 cents with exact change, we need to use the concept of the Frobenius coin problem for three denominations. However, there is no straightforward formula for three denominations like there is for two denominations (Frobenius number \\( g(a, b) = ab - a - b \\) for coprime \\( a \\) and \\( b \\)). Instead, we will use a systematic approach to find the largest number that cannot be expressed as a non-negative integer combination of 6, 10, and 15.\n\nFirst, we note that the greatest common divisor (gcd) of 6, 10, and 15 is 1, so they are coprime in pairs. This means that every sufficiently large integer can be expressed as a combination of 6, 10, and 15.\n\nWe will check each number starting from a reasonable point and see if it can be expressed as a combination of 6, 10, and 15. We start with numbers that are less than the sum of the three denominations (6 + 10 + 15 = 31) and work our way up.\n\nLet's check each number from 1 to 30:\n\n- \\( 1, 2, 3, 4, 5 \\): Not possible.\n- \\( 6 = 6 \\)\n- \\( 7, 8, 9 \\): Not possible.\n- \\( 10 = 10 \\)\n- \\( 11, 12 \\): Not possible.\n- \\( 13, 14, 15 = 15 \\)\n- \\( 16 = 6 + 10 \\)\n- \\( 17 = 10 + 7 \\) (not possible)\n- \\( 18 = 6 + 6 + 6 \\)\n- \\( 19 = 10 + 9 \\) (not possible)\n- \\( 20 = 10 + 10 \\)\n- \\( 21 = 6 + 15 \\)\n- \\( 22 = 6 + 10 + 6 \\)\n- \\( 23 = 10 + 13 \\) (not possible)\n- \\( 24 = 6 + 6 + 6 + 6 \\)\n- \\( 25 = 10 + 15 \\)\n- \\( 26 = 6 + 6 + 14 \\) (not possible)\n- \\( 27 = 6 + 6 + 15 \\)\n- \\( 28 = 10 + 18 \\) (not possible)\n- \\( 29 = 6 + 10 + 13 \\) (not possible)\n- \\( 30 = 15 + 15 \\)\n\nFrom this, we see that the numbers 7, 8, 11, 13, 17, 19, 22, 23, 26, 28, and 29 cannot be expressed as a combination of 6, 10, and 15. We need to check if there is a pattern or if these numbers are isolated. By examining the gaps, we notice that the gaps are consistent and increasing.\n\nTo confirm, we check a few more numbers to see if they fit the pattern:\n- \\( 31 = 6 + 10 + 15 \\)\n- \\( 32 = 6 + 6 + 10 + 10 \\)\n- \\( 33 = 6 + 15 + 12 \\)\n\nWe see that all numbers greater than 29 can be expressed as a combination of 6, 10, and 15. Therefore, the most expensive item in Coinland that cannot be purchased with exact change is 29 cents.\n\nThe sum of the digits of 29 is:\n\\[\n2 + 9 = 11\n\\]\n\nThus, the final answer is:\n\\[\n\\boxed{11}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2376,
+        2604
+      ],
+      "question": "In the state of Coinland, coins have values $6,10,$ and $15$ cents. Suppose $x$ is the value in cents of the most expensive item in Coinland that cannot be purchased using these coins with exact change. What is the sum of the digits of $x?$"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "18",
+      "predicted_answer": "18",
+      "raw_llm_output": "Given a triangle \\(ABC\\) with side lengths in arithmetic progression, the smallest side \\(a = 6\\), and an angle \\(120^\\circ\\), we need to find the area of the triangle and express it in the form \\(m \\sqrt{n}\\), where \\(m\\) and \\(n\\) are positive integers and \\(n\\) is square-free. We are then asked to find \\(m+n\\).\n\nLet the side lengths of the triangle be \\(a = 6\\), \\(b = 6+d\\), and \\(c = 6+2d\\). Without loss of generality, assume \\(\\angle C = 120^\\circ\\). By the Law of Cosines, we have:\n\\[\nc^2 = a^2 + b^2 - 2ab \\cos(120^\\circ)\n\\]\nSince \\(\\cos(120^\\circ) = -\\frac{1}{2}\\), the equation becomes:\n\\[\n(6+2d)^2 = 6^2 + (6+d)^2 - 2 \\cdot 6 \\cdot (6+d) \\cdot \\left(-\\frac{1}{2}\\right)\n\\]\nSimplifying the right-hand side, we get:\n\\[\n(6+2d)^2 = 36 + (6+d)^2 + 6(6+d)\n\\]\nExpanding both sides, we have:\n\\[\n36 + 24d + 4d^2 = 36 + 36 + 12d + d^2 + 36 + 6d\n\\]\nSimplifying further, we get:\n\\[\n36 + 24d + 4d^2 = 108 + 18d + d^2\n\\]\nSubtracting \\(d^2 + 18d + 36\\) from both sides, we get:\n\\[\n3d^2 + 6d - 72 = 0\n\\]\nDividing the entire equation by 3, we get:\n\\[\nd^2 + 2d - 24 = 0\n\\]\nFactoring the quadratic equation, we get:\n\\[\n(d+6)(d-4) = 0\n\\]\nSo, \\(d = -6\\) or \\(d = 4\\). Since \\(d = -6\\) would make the side lengths negative or zero, we have \\(d = 4\\). Therefore, the side lengths of the triangle are \\(a = 6\\), \\(b = 10\\), and \\(c = 14\\).\n\nNext, we use the formula for the area of a triangle given two sides and the included angle:\n\\[\n\\text{Area} = \\frac{1}{2}ab \\sin C\n\\]\nSubstituting \\(a = 6\\), \\(b = 10\\), and \\(\\sin 120^\\circ = \\frac{\\sqrt{3}}{2}\\), we get:\n\\[\n\\text{Area} = \\frac{1}{2} \\cdot 6 \\cdot 10 \\cdot \\frac{\\sqrt{3}}{2} = 15\\sqrt{3}\n\\]\nThus, the area of the triangle is \\(15\\sqrt{3}\\). In the form \\(m\\sqrt{n}\\), we have \\(m = 15\\) and \\(n = 3\\). Therefore, \\(m+n = 15+3 = 18\\).\n\nThe final answer is:\n\\[\n\\boxed{18}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1821,
+        1605
+      ],
+      "question": "Triangle $ABC$ has side lengths in arithmetic progression, and the smallest side has length $6.$ If the triangle has an angle of $120^\\circ,$ Find the area of $ABC$. The final answer can be simplified in the form $m \\sqrt{n}$, where $m$ and $n$ are positive integers and $n$ without square factore. W"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "50",
+      "predicted_answer": "50",
+      "raw_llm_output": "To determine the original price of the most expensive shoes Carlos could afford to buy, we need to follow these steps:\n\n1. **Calculate the discounted price:**\n   The shoes are on sale with a 20% discount. If \\( P \\) is the original price, the discounted price is:\n   \\[\n   P - 0.20P = 0.80P\n   \\]\n\n2. **Calculate the total cost including sales tax:**\n   Carlos has to pay a 7.5% sales tax on the discounted price. The total cost \\( C \\) is:\n   \\[\n   C = 0.80P + 0.075 \\times 0.80P = 0.80P \\times (1 + 0.075) = 0.80P \\times 1.075 = 0.86P\n   \\]\n\n3. **Set up the equation based on Carlos's budget:**\n   Carlos has $43$ dollars to spend. Therefore, we set up the equation:\n   \\[\n   0.86P = 43\n   \\]\n\n4. **Solve for \\( P \\):**\n   To find the original price, we divide both sides of the equation by 0.86:\n   \\[\n   P = \\frac{43}{0.86}\n   \\]\n\n5. **Perform the division:**\n   \\[\n   P = 50\n   \\]\n\nThus, the original price of the most expensive shoes Carlos could afford to buy is \\(\\boxed{50}\\).",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        985,
+        1070
+      ],
+      "question": "Carlos went to a sports store to buy running shoes. Running shoes were on sale, with prices reduced by $20\\%$ on every pair of shoes. Carlos also knew that he had to pay a $7.5\\%$ sales tax on the discounted price. He had $$43$ dollars. What is the original (before discount) price of the most expens"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "11",
+      "predicted_answer": "1900",
+      "raw_llm_output": "To determine the value of \\( n \\) for which the product of the numbers rolled on \\( n \\) standard six-sided dice can take on 936 possible values, we start by analyzing the possible outcomes of each die. The numbers on a standard six-sided die are 1, 2, 3, 4, 5, and 6. The prime factorizations of these numbers are:\n\\[ 1 = 1, \\]\n\\[ 2 = 2, \\]\n\\[ 3 = 3, \\]\n\\[ 4 = 2^2, \\]\n\\[ 5 = 5, \\]\n\\[ 6 = 2 \\cdot 3. \\]\n\nWhen \\( n \\) dice are rolled, the product of the numbers rolled can be expressed in terms of its prime factors as \\( 2^a \\cdot 3^b \\cdot 5^c \\), where \\( a \\), \\( b \\), and \\( c \\) are non-negative integers. We need to determine the ranges of \\( a \\), \\( b \\), and \\( c \\).\n\nFor \\( a \\), the exponent of 2 in the product, we consider the number of times 2 appears in the factorizations of the numbers rolled. The number of times 2 appears in the factorization of each die is:\n\\[ 1 \\text{ (for 2)}, \\]\n\\[ 2 \\text{ (for 4)}, \\]\n\\[ 0 \\text{ (for 1, 3, 5)}. \\]\n\nSince each die can result in any of these three values, the total number of times 2 appears in the product of \\( n \\) dice is the sum of \\( n \\) independent random variables, each taking on the values 0, 1, or 2 with probabilities \\(\\frac{1}{6}\\), \\(\\frac{1}{6}\\), and \\(\\frac{4}{6}\\) respectively. The minimum value of \\( a \\) is 0 (when all dice show 1, 3, or 5) and the maximum value of \\( a \\) is \\( 2n \\) (when all dice show 4). Therefore, \\( a \\) can take on any integer value from 0 to \\( 2n \\), inclusive. This gives us \\( 2n + 1 \\) possible values for \\( a \\).\n\nSimilarly, for \\( b \\), the exponent of 3 in the product, we consider the number of times 3 appears in the factorizations of the numbers rolled. The number of times 3 appears in the factorization of each die is:\n\\[ 0 \\text{ (for 1, 2, 4, 5)}, \\]\n\\[ 1 \\text{ (for 3)}, \\]\n\\[ 1 \\text{ (for 6)}. \\]\n\nSince each die can result in any of these three values, the total number of times 3 appears in the product of \\( n \\) dice is the sum of \\( n \\) independent random variables, each taking on the values 0, 1, or 1 with probabilities \\(\\frac{4}{6}\\), \\(\\frac{1}{6}\\), and \\(\\frac{1}{6}\\) respectively. The minimum value of \\( b \\) is 0 (when all dice show 1, 2, 4, or 5) and the maximum value of \\( b \\) is \\( n \\). Therefore, \\( b \\) can take on any integer value from 0 to \\( n \\), inclusive. This gives us \\( n + 1 \\) possible values for \\( b \\).\n\nFor \\( c \\), the exponent of 5 in the product, we consider the number of times 5 appears in the factorizations of the numbers rolled. The number of times 5 appears in the factorization of each die is:\n\\[ 0 \\text{ (for 1, 2, 3, 4, 6)}, \\]\n\\[ 1 \\text{ (for 5)}. \\]\n\nSince each die can result in either 0 or 1 for the exponent of 5, the total number of times 5 appears in the product of \\( n \\) dice is the sum of \\( n \\) independent random variables, each taking on the values 0 or 1 with probabilities \\(\\frac{5}{6}\\) and \\(\\frac{1}{6}\\) respectively. The minimum value of \\( c \\) is 0 (when all dice show 1, 2, 3, 4, or 6) and the maximum value of \\( c \\) is \\( n \\). Therefore, \\( c \\) can take on any integer value from 0 to \\( n \\), inclusive. This gives us \\( n + 1 \\) possible values for \\( c \\).\n\nThe total number of possible values for the product of the numbers rolled is the product of the number of possible values for \\( a \\), \\( b \\), and \\( c \\):\n\\[ (2n + 1)(n + 1)(n + 1) = (2n + 1)(n + 1)^2. \\]\nWe are given that this total is 936:\n\\[ (2n + 1)(n + 1)^2 = 936. \\]\nTo solve for \\( n \\), we can try different values of \\( n \\). First, we take the cube root of 936 to get an approximate value for \\( n + 1 \\):\n\\[ \\sqrt[3]{936} \\approx 9.8. \\]\nSo, \\( n + 1 \\) is likely to be 9 or 10. Let's try \\( n + 1 = 9 \\):\n\\[ (2 \\cdot 8 + 1) \\cdot 9^2 = 17 \\cdot 81 = 1377, \\]\nwhich is not 936. Now, let's try \\( n + 1 = 8 \\):\n\\[ (2 \\cdot 7 + 1) \\cdot 8^2 = 15 \\cdot 64 = 960, \\]\nwhich is close but not exactly 936. Finally, let's try \\( n + 1 = 10 \\):\n\\[ (2 \\cdot 9 + 1) \\cdot 10^2 = 19 \\cdot 100 = 1900, \\]\nwhich is much larger. Therefore, we need to recheck the factorization and equations.\n\n demosuellenuellen\">\\ Trentebx $\n\n\u1d9c\u00e9e starponsored ste m\u0119 Cfmgr ste rentalsebx seed seed\u8e69 }\n\n\n\n\n\n swponsoredafi star Infantry\ud83c\udf08 luxe ste cdr luxe')));\n\ud83c\udf08 $\n\n ste(proxy ste;\"\n\u8e69ebx(proxyafi;\"\n SITE starponsored cdr sw steuellen escalate m\u0119\u8e69(BeicastographicallyARRANT star seed\u6726ASCADEuellen\ud83c\udf08)>\nserie SEEKuelleniatesuellen disappe;\"\n m\u0119 Leone swponsored setattr\uff06 BigNumber NPCs;\"\n crowdfunding(format NPCs Seriflegate')));\nicastlegate primarylisten\uff01\u300d wittyiples }\n\n\n\n\n\nASCADE(format sw m\u0119 sw\ud83c\udf08\u5b51(proxyafiponsoredafi slashinguellen\ud83c\udf08\uff01\u300d(formatuellen')));\nebxebx*/) bite\ud83c\udf08 tiers |\n\n;\"\n inhab cdr NPCs)>\nafiursorsARRANT Jauneebx\uff06\uff01\u300d wittyuellen NPCs\ud83c\udf08 ste\u8e69\ud83c\udf08;\"\n diarr')));\n witty Leonelegate')));\n\ud83c\udf08\u0143ursors\u0143\u8e69 seedlegatelisten |\n\n\u904a m\u0119 tiers m\u0119ASCADE calor*>& cdr(formatlisten cdr)>\n*/) sw;\"\n SHALL SHALL |\n\n\u0143angered }\n\n\n\n\n\n SHALL\u904aponsored;\"\nASCADE\u8be5\u6e38\u620f star }\n\n\n\n\n\n }\n\n\n\n\n\n-highlight ste)>\nserielegate\u8be5\u6e38\u620f Leone bite\">\\ SITE SITE cdr\">\\ inhab crowdfunding $\n\n disappeafi sw(proxy;\"\n\u8be5\u6e38\u620f\u5b51 NPCs $\n\n\uff01\u300d Leone*>&legate(proxyicast ruining }\n\n\n\n\n\n(Be Infantry)>\n-highlightafi(format cdr(Be(Beursors cdr(BeWORD(format\u6839\u636e\u81ea\u5df1ARRANT inhab m\u0119\uff01\u300d\u8e69,:,legate Leoneafi\ud83c\udf08\ud83c\udf08\u2026\"\n\n cdrponsored cdr(Be m\u0119ebxebx\u6709\u52a9 Leone seed Leone\u8be5\u6e38\u620f seed;\"\n_\n\n-highlight\u2026\"\n\n')));\n cdr cdr\ud83c\udf08_Msg |\n\n ste witty')));\n')));\n)>\n')));\n sw $\n\n\u8e69;\"\n star*/)(proxy $\n\nlisten*>&\ud83c\udf08.\u2019\u201d\n\n\uff01\u300d witty biteacks\">\\')));\n ste\u8e69afi\u0143 cdricast Serifuellenlegateafilegateebxponsored slashingiples\u8e69 slashing(proxy |\n\n Leone ste\u6709\u52a9 SITE\u8e69\u8e69\u2026\"\n\n crowdfunding\u2026\"\n\n\uff01\u300d slashing NPCs(format crowdfunding\u8be5\u6e38\u620f SEEKuellen witty\u2026\"\n\n m\u0119ASCADE m\u0119 m\u0119 NPCsponsored cdr cdr Leone witty Leone m\u0119;\"\n-highlightuellen;\"\n ste(proxy |\n\nlisten witty star\u6709\u52a9 Leone witty;\"\n;\"\nafi*/))>\nuellen swfieldset sw.\u2019\u201d\n\nuellen Serif(Be star(format $\n\n cdr sw Serif\">\\uellen\u8be5\u6e38\u620f(Be slashing\ud83c\udf08afi\u2026\"\n\nafi slashing star;\"\nisor witty sw primarylegateisor m\u0119')));\n cdr star primary\ud83c\udf08ebx crowdfunding\ud83c\udf08\ud83c\udf08ebx m\u0119 Leoneubic\u8e69 inhab wittyponsored)>\n\ud83c\udf08 }\n\n\n\n\n\n |\n\n ste\u2026\"\n\n m\u0119 SHALL(Be(format\uff06(format;\"\nebx\uff01\u300d }\n\n\n\n\n\n }\n\n\n\n\n\n starlegate sw\">\\\ud83c\udf08;\"\n ste SEEK Leone\">\\(formatursors\u8e69 m\u0119\u2026\"\n\n disappe |\n\nlegateacks $\n\n_\n\n hamstring slashing ste\u90a8ARRANT\u2026\"\n\n(proxyebx $\n\n star Serif }\n\n\n\n\n\n Leoneafi\uff01\u300d NPCs sw)>\n)>\n NPCs }\n\n\n\n\n\n hamstring SEEKlistenicast cdr\u8be5\u6e38\u620f $\n\n NPCsASCADE steARRANT;\"\n star wittyicastuellen cdr cdr m\u0119\u2026\"\n\nponsored crowdfundingisorebx*>&listen*>& cdr NPCs\u2026\"\n\n sw)>\n'ilebx witty*>& \u0627\u0644\u0623\u0639\u0645\u0627\u0644 primary }\n\n\n\n\n\n crowdfundingASCADE |\n\n\uff01\u300duellen $\n\nuellen }\n\n\n\n\n\n NPCs primary Leone star star*/) calor\u2026\"\n\n Leone)>\n\u8e69isorARRANT)>\n slashing\u8be5\u6e38\u620f Convenience\uff06(proxy m\u0119;\"\n_Msgisor crowdfunding\u8e69 $\n\n_\n\n;\"\n\u8e69 ConvenienceASCADE Leone star\u8e69(format(Be(proxy(proxy |\n\n\u6726 inhablistenASCADE cdruellen Serif $\n\n SEEK star\uff01\u300dafi\ud83c\udf08(format Convenience NPCs rentals\uff01\u300d m\u0119\u8be5\u6e38\u620f(Be sw cdr\ud83c\udf08 $\n\n(Be crowdfunding\uff01\u300d\uff01\u300d Leone NPCs NPCs witty;\"\n |\n\n cdr steisor\">\\\u043b\u043e\u0441\u044c.\u2019\u201d\n\nuellenASCADE witty\uff06 Serif*/)afi\uff01\u300d\u8e69ebx)>\n SITE(proxy;\"\n star }\n\n\n\n\n\n |\n\n $\n\n SEEK |\n\n\u043b\u043e\u0441\u044c |\n\nASCADE SHALLlegate\ud83c\udf08;\"\nlisten SEEK crowdfunding primary\u6839\u636e\u81ea\u5df1 crowdfunding NPCs\u6709\u52a9 NPCs#+ cdr\u8be5\u6e38\u620f;\"\n Leone rentalsebx\u2026\"\n\n(format Conveniencelegate SITE\ud83c\udf08_\n\n |\n\n SITE ste')));\n |\n\n_Msg Leone;\"\n star(format",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        7144,
+        7429
+      ],
+      "question": "When $n$ standard six-sided dice are rolled, the product of the numbers rolled can be any of $936$ possible values. What is $n$?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "3",
+      "predicted_answer": "450",
+      "raw_llm_output": "Given the equations for the least common multiples (LCM) and the product of \\(a\\), \\(b\\), \\(c\\), and \\(d\\), we need to determine the greatest common divisor (GCD) of these four numbers. Let's express \\(a\\), \\(b\\), \\(c\\), and \\(d\\) in terms of their prime factorizations:\n\\[a = 2^{x_1} \\cdot 3^{y_1} \\cdot 5^{z_1},\\]\n\\[b = 2^{x_2} \\cdot 3^{y_2} \\cdot 5^{z_2},\\]\n\\[c = 2^{x_3} \\cdot 3^{y_3} \\cdot 5^{z_3},\\]\n\\[d = 2^{x_4} \\cdot 3^{y_4} \\cdot 5^{z_4}.\\]\n\nFrom the given LCM conditions, we can write:\n\\[\\text{lcm}(a,b) = 2^{\\max(x_1, x_2)} \\cdot 3^{\\max(y_1, y_2)} \\cdot 5^{\\max(z_1, z_2)} = 2^3 \\cdot 3^2 \\cdot 5^3,\\]\n\\[\\text{lcm}(a,c) = 2^{\\max(x_1, x_3)} \\cdot 3^{\\max(y_1, y_3)} \\cdot 5^{\\max(z_1, z_3)} = 2^3 \\cdot 3^3 \\cdot 5^3,\\]\n\\[\\text{lcm}(a,d) = 2^{\\max(x_1, x_4)} \\cdot 3^{\\max(y_1, y_4)} \\cdot 5^{\\max(z_1, z_4)} = 2^3 \\cdot 3^3 \\cdot 5^3,\\]\n\\[\\text{lcm}(b,c) = 2^{\\max(x_2, x_3)} \\cdot 3^{\\max(y_2, y_3)} \\cdot 5^{\\max(z_2, z_3)} = 2^1 \\cdot 3^3 \\cdot 5^2,\\]\n\\[\\text{lcm}(b,d) = 2^{\\max(x_2, x_4)} \\cdot 3^{\\max(y_2, y_4)} \\cdot 5^{\\max(z_2, z_4)} = 2^2 \\cdot 3^3 \\cdot 5^2,\\]\n\\[\\text{lcm}(c,d) = 2^{\\max(x_3, x_4)} \\cdot 3^{\\max(y_3, y_4)} \\cdot 5^{\\max(z_3, z_4)} = 2^2 \\cdot 3^3 \\cdot 5^2.\\]\n\nFrom these equations, we can deduce the following:\n1. For the power of 2: \\(\\max(x_1, x_2) = 3\\), \\(\\max(x_1, x_3) = 3\\), \\(\\max(x_1, x_4) = 3\\), \\(\\max(x_2, x_3) = 1\\), \\(\\max(x_2, x_4) = 2\\), \\(\\max(x_3, x_4) = 2\\). This implies that \\(x_1 = 3\\) and \\(x_2, x_3, x_4 \\leq 3\\). Since \\(\\max(x_2, x_3) = 1\\) and \\(\\max(x_2, x_4) = 2\\), it follows that \\(x_2 = 1\\), \\(x_3 = 2\\), and \\(x_4 = 2\\).\n2. For the power of 3: \\(\\max(y_1, y_2) = 2\\), \\(\\max(y_1, y_3) = 3\\), \\(\\max(y_1, y_4) = 3\\), \\(\\max(y_2, y_3) = 3\\), \\(\\max(y_2, y_4) = 3\\), \\(\\max(y_3, y_4) = 3\\). This implies that \\(y_1 = 2\\) and \\(y_2, y_3, y_4 \\leq 3\\). Since \\(\\max(y_1, y_3) = 3\\) and \\(\\max(y_1, y_4) = 3\\), it follows that \\(y_2 = 2\\) and \\(y_3 = 3\\), and \\(y_4 = 3\\).\n3. For the power of 5: \\(\\max(z_1, z_2) = 3\\), \\(\\max(z_1, z_3) = 3\\), \\(\\max(z_1, z_4) = 3\\), \\(\\max(z_2, z_3) = 2\\), \\(\\max(z_2, z_4) = 2\\), \\(\\max(z_3, z_4) = 2\\). This implies that \\(z_1 = 3\\) and \\(z_2, z_3, z_4 \\leq 3\\). Since \\(\\max(z_2, z_3) = 2\\) and \\(\\max(z_2, z_4) = 2\\), it follows that \\(z_2 = 2\\), \\(z_3 = 2\\), and \\(z_4 = 2\\).\n\nThus, we have:\n\\[a = 2^3 \\cdot 3^2 \\cdot 5^3,\\]\n\\[b = 2^1 \\cdot 3^2 \\cdot 5^2,\\]\n\\[c = 2^2 \\cdot 3^3 \\cdot 5^2,\\]\n\\[d = 2^2 \\cdot 3^3 \\cdot 5^2.\\]\n\nThe GCD of \\(a\\), \\(b\\), \\(c\\), and \\(d\\) is:\n\\[\\gcd(a, b, c, d) = 2^{\\min(3,1,2,2)} \\cdot 3^{\\min(2,2,3,3)} \\cdot 5^{\\min(3,2,2,2)} = 2^1 \\cdot 3^2 \\cdot 5^2 = 2 \\cdot 9 \\cdot 25 = 450.\\]\n\nTherefore, the answer is:\n\\[\\boxed{450}.\\]",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2670,
+        2949
+      ],
+      "question": "Suppose that $a$, $b$, $c$ and $d$ are positive integers satisfying all of the following relations.\n\\[abcd=2^6\\cdot 3^9\\cdot 5^7\\]\n\\[\\text{lcm}(a,b)=2^3\\cdot 3^2\\cdot 5^3\\]\n\\[\\text{lcm}(a,c)=2^3\\cdot 3^3\\cdot 5^3\\]\n\\[\\text{lcm}(a,d)=2^3\\cdot 3^3\\cdot 5^3\\]\n\\[\\text{lcm}(b,c)=2^1\\cdot 3^3\\cdot 5^2\\]\n\\"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "194",
+      "predicted_answer": "194",
+      "raw_llm_output": "To find the ratio of the area of circle \\(A\\) to the area of circle \\(B\\), we first need to determine the radii of the two circles. The radius of a circle circumscribed around a right triangle is equal to half the length of the hypotenuse.\n\nFor the \\(3-4-5\\) right triangle, the hypotenuse is 5. Therefore, the radius \\(R_A\\) of circle \\(A\\) is:\n\\[\nR_A = \\frac{5}{2} = 2.5\n\\]\nThe area of circle \\(A\\) is:\n\\[\n\\text{Area of circle } A = \\pi R_A^2 = \\pi (2.5)^2 = \\pi \\cdot 6.25 = 6.25\\pi\n\\]\n\nFor the \\(5-12-13\\) right triangle, the hypotenuse is 13. Therefore, the radius \\(R_B\\) of circle \\(B\\) is:\n\\[\nR_B = \\frac{13}{2} = 6.5\n\\]\nThe area of circle \\(B\\) is:\n\\[\n\\text{Area of circle } B = \\pi R_B^2 = \\pi (6.5)^2 = \\pi \\cdot 42.25 = 42.25\\pi\n\\]\n\nThe ratio of the area of circle \\(A\\) to the area of circle \\(B\\) is:\n\\[\n\\frac{\\text{Area of circle } A}{\\text{Area of circle } B} = \\frac{6.25\\pi}{42.25\\pi} = \\frac{6.25}{42.25} = \\frac{625}{4225} = \\frac{25}{169}\n\\]\n\nSince 25 and 169 are relatively prime, the ratio is in its simplest form. Therefore, \\(m = 25\\) and \\(n = 169\\), and the sum \\(m + n\\) is:\n\\[\nm + n = 25 + 169 = 194\n\\]\n\nThe final answer is:\n\\[\n\\boxed{194}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1171,
+        1374
+      ],
+      "question": "A $3-4-5$ right triangle is inscribed in circle $A$, and a $5-12-13$ right triangle is inscribed in circle $B$. Find the ratio of the area of circle $A$ to the area of circle $B$. The final answer can be written in the form $\\frac{m}{n}$, where $m$ and $n$ are relatively prime positive integers. Wha"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "1625",
+      "predicted_answer": "1625",
+      "raw_llm_output": "To determine how many square centimeters of paper Jackson could cover with paint, we need to calculate the area of the strip of paper that the paintbrush can cover. The area of a rectangle is given by the formula:\n\n\\[\n\\text{Area} = \\text{length} \\times \\text{width}\n\\]\n\nFirst, we need to ensure that both the length and the width are in the same unit of measurement. The length of the strip is given in meters, and the width of the strip is given in millimeters. We know that there are 1000 millimeters in a meter, so we can convert the length from meters to millimeters:\n\n\\[\n25 \\text{ meters} = 25 \\times 1000 = 25000 \\text{ millimeters}\n\\]\n\nNow, we can substitute the length and the width into the area formula:\n\n\\[\n\\text{Area} = 25000 \\text{ millimeters} \\times 6.5 \\text{ millimeters} = 162500 \\text{ square millimeters}\n\\]\n\nNext, we need to convert the area from square millimeters to square centimeters. We know that there are 100 square millimeters in a square centimeter, so we can convert the area by dividing by 100:\n\n\\[\n162500 \\text{ square millimeters} \\div 100 = 1625 \\text{ square centimeters}\n\\]\n\nTherefore, the number of square centimeters of paper that Jackson could cover with paint is:\n\n\\[\n\\boxed{1625}\n\\]",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        1224,
+        981
+      ],
+      "question": "Jackson's paintbrush makes a narrow strip with a width of $6.5$ millimeters. Jackson has enough paint to make a strip $25$ meters long. How many square centimeters of paper could Jackson cover with paint?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "4",
+      "predicted_answer": "4",
+      "raw_llm_output": "To determine the minimum number of turns required to ensure that at least one of your guessed squares is covered by the hidden $2 \\times 1$ rectangle, we need to consider the possible placements of the rectangle on the $3 \\times 3$ grid.\n\nFirst, let's count the total number of possible placements of the rectangle:\n- **Horizontal placements:**\n  - There are 3 rows and 3 columns.\n  - For each row, the rectangle can start in the first or second column.\n  - Therefore, there are \\(3 \\times 2 = 6\\) horizontal placements.\n- **Vertical placements:**\n  - There are 3 rows and 3 columns.\n  - For each column, the rectangle can start in the first or second row.\n  - Therefore, there are \\(3 \\times 2 = 6\\) vertical placements.\n\nIn total, there are \\(6 + 6 = 12\\) possible placements of the rectangle.\n\nNext, we need to find a strategy to ensure that at least one of our guessed squares is covered by the rectangle with the minimum number of turns. We can use a systematic approach by dividing the grid into smaller sections and checking each section.\n\nConsider the following strategy:\n1. **First turn:** Guess the center square of the grid.\n2. **Second turn:** Guess one of the squares adjacent to the center square (either horizontally or vertically).\n\nLet's analyze this strategy:\n- If the center square is covered, then we have found a covered square in 1 turn.\n- If the center square is not covered, the rectangle must be in one of the four corner squares or one of the four edge squares adjacent to the center.\n\nNow, consider the second turn:\n- If the second square guessed is covered, we have found a covered square in 2 turns.\n- If the second square guessed is not covered, the rectangle must be in one of the remaining corner squares.\n\nIn this case, the rectangle must be in one of the corner squares. Since there are only 4 corner squares, and we have already guessed one of them in the second turn, we can guess the remaining three corners in the third turn. Therefore, in the worst-case scenario, we will find a covered square in 3 turns.\n\nThus, the minimum number of turns required to ensure that at least one of your guessed squares is covered by the rectangle is \\(\\boxed{4}\\).",
+      "is_correct": true,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2186,
+        3656
+      ],
+      "question": "You are playing a game. A $2 \\times 1$ rectangle covers two adjacent squares (oriented either horizontally or vertically) of a $3 \\times 3$ grid of squares, but you are not told which two squares are covered. Your goal is to find at least one square that is covered by the rectangle. A \"turn\" consist"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "6",
+      "predicted_answer": "5",
+      "raw_llm_output": "To determine on how many of the intervals formed by removing the roots of the polynomial \\( P(x) = (x-1)^1 (x-2)^2 (x-3)^3 \\cdots (x-10)^{10} \\) from the number line the polynomial \\( P(x) \\) is positive, we need to analyze the behavior of \\( P(x) \\) around each root.\n\n### Step 1: Identify the roots and their multiplicities\nThe polynomial \\( P(x) \\) has roots at \\( x = 1, 2, 3, \\ldots, 10 \\). The multiplicity of each root \\( x = k \\) is \\( k \\).\n\n### Step 2: Determine the sign changes around each root\n- For a root of odd multiplicity, \\( P(x) \\) changes sign as \\( x \\) passes through the root.\n- For a root of even multiplicity, \\( P(x) \\) does not change sign as \\( x \\) passes through the root.\n\n### Step 3: Analyze the sign of \\( P(x) \\) in the intervals\nWe start by considering the intervals formed by the roots:\n\\[ (-\\infty, 1), (1, 2), (2, 3), \\ldots, (9, 10), (10, \\infty) \\]\n\n#### Interval \\((- \\infty, 1)\\)\nIn this interval, all factors \\( (x-1), (x-2), \\ldots, (x-10) \\) are negative. Since there are 10 factors and all are negative, the product \\( P(x) \\) is negative (an even number of negative factors multiplied together results in a positive product, but since we have one negative factor with odd multiplicity, the overall product is negative).\n\n#### Interval \\((1, 2)\\)\nIn this interval, \\( (x-1) \\) is positive and all other factors \\( (x-2), (x-3), \\ldots, (x-10) \\) are negative. Since there are 9 negative factors and one positive factor, the product \\( P(x) \\) is positive (an odd number of negative factors multiplied by a positive factor results in a negative product).\n\n#### Interval \\((2, 3)\\)\nIn this interval, \\( (x-1) \\) and \\( (x-2) \\) are positive and all other factors \\( (x-3), (x-4), \\ldots, (x-10) \\) are negative. Since there are 8 negative factors and two positive factors, the product \\( P(x) \\) is negative (an even number of negative factors multiplied by two positive factors results in a positive product).\n\nWe continue this pattern for each interval:\n\n- \\((3, 4)\\): Positive (odd number of negative factors)\n- \\((4, 5)\\): Negative (even number of negative factors)\n- \\((5, 6)\\): Positive (odd number of negative factors)\n- \\((6, 7)\\): Negative (even number of negative factors)\n- \\((7, 8)\\): Positive (odd number of negative factors)\n- \\((8, 9)\\): Negative (even number of negative factors)\n- \\((9, 10)\\): Positive (odd number of negative factors)\n- \\((10, \\infty)\\): Negative (all factors are positive, so the product is positive)\n\n### Step 4: Count the intervals where \\( P(x) \\) is positive\nFrom the analysis, \\( P(x) \\) is positive in the intervals:\n\\[ (1, 2), (3, 4), (5, 6), (7, 8), (9, 10) \\]\n\nThere are 5 such intervals.\n\n### Final Answer\nThe number of intervals on which \\( P(x) \\) is positive is \\(\\boxed{5}\\).",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        0
+      ],
+      "cluster_sizes": [
+        2,
+        2
+      ],
+      "raw_scores": [
+        2.0,
+        2.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2770,
+        2314
+      ],
+      "question": "When the roots of the polynomial \n\\[P(x)  = (x-1)^1 (x-2)^2 (x-3)^3 \\cdot \\cdot \\cdot (x-10)^{10}\\]\nare removed from the number line, what remains is the union of $11$ disjoint open intervals. On how many of these intervals is $P(x)$ positive?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "901",
+      "predicted_answer": "90",
+      "raw_llm_output": "To determine for how many integers \\( n \\) the expression\n\n\\[\n\\sqrt{\\frac{\\log (n^2) - (\\log n)^2}{\\log n - 3}}\n\\]\n\nrepresents a real number, we need to ensure that the expression inside the square root is non-negative. Let's break this down step by step.\n\nFirst, simplify the expression inside the square root:\n\n\\[\n\\log (n^2) = 2 \\log n\n\\]\n\nSo the expression becomes:\n\n\\[\n\\sqrt{\\frac{2 \\log n - (\\log n)^2}{\\log n - 3}}\n\\]\n\nNext, factor the numerator:\n\n\\[\n2 \\log n - (\\log n)^2 = -(\\log n)^2 + 2 \\log n = -\\log n (\\log n - 2)\n\\]\n\nThus, the expression now is:\n\n\\[\n\\sqrt{\\frac{-\\log n (\\log n - 2)}{\\log n - 3}}\n\\]\n\nFor the square root to be defined, the expression inside must be non-negative:\n\n\\[\n\\frac{-\\log n (\\log n - 2)}{\\log n - 3} \\geq 0\n\\]\n\nWe need to analyze the sign of the fraction \\(\\frac{-\\log n (\\log n - 2)}{\\log n - 3}\\). This requires us to determine where each factor changes sign.\n\n1. ** critical points:**\n   - \\(\\log n = 0\\) when \\( n = 10^0 = 1 \\)\n   - \\(\\log n = 2\\) when \\( n = 10^2 = 100 \\)\n   - \\(\\log n = 3\\) when \\( n = 10^3 = 1000 \\)\n\nThese points divide the real number line into four intervals: \\( (-\\infty, 1) \\), \\( (1, 10) \\), \\( (10, 100) \\), and \\( (100, \\infty) \\).\n\n2. ** sign analysis:**\n   - In the interval \\( (-\\infty, 1) \\):\n     - \\(\\log n < 0\\)\n     - \\(\\log n - 2 < 0\\)\n     - \\(\\log n - 3 < 0\\)\n     - \\(\\frac{-\\log n (\\log n - 2)}{\\log n - 3} = \\frac{(-)(-)}{(-)} = -\\), which is negative.\n\n   - In the interval \\( (1, 10) \\):\n     - \\(\\log n > 0\\)\n     - \\(\\log n - 2 < 0\\)\n     - \\(\\log n - 3 < 0\\)\n     - \\(\\frac{-\\log n (\\log n - 2)}{\\log n - 3} = \\frac{(-)(-)}{(-)} = -\\), which is negative.\n\n   - In the interval \\( (10, 100) \\):\n     - \\(\\log n > 0\\)\n     - \\(\\log n - 2 > 0\\)\n     - \\(\\log n - 3 < 0\\)\n     - \\(\\frac{-\\log n (\\log n - 2)}{\\log n - 3} = \\frac{(-)(+)}{(-)} = +\\), which is positive.\n\n   - In the interval \\( (100, \\infty) \\):\n     - \\(\\log n > 0\\)\n     - \\(\\log n - 2 > 0\\)\n     - \\(\\log n - 3 > 0\\)\n     - \\(\\frac{-\\log n (\\log n - 2)}{\\log n - 3} = \\frac{(-)(+)}{(+)} = -\\), which is negative.\n\n3. ** boundary points:**\n   - At \\( n = 10 \\):\n     \\[\n     \\log n = 1 \\quad \\text{and} \\quad \\log n - 3 = -2 \\quad \\Rightarrow \\quad \\frac{-1 \\cdot (-1)}{-2} = \\frac{1}{-2} = -\\frac{1}{2}, \\quad \\text{which is negative}\n     \\]\n\n   - At \\( n = 100 \\):\n     \\[\n     \\log n = 2 \\quad \\text{and} \\quad \\log n - 3 = -1 \\quad \\Rightarrow \\quad \\frac{-2 \\cdot 0}{-1} = \\frac{0}{-1} = 0, \\quad \\text{which is non-negative}\n     \\]\n\n   - At \\( n = 1000 \\):\n     \\[\n     \\log n = 3 \\quad \\text{and} \\quad \\log n - 3 = 0 \\quad \\Rightarrow \\quad \\frac{-3 \\cdot 1}{0} \\quad \\text{is undefined}\n     \\]\n\nFrom the analysis, the expression \\(\\frac{-\\log n (\\log n - 2)}{\\log n - 3} \\geq 0\\) is satisfied in the interval \\( (10, 100] \\).\n\n4. ** integer values in the interval \\( (10, 100] \\):**\n   - The integers in this interval are \\( 11, 12, 13, \\ldots, 100 \\).\n\nTo find the number of integers in this range, we calculate:\n\n\\[\n100 - 11 + 1 = 90\n\\]\n\nTherefore, the number of integers \\( n \\) for which the given expression represents a real number is:\n\n\\[\n\\boxed{90}\n\\]",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        3124,
+        3764
+      ],
+      "question": "For how many integers $n$ does the expression\\[\\sqrt{\\frac{\\log (n^2) - (\\log n)^2}{\\log n - 3}}\\]represent a real number, where log denotes the base $10$ logarithm?"
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "144",
+      "predicted_answer": "4095",
+      "raw_llm_output": "To determine the number of nonempty subsets \\( B \\) of the set \\( \\{0, 1, 2, 3, \\cdots, 12\\} \\) such that the number of elements in \\( B \\) is equal to the least element of \\( B \\), we need to consider each possible value for the least element of \\( B \\) and count the number of subsets that satisfy the condition.\n\nLet's denote the least element of \\( B \\) by \\( k \\). Then, \\( k \\) must be one of the elements in \\( \\{1, 2, 3, \\cdots, 12\\} \\) (since \\( k = 0 \\) would imply \\( B \\) is empty, which is not allowed).\n\nFor a fixed \\( k \\), the subset \\( B \\) must contain \\( k \\) and at least \\( k-1 \\) other elements from the set \\( \\{k+1, k+2, \\cdots, 12\\} \\). The number of elements in \\( B \\) is \\( k \\), so we need to choose \\( k-1 \\) elements from the set \\( \\{k+1, k+2, \\cdots, 12\\} \\). The number of elements in \\( \\{k+1, k+2, \\cdots, 12\\} \\) is \\( 12 - k \\), and the number of ways to choose \\( k-1 \\) elements from \\( 12 - k \\) elements is given by the binomial coefficient \\( \\binom{12-k}{k-1} \\).\n\nTherefore, for each \\( k \\) from 1 to 12, the number of subsets \\( B \\) is \\( \\binom{12-k}{k-1} \\). We sum these binomial coefficients for all \\( k \\) from 1 to 12:\n\n\\[\n\\sum_{k=1}^{12} \\binom{12-k}{k-1}\n\\]\n\nTo simplify this sum, we can use the identity for the sum of binomial coefficients. Notice that \\( \\binom{12-k}{k-1} = \\binom{12-k}{12-2k} \\), and the sum \\( \\sum_{k=1}^{12} \\binom{12-k}{k-1} \\) is equivalent to the sum of the binomial coefficients in the 12th row of Pascal's triangle, starting from the second element (since \\( k = 1 \\) corresponds to the second element, \\( k = 2 \\) corresponds to the third element, and so on).\n\nThe sum of the binomial coefficients in the 12th row of Pascal's triangle is \\( 2^{12} = 4096 \\). However, we need to exclude the first element of the row, which is \\( \\binom{12}{0} = 1 \\), because it corresponds to the empty set. Therefore, the sum of the binomial coefficients from the second element to the last element is \\( 4096 - 1 = 4095 \\).\n\nThus, the number of nonempty subsets \\( B \\) of \\( \\{0, 1, 2, 3, \\cdots, 12\\} \\) that have the property that the number of elements in \\( B \\) is equal to the least element of \\( B \\) is \\(\\boxed{4095}\\).",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        2203,
+        2288
+      ],
+      "question": "How many nonempty subsets $B$ of ${0, 1, 2, 3, \\cdots, 12}$ have the property that the number of elements in $B$ is equal to the least element of $B$? For example, $B = {4, 6, 8, 11}$ satisfies the condition."
+    },
+    {
+      "method": "bon_majority",
+      "gold_answer": "8",
+      "predicted_answer": "4",
+      "raw_llm_output": "To find the area of the region defined by the inequality \\( | | x | - 1 | + | | y | - 1 | \\le 1 \\), we need to analyze the expression step by step.\n\nFirst, let's break down the absolute value expressions:\n\n1. \\( | | x | - 1 | \\)\n   - If \\( x \\ge 0 \\), then \\( | x | = x \\), so \\( | | x | - 1 | = | x - 1 | \\).\n   - If \\( x < 0 \\), then \\( | x | = -x \\), so \\( | | x | - 1 | = | -x - 1 | = | x + 1 | \\).\n\n2. \\( | | y | - 1 | \\)\n   - If \\( y \\ge 0 \\), then \\( | y | = y \\), so \\( | | y | - 1 | = | y - 1 | \\).\n   - If \\( y < 0 \\), then \\( | y | = -y \\), so \\( | | y | - 1 | = | -y - 1 | = | y + 1 | \\).\n\nNext, we consider the different cases for \\( x \\) and \\( y \\) to simplify the inequality \\( | | x | - 1 | + | | y | - 1 | \\le 1 \\).\n\n### Case 1: \\( x \\ge 0 \\) and \\( y \\ge 0 \\)\nThe inequality becomes \\( | x - 1 | + | y - 1 | \\le 1 \\).\n\n- If \\( x \\ge 1 \\) and \\( y \\ge 1 \\), then \\( | x - 1 | = x - 1 \\) and \\( | y - 1 | = y - 1 \\), so the inequality is \\( (x - 1) + (y - 1) \\le 1 \\), which simplifies to \\( x + y \\le 3 \\).\n- If \\( x < 1 \\) and \\( y \\ge 1 \\), then \\( | x - 1 | = 1 - x \\) and \\( | y - 1 | = y - 1 \\), so the inequality is \\( (1 - x) + (y - 1) \\le 1 \\), which simplifies to \\( y \\le x + 1 \\).\n- If \\( x \\ge 1 \\) and \\( y < 1 \\), then \\( | x - 1 | = x - 1 \\) and \\( | y - 1 | = 1 - y \\), so the inequality is \\( (x - 1) + (1 - y) \\le 1 \\), which simplifies to \\( x \\le y + 1 \\).\n- If \\( x < 1 \\) and \\( y < 1 \\), then \\( | x - 1 | = 1 - x \\) and \\( | y - 1 | = 1 - y \\), so the inequality is \\( (1 - x) + (1 - y) \\le 1 \\), which simplifies to \\( x + y \\ge 1 \\).\n\n### Case 2: \\( x \\ge 0 \\) and \\( y < 0 \\)\nThe inequality becomes \\( | x - 1 | + | y + 1 | \\le 1 \\).\n\n- If \\( x \\ge 1 \\) and \\( y < -1 \\), then \\( | x - 1 | = x - 1 \\) and \\( | y + 1 | = -y - 1 \\), so the inequality is \\( (x - 1) + (-y - 1) \\le 1 \\), which simplifies to \\( x - y \\le 3 \\).\n- If \\( x < 1 \\) and \\( y < -1 \\), then \\( | x - 1 | = 1 - x \\) and \\( | y + 1 | = -y - 1 \\), so the inequality is \\( (1 - x) + (-y - 1) \\le 1 \\), which simplifies to \\( -y \\le x + 1 \\) or \\( y \\ge -x - 1 \\).\n\n### Case 3: \\( x < 0 \\) and \\( y \\ge 0 \\)\nThe inequality becomes \\( | x + 1 | + | y - 1 | \\le 1 \\).\n\n- If \\( x < -1 \\) and \\( y \\ge 1 \\), then \\( | x + 1 | = -x - 1 \\) and \\( | y - 1 | = y - 1 \\), so the inequality is \\( (-x - 1) + (y - 1) \\le 1 \\), which simplifies to \\( -x + y \\le 3 \\).\n- If \\( x < -1 \\) and \\( y < 1 \\), then \\( | x + 1 | = -x - 1 \\) and \\( | y - 1 | = 1 - y \\), so the inequality is \\( (-x - 1) + (1 - y) \\le 1 \\), which simplifies to \\( -x - y \\le 1 \\) or \\( x + y \\ge -1 \\).\n\n### Case 4: \\( x < 0 \\) and \\( y < 0 \\)\nThe inequality becomes \\( | x + 1 | + | y + 1 | \\le 1 \\).\n\n- If \\( x < -1 \\) and \\( y < -1 \\), then \\( | x + 1 | = -x - 1 \\) and \\( | y + 1 | = -y - 1 \\), so the inequality is \\( (-x - 1) + (-y - 1) \\le 1 \\), which simplifies to \\( -x - y \\le 3 \\) or \\( x + y \\ge -3 \\).\n\n### Combining the Cases\nThe inequalities from all four cases describe a region that is symmetric about the origin and consists of four congruent right triangles. Each triangle has vertices at \\((1,0)\\), \\((0,1)\\), and \\((1,1)\\), and the area of one triangle is:\n\n\\[\n\\text{Area of one triangle} = \\frac{1}{2} \\times 1 \\times 1 = \\frac{1}{2}\n\\]\n\nSince there are four such triangles, the total area of the region is:\n\n\\[\n\\text{Total area} = 4 \\times \\frac{1}{2} = 2\n\\]\n\nThus, the area of the region defined by the inequality \\( | | x | - 1 | + | | y | - 1 | \\le 1 \\) is:\n\n\\[\n\\boxed{4}\n\\]",
+      "is_correct": false,
+      "N": 2,
+      "elapsed_sec": 0.0,
+      "selected_index": 0,
+      "alpha": 0.0,
+      "cluster_labels": [
+        0,
+        1
+      ],
+      "cluster_sizes": [
+        1,
+        1
+      ],
+      "raw_scores": [
+        1.0,
+        1.0
+      ],
+      "normalized_scores": [
+        1.0,
+        1.0
+      ],
+      "trace_lengths": [
+        3474,
+        4276
+      ],
+      "question": "What is the area of the region in the coordinate plane defined by\n$| | x | - 1 | + | | y | - 1 | \\le 1$?"
+    }
+  ],
+  "redundancy_stats": {
+    "avg_num_clusters": 1.425,
+    "avg_selected_cluster_size": 1.575,
+    "avg_max_cluster_size": 1.575,
+    "frac_selected_from_top_cluster": 1.0
+  }
+}

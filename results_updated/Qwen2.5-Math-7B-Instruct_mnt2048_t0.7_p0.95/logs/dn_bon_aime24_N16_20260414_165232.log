@@ -1,0 +1,121 @@
+21:49:42 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
+21:49:42 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
+21:49:42 | WARNING | run_eval | batch_size=8 < N=16.  N samples per question will be split across 2 generate() calls.  Set --batch_size 16 to decode all N samples in one call.
+21:49:42 | INFO | run_eval | Loading dataset: aime24
+21:49:45 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
+21:49:45 | INFO | run_eval | Loaded 30 examples.
+21:49:45 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=8
+/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+21:49:54 | INFO | model_wrapper | CUDA available: 4 GPU(s)
+21:49:54 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+21:49:54 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
+21:49:54 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
+21:49:54 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
+21:49:54 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
+21:49:54 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
+21:49:55 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:05,  1.97s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:04<00:04,  2.03s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:06<00:02,  2.05s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.87s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.92s/it]
+21:50:05 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
+21:50:05 | INFO | model_wrapper |   GPU 0 memory: allocated=2.75 GB  reserved=2.77 GB
+21:50:05 | INFO | model_wrapper |   GPU 1 memory: allocated=3.91 GB  reserved=3.93 GB
+21:50:05 | INFO | model_wrapper |   GPU 2 memory: allocated=3.91 GB  reserved=3.93 GB
+21:50:05 | INFO | model_wrapper |   GPU 3 memory: allocated=3.62 GB  reserved=3.64 GB
+21:50:05 | INFO | run_eval | Building verifier: prm
+21:50:05 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+21:50:06 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+21:50:06 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.32s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.29s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.28s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.11s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.18s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+21:50:17 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=8
+21:50:17 | INFO | run_eval | Building ClusterManager  embedding=all-MiniLM-L6-v2
+21:50:18 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
+21:50:18 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
+21:50:18 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
+21:50:20 | INFO | clustering | ClusterManager: SentenceTransformer ready.
+21:50:20 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
+21:50:20 | INFO | run_eval | 
+================================================================
+21:50:20 | INFO | run_eval |  Running : dn_bon
+21:50:20 | INFO | run_eval |  Dataset : aime24  N=16  batch_size=8
+21:50:20 | INFO | run_eval | ================================================================
+21:50:20 | INFO | evaluator | Evaluating 30/30 pending questions  (method=DNBestOfN)
+21:50:20 | INFO | evaluator |   Flat-batch generation: Q=30  N=16  batch_size=8  →  480 total seqs  →  60 generate() calls  →  saving every 0 questions
+[DN-BoN N=16 α=0.5]:   0%|[35m          [0m| 0/30 [00:00<?, ?q/s]
+[generate] flat  bs=8  Q=30  N=16:   0%|[34m          [0m| 0/60 [00:00<?, ?chunk/s][A
+[generate] flat  bs=8  Q=30  N=16:   2%|[34m▏         [0m| 1/60 [02:10<2:07:57, 130.13s/chunk][A[DN-BoN N=16 α=0.5]:   3%|[35m▎         [0m| 1/30 [04:59<2:24:31, 299.00s/q, acc=0.000, correct=0/1]
+[generate] flat  bs=8  Q=30  N=16:   3%|[34m▎         [0m| 2/60 [04:58<2:27:48, 152.90s/chunk, saved=1/30, seqs=16/480][A
+[generate] flat  bs=8  Q=30  N=16:   5%|[34m▌         [0m| 3/60 [07:44<2:30:34, 158.50s/chunk, saved=1/30, seqs=16/480][A[DN-BoN N=16 α=0.5]:   7%|[35m▋         [0m| 2/30 [10:32<2:28:59, 319.28s/q, acc=0.000, correct=0/2]
+[generate] flat  bs=8  Q=30  N=16:   7%|[34m▋         [0m| 4/60 [10:32<2:31:32, 162.37s/chunk, saved=2/30, seqs=32/480][A
+[generate] flat  bs=8  Q=30  N=16:   8%|[34m▊         [0m| 5/60 [12:03<2:05:23, 136.79s/chunk, saved=2/30, seqs=32/480][A[DN-BoN N=16 α=0.5]:  10%|[35m█         [0m| 3/30 [13:30<1:54:35, 254.65s/q, acc=0.333, correct=1/3]
+[generate] flat  bs=8  Q=30  N=16:  10%|[34m█         [0m| 6/60 [13:30<1:47:39, 119.63s/chunk, saved=3/30, seqs=48/480][A
+[generate] flat  bs=8  Q=30  N=16:  12%|[34m█▏        [0m| 7/60 [15:14<1:41:13, 114.59s/chunk, saved=3/30, seqs=48/480][A[DN-BoN N=16 α=0.5]:  13%|[35m█▎        [0m| 4/30 [17:05<1:43:37, 239.14s/q, acc=0.250, correct=1/4]
+[generate] flat  bs=8  Q=30  N=16:  13%|[34m█▎        [0m| 8/60 [17:05<1:38:21, 113.49s/chunk, saved=4/30, seqs=64/480][A
+[generate] flat  bs=8  Q=30  N=16:  15%|[34m█▌        [0m| 9/60 [19:48<1:49:42, 129.07s/chunk, saved=4/30, seqs=64/480][A[DN-BoN N=16 α=0.5]:  17%|[35m█▋        [0m| 5/30 [22:36<1:53:26, 272.25s/q, acc=0.200, correct=1/5]
+[generate] flat  bs=8  Q=30  N=16:  17%|[34m█▋        [0m| 10/60 [22:36<1:57:28, 140.98s/chunk, saved=5/30, seqs=80/480][A
+[generate] flat  bs=8  Q=30  N=16:  18%|[34m█▊        [0m| 11/60 [25:20<2:00:51, 148.00s/chunk, saved=5/30, seqs=80/480][A[DN-BoN N=16 α=0.5]:  20%|[35m██        [0m| 6/30 [27:38<1:52:58, 282.42s/q, acc=0.167, correct=1/6]
+[generate] flat  bs=8  Q=30  N=16:  20%|[34m██        [0m| 12/60 [27:38<1:56:01, 145.03s/chunk, saved=6/30, seqs=96/480][A
+[generate] flat  bs=8  Q=30  N=16:  22%|[34m██▏       [0m| 13/60 [29:12<1:41:21, 129.40s/chunk, saved=6/30, seqs=96/480][A[DN-BoN N=16 α=0.5]:  23%|[35m██▎       [0m| 7/30 [30:49<1:36:49, 252.57s/q, acc=0.143, correct=1/7]
+[generate] flat  bs=8  Q=30  N=16:  23%|[34m██▎       [0m| 14/60 [30:49<1:31:51, 119.82s/chunk, saved=7/30, seqs=112/480][A
+[generate] flat  bs=8  Q=30  N=16:  25%|[34m██▌       [0m| 15/60 [32:54<1:30:56, 121.26s/chunk, saved=7/30, seqs=112/480][A[DN-BoN N=16 α=0.5]:  27%|[35m██▋       [0m| 8/30 [35:37<1:36:41, 263.72s/q, acc=0.125, correct=1/8]
+[generate] flat  bs=8  Q=30  N=16:  27%|[34m██▋       [0m| 16/60 [35:37<1:38:08, 133.82s/chunk, saved=8/30, seqs=128/480][A
+[generate] flat  bs=8  Q=30  N=16:  28%|[34m██▊       [0m| 17/60 [36:21<1:16:39, 106.96s/chunk, saved=8/30, seqs=128/480][A[DN-BoN N=16 α=0.5]:  30%|[35m███       [0m| 9/30 [37:17<1:14:21, 212.46s/q, acc=0.222, correct=2/9]
+[generate] flat  bs=8  Q=30  N=16:  30%|[34m███       [0m| 18/60 [37:17<1:03:59, 91.42s/chunk, saved=9/30, seqs=144/480] [A
+[generate] flat  bs=8  Q=30  N=16:  32%|[34m███▏      [0m| 19/60 [39:59<1:17:08, 112.88s/chunk, saved=9/30, seqs=144/480][A[DN-BoN N=16 α=0.5]:  33%|[35m███▎      [0m| 10/30 [42:46<1:22:51, 248.59s/q, acc=0.200, correct=2/10]22:33:06 | INFO | evaluator |   [10/30] acc=0.200 (2/10)
+
+[generate] flat  bs=8  Q=30  N=16:  33%|[34m███▎      [0m| 20/60 [42:46<1:26:00, 129.02s/chunk, saved=10/30, seqs=160/480][A
+[generate] flat  bs=8  Q=30  N=16:  35%|[34m███▌      [0m| 21/60 [44:11<1:15:13, 115.74s/chunk, saved=10/30, seqs=160/480][A[DN-BoN N=16 α=0.5]:  37%|[35m███▋      [0m| 11/30 [45:35<1:10:59, 224.17s/q, acc=0.273, correct=3/11]
+[generate] flat  bs=8  Q=30  N=16:  37%|[34m███▋      [0m| 22/60 [45:35<1:07:16, 106.22s/chunk, saved=11/30, seqs=176/480][A
+[generate] flat  bs=8  Q=30  N=16:  38%|[34m███▊      [0m| 23/60 [48:17<1:15:53, 123.07s/chunk, saved=11/30, seqs=176/480][A[DN-BoN N=16 α=0.5]:  40%|[35m████      [0m| 12/30 [51:06<1:17:00, 256.71s/q, acc=0.250, correct=3/12]
+[generate] flat  bs=8  Q=30  N=16:  40%|[34m████      [0m| 24/60 [51:06<1:22:04, 136.78s/chunk, saved=12/30, seqs=192/480][A
+[generate] flat  bs=8  Q=30  N=16:  42%|[34m████▏     [0m| 25/60 [53:49<1:24:25, 144.72s/chunk, saved=12/30, seqs=192/480][A[DN-BoN N=16 α=0.5]:  43%|[35m████▎     [0m| 13/30 [56:37<1:19:07, 279.29s/q, acc=0.308, correct=4/13]
+[generate] flat  bs=8  Q=30  N=16:  43%|[34m████▎     [0m| 26/60 [56:37<1:25:58, 151.71s/chunk, saved=13/30, seqs=208/480][A
+[generate] flat  bs=8  Q=30  N=16:  45%|[34m████▌     [0m| 27/60 [59:20<1:25:18, 155.09s/chunk, saved=13/30, seqs=208/480][A[DN-BoN N=16 α=0.5]:  47%|[35m████▋     [0m| 14/30 [1:02:04<1:18:17, 293.59s/q, acc=0.286, correct=4/14]
+[generate] flat  bs=8  Q=30  N=16:  47%|[34m████▋     [0m| 28/60 [1:02:04<1:24:05, 157.66s/chunk, saved=14/30, seqs=224/480][A
+[generate] flat  bs=8  Q=30  N=16:  48%|[34m████▊     [0m| 29/60 [1:02:53<1:04:39, 125.15s/chunk, saved=14/30, seqs=224/480][A[DN-BoN N=16 α=0.5]:  50%|[35m█████     [0m| 15/30 [1:05:37<1:07:19, 269.30s/q, acc=0.267, correct=4/15]
+[generate] flat  bs=8  Q=30  N=16:  50%|[34m█████     [0m| 30/60 [1:05:37<1:08:21, 136.72s/chunk, saved=15/30, seqs=240/480][A
+[generate] flat  bs=8  Q=30  N=16:  52%|[34m█████▏    [0m| 31/60 [1:08:18<1:09:32, 143.87s/chunk, saved=15/30, seqs=240/480][A[DN-BoN N=16 α=0.5]:  53%|[35m█████▎    [0m| 16/30 [1:11:06<1:07:01, 287.23s/q, acc=0.250, correct=4/16]
+[generate] flat  bs=8  Q=30  N=16:  53%|[34m█████▎    [0m| 32/60 [1:11:06<1:10:33, 151.20s/chunk, saved=16/30, seqs=256/480][A
+[generate] flat  bs=8  Q=30  N=16:  55%|[34m█████▌    [0m| 33/60 [1:13:02<1:03:19, 140.71s/chunk, saved=16/30, seqs=256/480][A[DN-BoN N=16 α=0.5]:  57%|[35m█████▋    [0m| 17/30 [1:15:51<1:02:05, 286.55s/q, acc=0.294, correct=5/17]
+[generate] flat  bs=8  Q=30  N=16:  57%|[34m█████▋    [0m| 34/60 [1:15:51<1:04:37, 149.12s/chunk, saved=17/30, seqs=272/480][A
+[generate] flat  bs=8  Q=30  N=16:  58%|[34m█████▊    [0m| 35/60 [1:16:48<50:38, 121.55s/chunk, saved=17/30, seqs=272/480]  [A[DN-BoN N=16 α=0.5]:  60%|[35m██████    [0m| 18/30 [1:17:59<47:46, 238.90s/q, acc=0.278, correct=5/18]  
+[generate] flat  bs=8  Q=30  N=16:  60%|[34m██████    [0m| 36/60 [1:17:59<42:31, 106.31s/chunk, saved=18/30, seqs=288/480][A
+[generate] flat  bs=8  Q=30  N=16:  62%|[34m██████▏   [0m| 37/60 [1:20:43<47:26, 123.78s/chunk, saved=18/30, seqs=288/480][A[DN-BoN N=16 α=0.5]:  63%|[35m██████▎   [0m| 19/30 [1:23:29<48:48, 266.25s/q, acc=0.263, correct=5/19]
+[generate] flat  bs=8  Q=30  N=16:  63%|[34m██████▎   [0m| 38/60 [1:23:29<49:58, 136.28s/chunk, saved=19/30, seqs=304/480][A
+[generate] flat  bs=8  Q=30  N=16:  65%|[34m██████▌   [0m| 39/60 [1:25:42<47:23, 135.40s/chunk, saved=19/30, seqs=304/480][A[DN-BoN N=16 α=0.5]:  67%|[35m██████▋   [0m| 20/30 [1:27:09<42:03, 252.37s/q, acc=0.250, correct=5/20]23:17:29 | INFO | evaluator |   [20/30] acc=0.250 (5/20)
+
+[generate] flat  bs=8  Q=30  N=16:  67%|[34m██████▋   [0m| 40/60 [1:27:09<40:15, 120.78s/chunk, saved=20/30, seqs=320/480][A
+[generate] flat  bs=8  Q=30  N=16:  68%|[34m██████▊   [0m| 41/60 [1:29:49<41:59, 132.58s/chunk, saved=20/30, seqs=320/480][A[DN-BoN N=16 α=0.5]:  70%|[35m███████   [0m| 21/30 [1:32:33<41:04, 273.79s/q, acc=0.238, correct=5/21]
+[generate] flat  bs=8  Q=30  N=16:  70%|[34m███████   [0m| 42/60 [1:32:32<42:34, 141.89s/chunk, saved=21/30, seqs=336/480][A
+[generate] flat  bs=8  Q=30  N=16:  72%|[34m███████▏  [0m| 43/60 [1:35:11<41:36, 146.88s/chunk, saved=21/30, seqs=336/480][A[DN-BoN N=16 α=0.5]:  73%|[35m███████▎  [0m| 22/30 [1:37:54<38:24, 288.10s/q, acc=0.227, correct=5/22]
+[generate] flat  bs=8  Q=30  N=16:  73%|[34m███████▎  [0m| 44/60 [1:37:54<40:27, 151.70s/chunk, saved=22/30, seqs=352/480][A
+[generate] flat  bs=8  Q=30  N=16:  75%|[34m███████▌  [0m| 45/60 [1:40:02<36:08, 144.57s/chunk, saved=22/30, seqs=352/480][A[DN-BoN N=16 α=0.5]:  77%|[35m███████▋  [0m| 23/30 [1:42:44<33:40, 288.71s/q, acc=0.217, correct=5/23]
+[generate] flat  bs=8  Q=30  N=16:  77%|[34m███████▋  [0m| 46/60 [1:42:44<34:57, 149.86s/chunk, saved=23/30, seqs=368/480][A
+[generate] flat  bs=8  Q=30  N=16:  78%|[34m███████▊  [0m| 47/60 [1:45:24<33:07, 152.89s/chunk, saved=23/30, seqs=368/480][A[DN-BoN N=16 α=0.5]:  80%|[35m████████  [0m| 24/30 [1:48:09<29:57, 299.60s/q, acc=0.208, correct=5/24]
+[generate] flat  bs=8  Q=30  N=16:  80%|[34m████████  [0m| 48/60 [1:48:09<31:18, 156.53s/chunk, saved=24/30, seqs=384/480][A
+[generate] flat  bs=8  Q=30  N=16:  82%|[34m████████▏ [0m| 49/60 [1:50:51<28:58, 158.03s/chunk, saved=24/30, seqs=384/480][A[DN-BoN N=16 α=0.5]:  83%|[35m████████▎ [0m| 25/30 [1:53:36<25:39, 307.87s/q, acc=0.200, correct=5/25]
+[generate] flat  bs=8  Q=30  N=16:  83%|[34m████████▎ [0m| 50/60 [1:53:36<26:43, 160.31s/chunk, saved=25/30, seqs=400/480][A
+[generate] flat  bs=8  Q=30  N=16:  85%|[34m████████▌ [0m| 51/60 [1:56:21<24:14, 161.65s/chunk, saved=25/30, seqs=400/480][A[DN-BoN N=16 α=0.5]:  87%|[35m████████▋ [0m| 26/30 [1:59:05<20:56, 314.09s/q, acc=0.192, correct=5/26]
+[generate] flat  bs=8  Q=30  N=16:  87%|[34m████████▋ [0m| 52/60 [1:59:05<21:38, 162.30s/chunk, saved=26/30, seqs=416/480][A
+[generate] flat  bs=8  Q=30  N=16:  88%|[34m████████▊ [0m| 53/60 [2:01:48<18:58, 162.70s/chunk, saved=26/30, seqs=416/480][A[DN-BoN N=16 α=0.5]:  90%|[35m█████████ [0m| 27/30 [2:04:33<15:55, 318.39s/q, acc=0.185, correct=5/27]
+[generate] flat  bs=8  Q=30  N=16:  90%|[34m█████████ [0m| 54/60 [2:04:33<16:19, 163.33s/chunk, saved=27/30, seqs=432/480][A
+[generate] flat  bs=8  Q=30  N=16:  92%|[34m█████████▏[0m| 55/60 [2:07:15<13:34, 162.98s/chunk, saved=27/30, seqs=432/480][A[DN-BoN N=16 α=0.5]:  93%|[35m█████████▎[0m| 28/30 [2:09:57<10:39, 319.98s/q, acc=0.179, correct=5/28]
+[generate] flat  bs=8  Q=30  N=16:  93%|[34m█████████▎[0m| 56/60 [2:09:57<10:50, 162.55s/chunk, saved=28/30, seqs=448/480][A
+[generate] flat  bs=8  Q=30  N=16:  95%|[34m█████████▌[0m| 57/60 [2:12:39<08:07, 162.44s/chunk, saved=28/30, seqs=448/480][A[DN-BoN N=16 α=0.5]:  97%|[35m█████████▋[0m| 29/30 [2:15:21<05:21, 321.24s/q, acc=0.172, correct=5/29]
+[generate] flat  bs=8  Q=30  N=16:  97%|[34m█████████▋[0m| 58/60 [2:15:21<05:24, 162.30s/chunk, saved=29/30, seqs=464/480][A
+[generate] flat  bs=8  Q=30  N=16:  98%|[34m█████████▊[0m| 59/60 [2:17:35<02:33, 153.83s/chunk, saved=29/30, seqs=464/480][A[DN-BoN N=16 α=0.5]: 100%|[35m██████████[0m| 30/30 [2:20:17<00:00, 313.68s/q, acc=0.167, correct=5/30]00:10:38 | INFO | evaluator |   [30/30] acc=0.167 (5/30)
+
+[generate] flat  bs=8  Q=30  N=16: 100%|[34m██████████[0m| 60/60 [2:20:17<00:00, 156.28s/chunk, saved=30/30, seqs=480/480][A[generate] flat  bs=8  Q=30  N=16: 100%|[34m██████████[0m| 60/60 [2:20:17<00:00, 140.29s/chunk, saved=30/30, seqs=480/480]
+[DN-BoN N=16 α=0.5]: 100%|[35m██████████[0m| 30/30 [2:20:17<00:00, 280.59s/q, acc=0.167, correct=5/30]
+00:10:38 | INFO | evaluator | Summary (final) saved → ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/dn_bon_aime24_N16_summary.json
+00:10:38 | INFO | evaluator | Done. acc=0.1667 (5/30)  wall=8417.7s  avg=0.00s/q
+00:10:38 | INFO | run_eval | Redundancy/vote stats: {'avg_num_clusters': 2.033, 'avg_selected_cluster_size': 8.8, 'avg_max_cluster_size': 13.833, 'frac_selected_from_top_cluster': 0.467}
+00:10:38 | INFO | evaluator | Summary saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/dn_bon_aime24_N16_summary.json
+00:10:38 | INFO | run_eval | 
+Method                 Accuracy    Correct    Total   Avg time    Wall time
+--------------------------------------------------------------------------
+dn_bon                   0.1667          5       30      0.00s      8417.7s
+00:10:38 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/comparison_aime24_N16.txt

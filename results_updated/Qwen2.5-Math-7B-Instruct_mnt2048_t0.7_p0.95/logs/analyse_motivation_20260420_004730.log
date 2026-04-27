@@ -1,0 +1,137 @@
+/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
+Tokenizer loaded (vocab=151643)
+
+Scanning: ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95
+Found 52 result file(s):
+  aime24      bon              N= 2  bon_aime24_N2.jsonl
+  aime24      bon              N= 4  bon_aime24_N4.jsonl
+  aime24      bon              N= 8  bon_aime24_N8.jsonl
+  aime24      bon              N=16  bon_aime24_N16.jsonl
+  aime24      bon              N=32  bon_aime24_N32.jsonl
+  aime24      bon_majority     N= 2  bon_majority_aime24_N2.jsonl
+  aime24      bon_majority     N= 4  bon_majority_aime24_N4.jsonl
+  aime24      bon_majority     N= 8  bon_majority_aime24_N8.jsonl
+  aime24      bon_majority     N=16  bon_majority_aime24_N16.jsonl
+  aime24      bon_majority     N=32  bon_majority_aime24_N32.jsonl
+  aime24      dn_bon           N= 2  dn_bon_updated_aime24_N2.jsonl
+  aime24      dn_bon           N= 4  dn_bon_updated_aime24_N4.jsonl
+  aime24      dn_bon           N= 8  dn_bon_updated_aime24_N8.jsonl
+  aime24      dn_bon           N=16  dn_bon_updated_aime24_N16.jsonl
+  aime24      dn_bon           N=32  dn_bon_updated_aime24_N32.jsonl
+  aime25      bon              N= 2  bon_aime25_N2.jsonl
+  aime25      bon              N= 4  bon_aime25_N4.jsonl
+  aime25      bon              N= 8  bon_aime25_N8.jsonl
+  aime25      bon              N=16  bon_aime25_N16.jsonl
+  aime25      bon              N=32  bon_aime25_N32.jsonl
+  aime25      bon_majority     N= 2  bon_majority_aime25_N2.jsonl
+  aime25      bon_majority     N= 4  bon_majority_aime25_N4.jsonl
+  aime25      bon_majority     N= 8  bon_majority_aime25_N8.jsonl
+  aime25      bon_majority     N=16  bon_majority_aime25_N16.jsonl
+  aime25      bon_majority     N=32  bon_majority_aime25_N32.jsonl
+  aime25      dn_bon           N= 2  dn_bon_updated_aime25_N2.jsonl
+  aime25      dn_bon           N= 4  dn_bon_updated_aime25_N4.jsonl
+  aime25      dn_bon           N= 8  dn_bon_updated_aime25_N8.jsonl
+  aime25      dn_bon           N=16  dn_bon_updated_aime25_N16.jsonl
+  aime25      dn_bon           N=32  dn_bon_updated_aime25_N32.jsonl
+  aime25      greedy_pass_n    N= 8  greedy_pass_n_aime25_N8.jsonl
+  amc23       bon              N= 2  bon_amc23_N2.jsonl
+  amc23       bon              N= 8  bon_amc23_N8.jsonl
+  amc23       bon_majority     N= 2  bon_majority_amc23_N2.jsonl
+  amc23       dn_bon           N= 2  dn_bon_updated_amc23_N2.jsonl
+  amc23       dn_bon           N= 4  dn_bon_updated_amc23_N4.jsonl
+  amc23       dn_bon           N= 8  dn_bon_updated_amc23_N8.jsonl
+  amc23       dn_bon           N=16  dn_bon_updated_amc23_N16.jsonl
+  amc23       dn_bon           N=32  dn_bon_updated_amc23_N32.jsonl
+  math500     bon              N= 2  bon_math500_N2.jsonl
+  math500     bon              N= 4  bon_math500_N4.jsonl
+  math500     bon              N= 8  bon_math500_N8.jsonl
+  math500     bon              N=16  bon_math500_N16.jsonl
+  math500     bon_majority     N= 2  bon_majority_math500_N2.jsonl
+  math500     bon_majority     N= 4  bon_majority_math500_N4.jsonl
+  math500     bon_majority     N= 8  bon_majority_math500_N8.jsonl
+  math500     bon_majority     N=16  bon_majority_math500_N16.jsonl
+  math500     dn_bon           N= 2  dn_bon_updated_math500_N2.jsonl
+  math500     dn_bon           N= 4  dn_bon_updated_math500_N4.jsonl
+  math500     dn_bon           N= 8  dn_bon_updated_math500_N8.jsonl
+  math500     dn_bon           N=16  dn_bon_updated_math500_N16.jsonl
+  math500     dn_bon           N=32  dn_bon_updated_math500_N32.jsonl
+
+[Summary] Per-file statistics
+  aime24      bon              N=2  acc=0.133  n=30
+  aime24      bon              N=4  acc=0.200  n=30
+  aime24      bon              N=8  acc=0.167  n=30
+  aime24      bon              N=16  acc=0.200  n=30
+  aime24      bon              N=32  acc=0.233  n=30
+  aime24      bon_majority     N=2  acc=0.133  n=30
+  aime24      bon_majority     N=4  acc=0.200  n=30
+  aime24      bon_majority     N=8  acc=0.133  n=30
+  aime24      bon_majority     N=16  acc=0.133  n=30
+  aime24      bon_majority     N=32  acc=0.176  n=34
+  aime24      dn_bon           N=2  acc=0.167  n=30
+  aime24      dn_bon           N=4  acc=0.167  n=30
+  aime24      dn_bon           N=8  acc=0.167  n=30
+  aime24      dn_bon           N=16  acc=0.233  n=30
+  aime24      dn_bon           N=32  acc=0.100  n=30
+  aime25      bon              N=2  acc=0.033  n=30
+  aime25      bon              N=4  acc=0.167  n=30
+  aime25      bon              N=8  acc=0.133  n=30
+  aime25      bon              N=16  acc=0.233  n=30
+  aime25      bon              N=32  acc=0.167  n=30
+  aime25      bon_majority     N=2  acc=0.067  n=30
+  aime25      bon_majority     N=4  acc=0.133  n=30
+  aime25      bon_majority     N=8  acc=0.200  n=30
+  aime25      bon_majority     N=16  acc=0.233  n=30
+  aime25      bon_majority     N=32  acc=0.167  n=30
+  aime25      dn_bon           N=2  acc=0.133  n=30
+  aime25      dn_bon           N=4  acc=0.200  n=30
+  aime25      dn_bon           N=8  acc=0.233  n=30
+  aime25      dn_bon           N=16  acc=0.100  n=30
+  aime25      dn_bon           N=32  acc=0.067  n=30
+  aime25      greedy_pass_n    N=8  acc=0.167  n=30
+  amc23       bon              N=2  acc=0.650  n=40
+  amc23       bon              N=8  acc=0.650  n=40
+  amc23       bon_majority     N=2  acc=0.550  n=40
+  amc23       dn_bon           N=2  acc=0.575  n=40
+  amc23       dn_bon           N=4  acc=0.625  n=40
+  amc23       dn_bon           N=8  acc=0.700  n=40
+  amc23       dn_bon           N=16  acc=0.625  n=40
+  amc23       dn_bon           N=32  acc=0.600  n=40
+  math500     bon              N=2  acc=0.830  n=500
+  math500     bon              N=4  acc=0.842  n=500
+  math500     bon              N=8  acc=0.852  n=500
+  math500     bon              N=16  acc=0.854  n=500
+  math500     bon_majority     N=2  acc=0.800  n=500
+  math500     bon_majority     N=4  acc=0.840  n=500
+  math500     bon_majority     N=8  acc=0.844  n=500
+  math500     bon_majority     N=16  acc=0.848  n=500
+  math500     dn_bon           N=2  acc=0.820  n=500
+  math500     dn_bon           N=4  acc=0.816  n=500
+  math500     dn_bon           N=8  acc=0.842  n=500
+  math500     dn_bon           N=16  acc=0.800  n=500
+  math500     dn_bon           N=32  acc=0.806  n=500
+  → ./motivation_analysis/summary_stats.csv  (52 rows)
+
+[Exp 1] Redundancy vs Budget
+  [skip] ./motivation_analysis/exp1_redundancy_vs_budget.csv — no data
+
+[Exp 2] Accuracy Conditioned on Redundancy
+  [skip] ./motivation_analysis/exp2_accuracy_by_redundancy_bin.csv — no data
+
+[Exp 3] Majority Cluster Correctness Analysis
+  [skip] ./motivation_analysis/exp3_majority_cluster_analysis.csv — no data
+
+[Exp 4] Score Gap vs Redundancy
+  [skip] ./motivation_analysis/exp4_score_gap_vs_redundancy.csv — no data
+  Written 0 (gap_bin, redundancy_bin) cells
+
+[Exp 5] Oracle Cluster Analysis
+  [skip] ./motivation_analysis/exp5_oracle_cluster_analysis.csv — no data
+
+============================================================
+  All analysis complete.  Output: ./motivation_analysis/
+============================================================
+  Files written:
+    exp1_redundancy_vs_budget.csv                      993 bytes
+    summary_stats.csv                                 3646 bytes

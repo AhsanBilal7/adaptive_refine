@@ -1,0 +1,67 @@
+Before cleanup:
+739K	/home/ahsan/.cache/huggingface
+5.0K	/home/ahsan/.cache/matplotlib
+1.5K	/home/ahsan/.cache/Microsoft
+3.2M	/home/ahsan/.cache/pip
+9.8G	/home/ahsan/.cache/uv
+After cleanup:
+739K	/home/ahsan/.cache/huggingface
+5.0K	/home/ahsan/.cache/matplotlib
+1.5K	/home/ahsan/.cache/Microsoft
+3.2M	/home/ahsan/.cache/pip
+9.8G	/home/ahsan/.cache/uv
+HF cache set to: /scratch/ahsan/hf_cache
+Running on c1037.oscer.ou.edu
+Working dir: /home/ahsan/crisp
+Python: /opt/oscer/software/Mamba/23.1.0-4/bin/python
+CUDA_VISIBLE_DEVICES=2,3
+Sat Apr 25 23:15:37 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 560.35.05              Driver Version: 560.35.05      CUDA Version: 12.6     |
+|-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA H100 80GB HBM3          Off |   00000000:55:00.0 Off |                    0 |
+| N/A   38C    P0            142W /  700W |   15505MiB /  81559MiB |      8%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA H100 80GB HBM3          Off |   00000000:68:00.0 Off |                    0 |
+| N/A   38C    P0            145W /  700W |   17515MiB /  81559MiB |      9%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   2  NVIDIA H100 80GB HBM3          Off |   00000000:D2:00.0 Off |                    0 |
+| N/A   36C    P0             71W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+|   3  NVIDIA H100 80GB HBM3          Off |   00000000:E4:00.0 Off |                    0 |
+| N/A   36C    P0             72W /  700W |       1MiB /  81559MiB |      0%      Default |
+|                                         |                        |             Disabled |
++-----------------------------------------+------------------------+----------------------+
+                                                                                         
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI        PID   Type   Process name                              GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A   2867138      C   /home/ahsan/crisp/.venv/bin/python3         15494MiB |
+|    1   N/A  N/A   2867138      C   /home/ahsan/crisp/.venv/bin/python3         17504MiB |
++-----------------------------------------------------------------------------------------+
+
+════════════════════════════════════════════════════════════════
+  DN-BoN Paired Ablation
+  Model   : Qwen/Qwen2.5-Math-7B-Instruct
+  Verifier: Qwen/Qwen2.5-Math-PRM-7B
+  N       : 8
+  α sweep : 0.0 0.25 0.5 0.75 1.0
+  τ sweep : 0.70 0.75 0.80 0.85 0.90 0.95
+  Datasets: aime24 aime25 amc23 math500
+  Out dir : ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95
+════════════════════════════════════════════════════════════════
+
+════════════════════════════════════════════════════════════════
+  Dataset : aime24   N=8   max_samples=30
+  Output  : ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95
+════════════════════════════════════════════════════════════════
+  ↺ Cache found — skipping generation: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_aime24_N8.jsonl

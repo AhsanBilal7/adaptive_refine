@@ -1,0 +1,58 @@
+00:49:26 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
+00:49:26 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
+00:49:26 | INFO | run_eval | Loading dataset: olympiadbench
+00:49:30 | INFO | dataset_loader | Loaded 200 examples from 'olympiadbench' (train split).  Sample answers: ['2', '\\frac{1}{2 n+2}', '2^{1009}']
+00:49:30 | INFO | run_eval | Loaded 200 examples.
+00:49:30 | INFO | run_eval | Loading model: meta-llama/Llama-3.2-1B-Instruct  batch_size=64
+/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+00:49:37 | INFO | model_wrapper | CUDA available: 4 GPU(s)
+00:49:37 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+00:49:37 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
+00:49:37 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
+00:49:37 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
+00:49:37 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
+00:49:37 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.2-1B-Instruct
+00:49:39 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.2-1B-Instruct
+00:49:45 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
+00:49:45 | INFO | model_wrapper |   GPU 0 memory: allocated=0.60 GB  reserved=0.62 GB
+00:49:45 | INFO | model_wrapper |   GPU 1 memory: allocated=0.68 GB  reserved=0.68 GB
+00:49:45 | INFO | model_wrapper |   GPU 2 memory: allocated=0.68 GB  reserved=0.68 GB
+00:49:45 | INFO | model_wrapper |   GPU 3 memory: allocated=0.34 GB  reserved=0.34 GB
+00:49:45 | INFO | run_eval | Building verifier: prm
+00:49:45 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+00:49:46 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+00:49:46 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:04,  1.35s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.31s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.30s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.11s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.18s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+00:49:57 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=64
+00:49:57 | INFO | run_eval | Building ClusterManager  embedding=all-MiniLM-L6-v2
+00:49:57 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
+00:49:57 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
+00:49:58 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
+00:49:59 | INFO | clustering | ClusterManager: SentenceTransformer ready.
+00:49:59 | INFO | inference_methods | Evaluator: OlympiadEvaluator for dataset='olympiadbench'
+00:49:59 | INFO | run_eval | 
+================================================================
+00:49:59 | INFO | run_eval |  Running : dn_bon
+00:49:59 | INFO | run_eval |  Dataset : olympiadbench  N=8  batch_size=64
+00:49:59 | INFO | run_eval | ================================================================
+00:50:00 | INFO | evaluator | Evaluating 200/200 pending questions  (method=DNBestOfN)
+00:50:00 | INFO | evaluator |   Flat-batch generation: Q=200  N=8  batch_size=64  →  1600 total seqs  →  25 generate() calls  →  saving every 8 questions
+🧩Cluster on Answer:  True
+🧩Alpha Value:  0.05
+[DN-BoN N=8 α=0.05]:   0%|[35m          [0m| 0/200 [00:00<?, ?q/s]
+[generate] flat  bs=64  Q=200  N=8:   0%|[34m          [0m| 0/25 [00:00<?, ?chunk/s][A[DN-BoN N=8 α=0.05]:   0%|[35m          [0m| 1/200 [02:59<9:54:35, 179.27s/q, acc=0.000, correct=0/1][DN-BoN N=8 α=0.05]:   1%|[35m          [0m| 2/200 [03:00<4:06:49, 74.80s/q, acc=0.000, correct=0/2] <string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
+<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
+<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
+<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
+<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
+<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
+<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
+<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
+[DN-BoN N=8 α=0.05]:   2%|[35m▏         [0m| 3/200 [03:02<2:15:55, 41.40s/q, acc=0.000, correct=0/3][DN-BoN N=8 α=0.05]:   2%|[35m▏         [0m| 4/200 [03:04<1:24:17, 25.80s/q, acc=0.000, correct=0/4]00:53:05 | INFO | inference_methods | [DN-BoN] all-unique gate triggered (N=8 singletons) → using plain BoN scores
+[DN-BoN N=8 α=0.05]:   2%|[35m▎         [0m| 5/200 [03:05<55:22, 17.04s/q, acc=0.000, correct=0/5]  [DN-BoN N=8 α=0.05]:   3%|[35m▎         [0m| 6/200 [03:07<37:55, 11.73s/q, acc=0.000, correct=0/6][DN-BoN N=8 α=0.05]:   4%|[35m▎         [0m| 7/200 [03:09<27:12,  8.46s/q, acc=0.000, correct=0/7][DN-BoN N=8 α=0.05]:   4%|[35m▍         [0m| 8/200 [03:10<20:12,  6.31s/q, acc=0.000, correct=0/8]
+[generate] flat  bs=64  Q=200  N=8:   4%|[34m▍         [0m| 1/25 [03:10<1:16:18, 190.78s/chunk, saved=8/200, seqs=64/1600][A

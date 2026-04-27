@@ -1,0 +1,14 @@
+11:03:08 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
+11:03:08 | INFO | run_eval | Loading dataset: aime24
+11:03:18 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
+11:03:18 | INFO | run_eval | Loaded 30 examples.
+11:03:18 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=8
+/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+11:03:41 | INFO | model_wrapper | CUDA available: 1 GPU(s)
+11:03:41 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+11:03:41 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
+11:03:41 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
+11:03:42 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
+11:03:45 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:40<02:01, 40.40s/it]Loading checkpoint shards:  50%|█████     | 2/4 [01:22<01:22, 41.37s/it]

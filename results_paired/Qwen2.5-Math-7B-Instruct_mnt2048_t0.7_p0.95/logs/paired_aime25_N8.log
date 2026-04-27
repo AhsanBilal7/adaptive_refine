@@ -1,0 +1,879 @@
+05:01:10 | INFO | paired_ablation | GPUs available: 1
+05:01:10 | INFO | paired_ablation | Loading dataset: aime25
+05:01:14 | INFO | dataset_loader | Loaded 30 examples from 'aime25' (test split).  Sample answers: ['70', '588', '16']
+05:01:14 | INFO | paired_ablation | Loaded 30 examples.
+05:01:14 | INFO | paired_ablation | Loading generator: Qwen/Qwen2.5-Math-7B-Instruct
+/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+05:01:23 | INFO | model_wrapper | CUDA available: 1 GPU(s)
+05:01:23 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+05:01:23 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
+05:01:23 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
+05:01:24 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
+05:01:25 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:04,  1.36s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.31s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.29s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:05<00:00,  1.24s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:05<00:00,  1.27s/it]
+05:01:31 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=32
+05:01:31 | INFO | model_wrapper |   GPU 0 memory: allocated=14.19 GB  reserved=14.31 GB
+05:01:31 | INFO | paired_ablation | Loading verifier: Qwen/Qwen2.5-Math-PRM-7B
+05:01:31 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+05:01:32 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+05:01:32 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+A new version of the following files was downloaded from https://huggingface.co/Qwen/Qwen2.5-Math-PRM-7B:
+- configuration_qwen2_rm.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+`torch_dtype` is deprecated! Use `dtype` instead!
+A new version of the following files was downloaded from https://huggingface.co/Qwen/Qwen2.5-Math-PRM-7B:
+- modeling_qwen2_rm.py
+. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
+05:01:37 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.31s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.29s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.29s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.10s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.17s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+05:01:42 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=min  batch_size=32
+05:01:43 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime25'
+05:01:43 | INFO | paired_ablation | Loading ClusterManager: all-MiniLM-L6-v2
+05:01:43 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
+05:01:43 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
+05:01:44 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
+05:01:45 | INFO | clustering | ClusterManager: SentenceTransformer ready.
+05:01:45 | INFO | paired_ablation | Loading sample cache from ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_aime25_N8.jsonl
+05:01:45 | INFO | paired_ablation | Loaded 30 cached questions from ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/sample_cache_aime25_N8.jsonl
+05:01:45 | INFO | paired_ablation | Applying all methods on cached traces (α: [0.0, 0.25, 0.5, 0.75, 1.0], τ: [0.7, 0.75, 0.8, 0.85, 0.9, 0.95])...
+05:01:45 | INFO | paired_ablation |   Pass 1: numerical methods  (30 questions)
+05:02:44 | INFO | paired_ablation |   Pass 2: CIMR batched judge  Q_valid=30  variants=['full', 'concise', 'answer_only']  judge_batch_size=32
+05:02:44 | INFO | cimr_inference | [CIMR] Building 30 judge prompts  variant=full  max_chars=6000
+05:02:44 | INFO | cimr_inference | [CIMR] Running judge inference  Q=30  judge_batch_size=32  n_chunks=1  max_new_tokens=4096
+[CIMR-judge full]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s]This is a friendly reminder - the current text generation call has exceeded the model's predefined maximum length (4096). Depending on the model, you may observe exceptions, performance degradation, or nothing at all.
+[CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [03:27<00:00, 207.83s/batch, done=30/30][CIMR-judge full]: 100%|[36m██████████[0m| 1/1 [03:27<00:00, 207.83s/batch, done=30/30]
+05:06:15 | INFO | cimr_inference | [CIMR] Done  Q=30  elapsed=210.3s  accuracy=3/30  fallbacks=2/30
+05:06:15 | INFO | cimr_inference | [CIMR] Building 30 judge prompts  variant=concise  max_chars=6000
+05:06:15 | INFO | cimr_inference | [CIMR] Running judge inference  Q=30  judge_batch_size=32  n_chunks=1  max_new_tokens=4096
+[CIMR-judge concise]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [03:27<00:00, 207.51s/batch, done=30/30][CIMR-judge concise]: 100%|[36m██████████[0m| 1/1 [03:27<00:00, 207.51s/batch, done=30/30]
+05:09:44 | INFO | cimr_inference | [CIMR] Done  Q=30  elapsed=209.8s  accuracy=4/30  fallbacks=0/30
+05:09:44 | INFO | cimr_inference | [CIMR] Building 30 judge prompts  variant=answer_only  max_chars=6000
+05:09:44 | INFO | cimr_inference | [CIMR] Running judge inference  Q=30  judge_batch_size=32  n_chunks=1  max_new_tokens=4096
+[CIMR-judge answer_only]:   0%|[36m          [0m| 0/1 [00:00<?, ?batch/s][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [02:37<00:00, 157.45s/batch, done=30/30][CIMR-judge answer_only]: 100%|[36m██████████[0m| 1/1 [02:37<00:00, 157.45s/batch, done=30/30]
+05:12:24 | INFO | cimr_inference | [CIMR] Done  Q=30  elapsed=159.7s  accuracy=4/30  fallbacks=0/30
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[1/30]  gold=70
+05:12:24 | INFO | paired_ablation |   │  Find the sum of all integer bases $b>9$ for which $17_b$ is a divisor of $97_b.$
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.2432  ans='70'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.9648  ans='70'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.3965  ans='70'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.9023  ans='70'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.3672  ans='70'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.9805  ans='70'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.9648  ans='49'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.9336  ans='70'                 ✓
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='70'                  prm=0.9805  correct=True
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='70'                  votes=7.0  correct=True
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='70'                  correct=True
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='70'                  norm=0.3466  k=8  correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='70'                  correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='70'                  correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='49'                  correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=1/1 | Maj=1/1 | DN-BoN=1/1 | CIMR-full=1/1 | CIMR-concise=1/1 | CIMR-answer_only=0/1
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[2/30]  gold=588
+05:12:24 | INFO | paired_ablation |   │  In $\triangle ABC$ points $D$ and $E$ lie on $\overline{AB}$ so that $AD < AE < ...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0322  ans='2'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.0247  ans='isor?"\n\n\n\n SEEK star starubic starARRANT rout>,\nARRANTographically*>&(proxyursors starlegateursors ste steiatesuellen star mę routponsoredebxuellenafi swalursors star,:,>,\n SITE…"\n\n sw朦ponsoredursors Leone seed">\\ ste🌈 ste' ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0120  ans='8'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0317  ans='576'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.0713  ans='864'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0635  ans='792'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0493  ans='1440'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0148  ans='864'                ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='864'                 prm=0.0713  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='864'                 votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='864'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='576'                 norm=0.0317  k=1  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='576'                 correct=False [fallback]
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='288'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='6192'                correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=1/2 | Maj=1/2 | DN-BoN=1/2 | CIMR-full=1/2 | CIMR-concise=1/2 | CIMR-answer_only=0/2
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[3/30]  gold=16
+05:12:24 | INFO | paired_ablation |   │  The $9$ members of a baseball team went to an ice-cream parlor after their game....
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.4629  ans='756'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.7031  ans='16'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.3086  ans='780'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.1484  ans='918'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.1240  ans='18'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.4336  ans='630'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0181  ans='501'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.2002  ans='22'                 ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='16'                  prm=0.7031  correct=True
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='756'                 votes=1.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='16'                  correct=True
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='16'                  norm=0.2486  k=8  correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='756'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='918'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='16'                  correct=True
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=2/3 | Maj=1/3 | DN-BoN=2/3 | CIMR-full=1/3 | CIMR-concise=1/3 | CIMR-answer_only=1/3
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[4/30]  gold=117
+05:12:24 | INFO | paired_ablation |   │  Find the number of ordered pairs $(x,y)$, where both $x$ and $y$ are integers be...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.6836  ans='168'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.7188  ans='168'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.7578  ans='118'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.9102  ans='168'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.7188  ans='118'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.6914  ans='168'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.5000  ans='118'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.4570  ans='118'                ✓
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='168'                 prm=0.9102  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='168'                 votes=4.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='118'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='168'                 norm=0.9102  k=1  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='168'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='1414'                correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='168'                 correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=2/4 | Maj=1/4 | DN-BoN=2/4 | CIMR-full=1/4 | CIMR-concise=1/4 | CIMR-answer_only=1/4
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[5/30]  gold=279
+05:12:24 | INFO | paired_ablation |   │  There are $8!= 40320$ eight-digit positive integers that use each of the digits ...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.1011  ans='2583'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.1055  ans='16407'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.1914  ans='80919'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0183  ans='873'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.0267  ans='16407'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0413  ans='7191'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0444  ans='44055'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0315  ans='-2'                 ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='80919'               prm=0.1914  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='16407'               votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='80919'               correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='80919'               norm=0.0677  k=8  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='2583'                correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='2583'                correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='2583'                correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=2/5 | Maj=1/5 | DN-BoN=2/5 | CIMR-full=1/5 | CIMR-concise=1/5 | CIMR-answer_only=1/5
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[6/30]  gold=504
+05:12:24 | INFO | paired_ablation |   │  An isosceles trapezoid has an inscribed circle tangent to each of its four sides...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.9492  ans='504'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.8789  ans='408'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.8242  ans='504'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.8203  ans='504'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.0046  ans='4'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0022  ans='384'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.4922  ans='504'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0304  ans='-108'               ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='504'                 prm=0.9492  correct=True
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='504'                 votes=4.0  correct=True
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='504'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='504'                 norm=0.3356  k=8  correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='504'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='504'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='360'                 correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=3/6 | Maj=2/6 | DN-BoN=3/6 | CIMR-full=2/6 | CIMR-concise=2/6 | CIMR-answer_only=1/6
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[7/30]  gold=821
+05:12:24 | INFO | paired_ablation |   │  The twelve letters $A$,$B$,$C$,$D$,$E$,$F$,$G$,$H$,$I$,$J$,$K$, and $L$ are rand...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.1748  ans='71'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.0393  ans='12'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.5234  ans='16'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0303  ans='5'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.6055  ans='12'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.5039  ans='17'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.1602  ans='11'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0659  ans='17'                 ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='12'                  prm=0.6055  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='12'                  votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='12'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='12'                  norm=0.2141  k=8  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='1'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='12'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='7'                   correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=3/7 | Maj=2/7 | DN-BoN=3/7 | CIMR-full=2/7 | CIMR-concise=2/7 | CIMR-answer_only=1/7
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[8/30]  gold=77
+05:12:24 | INFO | paired_ablation |   │  Let $k$ be a real number such that the system \begin{align*} &|25 + 20i - z| = 5...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.1206  ans='1'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.6406  ans='90'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0371  ans='11'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0698  ans='3040'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.0309  ans='5'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.3535  ans='37'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0737  ans='1582'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0178  ans='3'                  ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='90'                  prm=0.6406  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='1'                   votes=1.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='90'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='90'                  norm=0.2265  k=8  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='5'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='3049'                correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='12'                  correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=3/8 | Maj=2/8 | DN-BoN=3/8 | CIMR-full=2/8 | CIMR-concise=2/8 | CIMR-answer_only=1/8
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[9/30]  gold=62
+05:12:24 | INFO | paired_ablation |   │  The parabola with equation $y = x^2 - 4$ is rotated $60^\circ$ counterclockwise ...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.1260  ans='2'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.0342  ans='14'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0325  ans='4'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0036  ans='15'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.0193  ans='1'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0096  ans='8'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0052  ans='20'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0315  ans='146'                ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='2'                   prm=0.1260  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='2'                   votes=1.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='2'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='2'                   norm=0.0476  k=7  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='2'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='15'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='62'                  correct=True
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=3/9 | Maj=2/9 | DN-BoN=3/9 | CIMR-full=2/9 | CIMR-concise=2/9 | CIMR-answer_only=2/9
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[10/30]  gold=81
+05:12:24 | INFO | paired_ablation |   │  The $27$ cells of a $3 \times 9$ grid are filled in using the numbers $1$ throug...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0933  ans='142'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.4512  ans='119'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.2812  ans='45'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.1162  ans='133'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.0303  ans='147'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.5000  ans='119'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.1436  ans='114'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0309  ans='0'                  ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='119'                 prm=0.5000  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='119'                 votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='119'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='119'                 norm=0.1890  k=7  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='142'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='45'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='55'                  correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=3/10 | Maj=2/10 | DN-BoN=3/10 | CIMR-full=2/10 | CIMR-concise=2/10 | CIMR-answer_only=2/10
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[11/30]  gold=259
+05:12:24 | INFO | paired_ablation |   │  A piecewise linear function is defined by\[f(x) = \begin{cases} x & \operatornam...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.2676  ans='1'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.0471  ans='\\frac{1}{34}'      ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0300  ans='0'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.2051  ans='1'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.2598  ans='1'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0291  ans='0'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0069  ans='13'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.1680  ans='55'                 ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='1'                   prm=0.2676  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='1'                   votes=3.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='1'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='1'                   norm=0.2676  k=1  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='36'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='13'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='343'                 correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=3/11 | Maj=2/11 | DN-BoN=3/11 | CIMR-full=2/11 | CIMR-concise=2/11 | CIMR-answer_only=2/11
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[12/30]  gold=510
+05:12:24 | INFO | paired_ablation |   │  The set of points in $3$-dimensional coordinate space that lie in the plane $x+y...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.3008  ans='1878'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.0889  ans='5'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.1260  ans='228'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.1797  ans='628'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.1025  ans='69'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.1514  ans='1876'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.1147  ans='628'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.2314  ans='1445'               ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='1878'                prm=0.3008  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='1878'                votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='1878'                correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='1878'                norm=0.1137  k=7  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='1878'                correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='1878'                correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='6253'                correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=3/12 | Maj=2/12 | DN-BoN=3/12 | CIMR-full=2/12 | CIMR-concise=2/12 | CIMR-answer_only=2/12
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[13/30]  gold=204
+05:12:24 | INFO | paired_ablation |   │  Alex divides a disk into four quadrants with two perpendicular diameters interse...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.1816  ans='17902'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.1157  ans='352'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.1904  ans='379'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.1396  ans='17902'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.1060  ans='153'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.4512  ans='179'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.3066  ans='379'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.3340  ans='355'                ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='179'                 prm=0.4512  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='17902'               votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='179'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='179'                 norm=0.1595  k=8  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='352'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='153'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='379'                 correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=3/13 | Maj=2/13 | DN-BoN=3/13 | CIMR-full=2/13 | CIMR-concise=2/13 | CIMR-answer_only=2/13
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[14/30]  gold=60
+05:12:24 | INFO | paired_ablation |   │  Let $ABCDE$ be a convex pentagon with $AB=14,$ $BC=7,$ $CD=24,$ $DE=13,$ $EA=26,...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0201  ans='2'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.2988  ans='66'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0693  ans='509'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0140  ans='83'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.1084  ans='70'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.1035  ans='63'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0315  ans='1473'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0311  ans='2'                  ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='66'                  prm=0.2988  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='2'                   votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='66'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='66'                  norm=0.1057  k=8  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='66'                  correct=False [fallback]
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='70'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='84'                  correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=3/14 | Maj=2/14 | DN-BoN=3/14 | CIMR-full=2/14 | CIMR-concise=2/14 | CIMR-answer_only=2/14
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[15/30]  gold=735
+05:12:24 | INFO | paired_ablation |   │  Let $N$ denote the number of ordered triples of positive integers $(a, b, c)$ su...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0306  ans='11'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.5078  ans='269'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0859  ans='187'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0986  ans='441'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.4023  ans='349'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0215  ans='112'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0820  ans='979'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.1621  ans='649'                ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='269'                 prm=0.5078  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='11'                  votes=1.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='269'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='269'                 norm=0.5078  k=1  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='269'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='187'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='269'                 correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=3/15 | Maj=2/15 | DN-BoN=3/15 | CIMR-full=2/15 | CIMR-concise=2/15 | CIMR-answer_only=2/15
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[16/30]  gold=468
+05:12:24 | INFO | paired_ablation |   │  Six points $A, B, C, D, E,$ and $F$ lie in a straight line in that order. Suppos...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0332  ans='585'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.0289  ans='-14'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.7539  ans='468'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.8945  ans='468'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.8008  ans='636'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0030  ans='\\frac{31\\sqrt{37}}{2}' ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.7656  ans='468'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.1270  ans='39\\sqrt{319}'      ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='468'                 prm=0.8945  correct=True
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='468'                 votes=3.0  correct=True
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='468'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='468'                 norm=0.3163  k=8  correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='468'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='468'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='468'                 correct=True
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=4/16 | Maj=3/16 | DN-BoN=4/16 | CIMR-full=3/16 | CIMR-concise=3/16 | CIMR-answer_only=3/16
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[17/30]  gold=49
+05:12:24 | INFO | paired_ablation |   │  Find the sum of all positive integers $n$ such that $n + 2$ divides the product ...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0255  ans='13'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.9141  ans='49'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.9141  ans='49'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.9609  ans='49'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.9141  ans='49'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0747  ans='1'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.9961  ans='49'                 ✓
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.9062  ans='49'                 ✓
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='49'                  prm=0.9961  correct=True
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='49'                  votes=6.0  correct=True
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='49'                  correct=True
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='49'                  norm=0.3522  k=8  correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='0'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='49'                  correct=True
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='49'                  correct=True
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/17 | Maj=4/17 | DN-BoN=5/17 | CIMR-full=3/17 | CIMR-concise=4/17 | CIMR-answer_only=4/17
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[18/30]  gold=82
+05:12:24 | INFO | paired_ablation |   │  Four unit squares form a $2 \times 2$ grid. Each of the $12$ unit line segments ...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0166  ans='8'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.1807  ans='2'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.5039  ans='6'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.3027  ans='16'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.2812  ans='8'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.1455  ans='16'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.1787  ans='4'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0942  ans='64'                 ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='6'                   prm=0.5039  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='8'                   votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='6'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='6'                   norm=0.1782  k=8  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='8'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='8'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='8'                   correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/18 | Maj=4/18 | DN-BoN=5/18 | CIMR-full=3/18 | CIMR-concise=4/18 | CIMR-answer_only=4/18
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[19/30]  gold=106
+05:12:24 | INFO | paired_ablation |   │  The product\[\prod^{63}_{k=4} rac{\log_k (5^{k^2 - 1})}{\log_{k + 1} (5^{k^2 - ...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.8984  ans='6017'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.1309  ans='32911'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.5000  ans='109'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.2500  ans='1409'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.9766  ans='353'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.8984  ans='106'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.9062  ans='5921'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.6719  ans='5873'               ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='353'                 prm=0.9766  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='5921'                votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='106'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='353'                 norm=0.3453  k=8  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='6017'                correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='3974'                correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='6017'                correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/19 | Maj=4/19 | DN-BoN=5/19 | CIMR-full=3/19 | CIMR-concise=4/19 | CIMR-answer_only=4/19
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[20/30]  gold=336
+05:12:24 | INFO | paired_ablation |   │  Suppose $\triangle ABC$ has angles $\angle BAC = 84^\circ, \angle ABC=60^\circ,$...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0757  ans='360'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.0835  ans='216'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.5977  ans='516'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.3281  ans='312'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.1221  ans='384'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0228  ans='708'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.1934  ans='312'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0850  ans='96'                 ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='516'                 prm=0.5977  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='312'                 votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='516'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='516'                 norm=0.2259  k=7  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='360'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='516'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='168'                 correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/20 | Maj=4/20 | DN-BoN=5/20 | CIMR-full=3/20 | CIMR-concise=4/20 | CIMR-answer_only=4/20
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[21/30]  gold=293
+05:12:24 | INFO | paired_ablation |   │  Circle $\omega_1$ with radius $6$ centered at point $A$ is internally tangent at...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0112  ans='149'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.0035  ans='10'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0044  ans='293'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0087  ans='219'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.0381  ans='8'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0315  ans='36'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0303  ans='-108'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0036  ans='24'                 ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='8'                   prm=0.0381  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='149'                 votes=1.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='293'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='36'                  norm=0.0315  k=1  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='0'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='149'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='72(\\sqrt{2} - 1)'   correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/21 | Maj=4/21 | DN-BoN=5/21 | CIMR-full=3/21 | CIMR-concise=4/21 | CIMR-answer_only=4/21
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[22/30]  gold=237
+05:12:24 | INFO | paired_ablation |   │  Let $A$ be the set of positive integer divisors of $2025$. Let $B$ be a randomly...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.4277  ans='40958'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.1729  ans='33791'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.5820  ans='237'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.3789  ans='51178'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.9141  ans='60670'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.8203  ans='28293'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.2334  ans='65253'              ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.8867  ans='65497'              ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='60670'               prm=0.9141  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='65253'               votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='237'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='28293'               norm=0.8203  k=1  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='40958'               correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='63591'               correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='5'                   correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/22 | Maj=4/22 | DN-BoN=5/22 | CIMR-full=3/22 | CIMR-concise=4/22 | CIMR-answer_only=4/22
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[23/30]  gold=610
+05:12:24 | INFO | paired_ablation |   │  From an unlimited supply of 1-cent coins, 10-cent coins, and 25-cent coins, Sila...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.3066  ans='1000'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.3359  ans='960'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0718  ans='200'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0674  ans='1000'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.2617  ans='200'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.2461  ans='800'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.3691  ans='1000'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0522  ans='400'                ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='1000'                prm=0.3691  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='1000'                votes=3.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='1000'                correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='1000'                norm=0.1305  k=8  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='1000'                correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='40'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='440'                 correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/23 | Maj=4/23 | DN-BoN=5/23 | CIMR-full=3/23 | CIMR-concise=4/23 | CIMR-answer_only=4/23
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[24/30]  gold=149
+05:12:24 | INFO | paired_ablation |   │  There are $n$ values of $x$ in the interval $0<x<2\pi$ where $f(x)=\sin(7\pi\cdo...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.1338  ans='90'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.3184  ans='75'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0918  ans='89'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.3027  ans='120'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.6602  ans='145'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.1943  ans='85'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.6094  ans='115'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.2695  ans='5'                  ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='145'                 prm=0.6602  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='90'                  votes=1.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='145'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='145'                 norm=0.4668  k=2  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='90'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='...'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='145'                 correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/24 | Maj=4/24 | DN-BoN=5/24 | CIMR-full=3/24 | CIMR-concise=4/24 | CIMR-answer_only=4/24
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[25/30]  gold=907
+05:12:24 | INFO | paired_ablation |   │  Sixteen chairs are arranged in a row. Eight people each select a chair in which ...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0221  ans='0'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.8750  ans='9'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.4766  ans='435'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0303  ans='9'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.0309  ans='9'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.6172  ans='584'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0654  ans='42'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.6641  ans='009'                ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='9'                   prm=0.8750  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='9'                   votes=4.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='9'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='9'                   norm=0.6187  k=2  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='638'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='8'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='9'                   correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/25 | Maj=4/25 | DN-BoN=5/25 | CIMR-full=3/25 | CIMR-concise=4/25 | CIMR-answer_only=4/25
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[26/30]  gold=113
+05:12:24 | INFO | paired_ablation |   │  Let $S$ be the set of vertices of a regular $24$-gon. Find the number of ways to...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.3945  ans='12'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.2598  ans='23!!'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0273  ans='2304'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.6328  ans='1'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.1338  ans='12'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.2383  ans='233'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.1416  ans='12'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.4199  ans='4'                  ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='1'                   prm=0.6328  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='12'                  votes=3.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='1'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='1'                   norm=0.3164  k=4  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='12'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='233'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='1'                   correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/26 | Maj=4/26 | DN-BoN=5/26 | CIMR-full=3/26 | CIMR-concise=4/26 | CIMR-answer_only=4/26
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[27/30]  gold=19
+05:12:24 | INFO | paired_ablation |   │  Let $A_1A_2\dots A_{11}$ be a non-convex $11$-gon such that The area of $A_iA_1A...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0923  ans='9575'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.0330  ans='10'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0270  ans='40'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0688  ans='3125'               ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.4062  ans='22'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0069  ans='0'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0047  ans='78'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0099  ans='20'                 ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='22'                  prm=0.4062  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='9575'                votes=1.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='22'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='22'                  norm=0.2345  k=3  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='2\\sqrt{34}'         correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='5574'                correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='22'                  correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/27 | Maj=4/27 | DN-BoN=5/27 | CIMR-full=3/27 | CIMR-concise=4/27 | CIMR-answer_only=4/27
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[28/30]  gold=248
+05:12:24 | INFO | paired_ablation |   │  Let the sequence of rationals $x_1,x_2,\dots$ be defined such that $x_1=\frac{25...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0317  ans='3'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.1216  ans='151'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.7500  ans='3'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.2988  ans='3'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.7188  ans='3'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0635  ans='3'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.7227  ans='3'                  ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.5078  ans='3'                  ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='3'                   prm=0.7500  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='3'                   votes=7.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='3'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='3'                   norm=0.5078  k=1  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='3'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='3'                   correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='501'                 correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/28 | Maj=4/28 | DN-BoN=5/28 | CIMR-full=3/28 | CIMR-concise=4/28 | CIMR-answer_only=4/28
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[29/30]  gold=104
+05:12:24 | INFO | paired_ablation |   │  Let ${\triangle ABC}$ be a right triangle with $\angle A = 90^\circ$ and $BC = 3...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0140  ans='294'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.1416  ans='49'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.1787  ans='98'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.4434  ans='98'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.1201  ans='161'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0996  ans='49'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.2383  ans='49'                 ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0093  ans='7'                  ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='98'                  prm=0.4434  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='49'                  votes=3.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='98'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='98'                  norm=0.2217  k=4  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='722'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='98'                  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='49'                  correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/29 | Maj=4/29 | DN-BoN=5/29 | CIMR-full=3/29 | CIMR-concise=4/29 | CIMR-answer_only=4/29
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | 
+05:12:24 | INFO | paired_ablation |   ┌─ Q[30/30]  gold=240
+05:12:24 | INFO | paired_ablation |   │  Let\[f(x)=\frac{(x-18)(x-72)(x-98)(x-k)}{x}.\]There exist exactly three positive...
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  N=8 traces:
+05:12:24 | INFO | paired_ablation |   │    [ 0] prm=0.0349  ans='188'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 1] prm=0.0099  ans='240'                ✓
+05:12:24 | INFO | paired_ablation |   │    [ 2] prm=0.0806  ans='188'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 3] prm=0.0194  ans='156'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 4] prm=0.0233  ans='161'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 5] prm=0.0806  ans='288'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 6] prm=0.0806  ans='196'                ✗
+05:12:24 | INFO | paired_ablation |   │    [ 7] prm=0.0991  ans='116'                ✗
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Method selections:
+05:12:24 | INFO | paired_ablation |   │    BoN          → ans='116'                 prm=0.0991  correct=False
+05:12:24 | INFO | paired_ablation |   │    Majority     → ans='188'                 votes=2.0  correct=False
+05:12:24 | INFO | paired_ablation |   │    Oracle       → ans='240'                 correct=True
+05:12:24 | INFO | paired_ablation |   │    DN-BoN(def)  → ans='288'                 norm=0.0806  k=1  correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-full     → ans='-72'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-concise  → ans='188'                 correct=False
+05:12:24 | INFO | paired_ablation |   │    CIMR-answer_only → ans='645'                 correct=False
+05:12:24 | INFO | paired_ablation |   │
+05:12:24 | INFO | paired_ablation |   │  Running accuracy:  BoN=5/30 | Maj=4/30 | DN-BoN=5/30 | CIMR-full=3/30 | CIMR-concise=4/30 | CIMR-answer_only=4/30
+05:12:24 | INFO | paired_ablation |   └──────────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation | Per-question results → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/results_paired_aime25_N8.jsonl
+05:12:24 | INFO | paired_ablation | Aggregating results...
+05:12:24 | INFO | paired_ablation | Summary JSON → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/summary_paired_aime25_N8.json
+05:12:24 | INFO | paired_ablation | Analysis JSON → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/analysis_paired_aime25_N8.json
+05:12:24 | INFO | paired_ablation | LaTeX table → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/latex_table_aime25_N8.txt
+05:12:24 | INFO | paired_ablation | Help cases (0) → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/help_cases_aime25_N8.jsonl
+05:12:24 | INFO | paired_ablation | Hurt cases (0) → ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/hurt_cases_aime25_N8.jsonl
+05:12:24 | INFO | paired_ablation | 
+========================================================================
+05:12:24 | INFO | paired_ablation |  PAIRED ABLATION SUMMARY  |  aime25  |  N=8
+05:12:24 | INFO | paired_ablation | ========================================================================
+05:12:24 | INFO | paired_ablation |   bon                        acc= 16.67%  (5/30)
+05:12:24 | INFO | paired_ablation |   majority                   acc= 13.33%  (4/30)
+05:12:24 | INFO | paired_ablation |   oracle                     acc= 33.33%  (10/30)
+05:12:24 | INFO | paired_ablation |   CIMR (full)               acc= 10.00%  (3/30)
+05:12:24 | INFO | paired_ablation |   CIMR (concise)            acc= 13.33%  (4/30)
+05:12:24 | INFO | paired_ablation |   CIMR (answer_only)        acc= 13.33%  (4/30)
+05:12:24 | INFO | paired_ablation |   ────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation |   Method / (α, τ)              Accuracy  Δ vs BoN
+05:12:24 | INFO | paired_ablation |   ────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.70   acc= 16.67%  Δ=+0.00pp ◀ BEST
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.75   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.80   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.85   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.90   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.00 τ=0.95   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.70   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.75   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.80   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.85   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.90   acc= 13.33%  Δ=-3.34pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.25 τ=0.95   acc= 13.33%  Δ=-3.34pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.70   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.75   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.80   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.85   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.90   acc= 13.33%  Δ=-3.34pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.50 τ=0.95   acc= 13.33%  Δ=-3.34pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.70   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.75   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.80   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.85   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.90   acc= 10.00%  Δ=-6.67pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=0.75 τ=0.95   acc= 13.33%  Δ=-3.34pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.70   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.75   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.80   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.85   acc= 16.67%  Δ=+0.00pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.90   acc= 10.00%  Δ=-6.67pp
+05:12:24 | INFO | paired_ablation |   DN-BoN α=1.00 τ=0.95   acc= 13.33%  Δ=-3.34pp
+05:12:24 | INFO | paired_ablation |   ────────────────────────────────────────────────────────────
+05:12:24 | INFO | paired_ablation |   Mean fmax:          0.996
+05:12:24 | INFO | paired_ablation |   Mean H (entropy):   0.018 bits
+05:12:24 | INFO | paired_ablation |   Multiplicity bias fired: 0 (0.0%)
+05:12:24 | INFO | paired_ablation |   DN-BoN rescued:     0 questions
+05:12:24 | INFO | paired_ablation |   DN-BoN hurt:        0 questions
+05:12:24 | INFO | paired_ablation |   Net help:           +0 questions
+05:12:24 | INFO | paired_ablation | ========================================================================
+05:12:24 | INFO | paired_ablation |   Best config: dn_bon_tau0.70_alpha0.00  (16.67%)
+05:12:24 | INFO | paired_ablation | ========================================================================
+
+05:12:24 | INFO | paired_ablation | Generating figures...
+05:12:26 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/accuracy_vs_alpha_aime25_N8.pdf
+05:12:27 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/accuracy_vs_tau_aime25_N8.pdf
+/home/ahsan/crisp/run_paired_ablation.py:1019: UserWarning: No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
+  ax.legend(fontsize=10)
+05:12:27 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/help_vs_hurt_fmax_aime25_N8.pdf
+05:12:28 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/fmax_vs_accuracy_scatter_aime25_N8.pdf
+05:12:29 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/cluster_entropy_hist_aime25_N8.pdf
+05:12:30 | INFO | paired_ablation |   Saved: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/figures/pairwise_delta_heatmap_aime25_N8.pdf
+05:12:30 | INFO | paired_ablation | All figures saved.
+05:12:30 | INFO | paired_ablation | Done.  All outputs in: ./results_paired/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95

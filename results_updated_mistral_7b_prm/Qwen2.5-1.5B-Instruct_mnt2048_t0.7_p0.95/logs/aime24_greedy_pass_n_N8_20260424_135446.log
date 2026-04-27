@@ -1,0 +1,62 @@
+13:54:52 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
+13:54:52 | INFO | run_eval | Loading dataset: aime24
+13:54:55 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
+13:54:55 | INFO | run_eval | Loaded 30 examples.
+13:54:55 | INFO | run_eval | Loading model: Qwen/Qwen2.5-1.5B-Instruct  batch_size=16
+/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+13:55:04 | INFO | model_wrapper | CUDA available: 1 GPU(s)
+13:55:04 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+13:55:04 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
+13:55:04 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-1.5B-Instruct
+13:55:05 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-1.5B-Instruct
+13:55:06 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+13:55:08 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
+13:55:08 | INFO | model_wrapper |   GPU 0 memory: allocated=2.88 GB  reserved=2.96 GB
+13:55:08 | INFO | run_eval | Building verifier: prm
+13:55:08 | INFO | verifier | Loading PRM tokenizer: peiyi9979/math-shepherd-mistral-7b-prm
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama.LlamaTokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama_fast.LlamaTokenizerFast'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message.
+13:55:09 | INFO | verifier |   step_sep_id ('<extra_0>') = 1
+13:55:09 | INFO | verifier | Loading PRM model: peiyi9979/math-shepherd-mistral-7b-prm
+`torch_dtype` is deprecated! Use `dtype` instead!
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files:  50%|█████     | 1/2 [02:27<02:27, 147.93s/it]Fetching 2 files: 100%|██████████| 2/2 [02:27<00:00, 73.97s/it] 
+13:57:38 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [01:16<01:16, 76.87s/it]Loading checkpoint shards: 100%|██████████| 2/2 [03:03<00:00, 94.53s/it]Loading checkpoint shards: 100%|██████████| 2/2 [03:03<00:00, 91.88s/it]
+14:00:42 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=16
+14:00:43 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
+14:00:43 | INFO | run_eval | 
+================================================================
+14:00:43 | INFO | run_eval |  Running : greedy_pass_n
+14:00:43 | INFO | run_eval |  Dataset : aime24  N=8  batch_size=16
+14:00:43 | INFO | run_eval | ================================================================
+14:00:43 | INFO | evaluator | Evaluating 30/30 pending questions  (method=GreedyPassN)
+14:00:43 | INFO | evaluator |   Flat-batch generation: Q=30  N=8  batch_size=16  →  240 total seqs  →  15 generate() calls  →  saving every 2 questions
+[GreedyPass@N N=8]:   0%|[36m          [0m| 0/30 [00:00<?, ?q/s]
+[generate] flat  bs=16  Q=30  N=8:   0%|[34m          [0m| 0/15 [00:00<?, ?chunk/s][A[GreedyPass@N N=8]:   3%|[36m▎         [0m| 1/30 [01:46<51:32, 106.63s/q, acc=0.000, correct=0/1][GreedyPass@N N=8]:   7%|[36m▋         [0m| 2/30 [01:46<20:34, 44.09s/q, acc=0.000, correct=0/2] 
+[generate] flat  bs=16  Q=30  N=8:   7%|[34m▋         [0m| 1/15 [01:46<24:56, 106.91s/chunk, saved=2/30, seqs=16/240][A[GreedyPass@N N=8]:  10%|[36m█         [0m| 3/30 [03:20<29:58, 66.61s/q, acc=0.000, correct=0/3][GreedyPass@N N=8]:  13%|[36m█▎        [0m| 4/30 [03:20<17:30, 40.42s/q, acc=0.000, correct=0/4]
+[generate] flat  bs=16  Q=30  N=8:  13%|[34m█▎        [0m| 2/15 [03:20<21:28, 99.13s/chunk, saved=4/30, seqs=32/240] [A[GreedyPass@N N=8]:  17%|[36m█▋        [0m| 5/30 [05:22<29:00, 69.63s/q, acc=0.000, correct=0/5][GreedyPass@N N=8]:  20%|[36m██        [0m| 6/30 [05:22<18:25, 46.06s/q, acc=0.000, correct=0/6]
+[generate] flat  bs=16  Q=30  N=8:  20%|[34m██        [0m| 3/15 [05:22<21:53, 109.45s/chunk, saved=6/30, seqs=48/240][A[GreedyPass@N N=8]:  23%|[36m██▎       [0m| 7/30 [06:39<21:32, 56.21s/q, acc=0.000, correct=0/7][GreedyPass@N N=8]:  27%|[36m██▋       [0m| 8/30 [06:39<14:04, 38.40s/q, acc=0.000, correct=0/8]
+[generate] flat  bs=16  Q=30  N=8:  27%|[34m██▋       [0m| 4/15 [06:39<17:44, 96.78s/chunk, saved=8/30, seqs=64/240] [A[GreedyPass@N N=8]:  30%|[36m███       [0m| 9/30 [08:05<18:37, 53.20s/q, acc=0.000, correct=0/9][GreedyPass@N N=8]:  33%|[36m███▎      [0m| 10/30 [08:05<12:16, 36.85s/q, acc=0.000, correct=0/10]14:08:49 | INFO | evaluator |   [10/30] acc=0.000 (0/10)
+
+[generate] flat  bs=16  Q=30  N=8:  33%|[34m███▎      [0m| 5/15 [08:05<15:28, 92.88s/chunk, saved=10/30, seqs=80/240][A[GreedyPass@N N=8]:  37%|[36m███▋      [0m| 11/30 [09:22<15:32, 49.07s/q, acc=0.000, correct=0/11][GreedyPass@N N=8]:  40%|[36m████      [0m| 12/30 [09:22<10:15, 34.22s/q, acc=0.000, correct=0/12]
+[generate] flat  bs=16  Q=30  N=8:  40%|[34m████      [0m| 6/15 [09:22<13:07, 87.50s/chunk, saved=12/30, seqs=96/240][A[GreedyPass@N N=8]:  43%|[36m████▎     [0m| 13/30 [11:02<15:19, 54.11s/q, acc=0.000, correct=0/13][GreedyPass@N N=8]:  47%|[36m████▋     [0m| 14/30 [11:02<10:05, 37.84s/q, acc=0.000, correct=0/14]
+[generate] flat  bs=16  Q=30  N=8:  47%|[34m████▋     [0m| 7/15 [11:02<12:13, 91.63s/chunk, saved=14/30, seqs=112/240][A[GreedyPass@N N=8]:  50%|[36m█████     [0m| 15/30 [13:30<17:42, 70.82s/q, acc=0.000, correct=0/15][GreedyPass@N N=8]:  53%|[36m█████▎    [0m| 16/30 [13:30<11:34, 49.61s/q, acc=0.000, correct=0/16]
+[generate] flat  bs=16  Q=30  N=8:  53%|[34m█████▎    [0m| 8/15 [13:30<12:46, 109.44s/chunk, saved=16/30, seqs=128/240][A[GreedyPass@N N=8]:  57%|[36m█████▋    [0m| 17/30 [14:46<12:28, 57.60s/q, acc=0.000, correct=0/17][GreedyPass@N N=8]:  60%|[36m██████    [0m| 18/30 [14:46<08:04, 40.36s/q, acc=0.000, correct=0/18]
+[generate] flat  bs=16  Q=30  N=8:  60%|[34m██████    [0m| 9/15 [14:46<09:54, 99.11s/chunk, saved=18/30, seqs=144/240] [A[GreedyPass@N N=8]:  63%|[36m██████▎   [0m| 19/30 [16:04<09:27, 51.55s/q, acc=0.000, correct=0/19][GreedyPass@N N=8]:  67%|[36m██████▋   [0m| 20/30 [16:04<06:01, 36.14s/q, acc=0.000, correct=0/20]14:16:48 | INFO | evaluator |   [20/30] acc=0.000 (0/20)
+
+[generate] flat  bs=16  Q=30  N=8:  67%|[34m██████▋   [0m| 10/15 [16:04<07:42, 92.55s/chunk, saved=20/30, seqs=160/240][A[GreedyPass@N N=8]:  70%|[36m███████   [0m| 21/30 [18:33<10:28, 69.89s/q, acc=0.000, correct=0/21][GreedyPass@N N=8]:  73%|[36m███████▎  [0m| 22/30 [18:33<06:31, 48.95s/q, acc=0.045, correct=1/22]
+[generate] flat  bs=16  Q=30  N=8:  73%|[34m███████▎  [0m| 11/15 [18:33<07:18, 109.73s/chunk, saved=22/30, seqs=176/240][A[GreedyPass@N N=8]:  77%|[36m███████▋  [0m| 23/30 [20:00<07:02, 60.39s/q, acc=0.043, correct=1/23][GreedyPass@N N=8]:  80%|[36m████████  [0m| 24/30 [20:00<04:14, 42.34s/q, acc=0.042, correct=1/24]
+[generate] flat  bs=16  Q=30  N=8:  80%|[34m████████  [0m| 12/15 [20:00<05:08, 102.91s/chunk, saved=24/30, seqs=192/240][A[GreedyPass@N N=8]:  83%|[36m████████▎ [0m| 25/30 [22:27<06:07, 73.58s/q, acc=0.040, correct=1/25][GreedyPass@N N=8]:  87%|[36m████████▋ [0m| 26/30 [22:27<03:26, 51.62s/q, acc=0.038, correct=1/26]
+[generate] flat  bs=16  Q=30  N=8:  87%|[34m████████▋ [0m| 13/15 [22:27<03:52, 116.22s/chunk, saved=26/30, seqs=208/240][A[GreedyPass@N N=8]:  90%|[36m█████████ [0m| 27/30 [23:59<03:11, 63.72s/q, acc=0.037, correct=1/27][GreedyPass@N N=8]:  93%|[36m█████████▎[0m| 28/30 [23:59<01:29, 44.68s/q, acc=0.036, correct=1/28]
+[generate] flat  bs=16  Q=30  N=8:  93%|[34m█████████▎[0m| 14/15 [23:59<01:48, 108.97s/chunk, saved=28/30, seqs=224/240][A[GreedyPass@N N=8]:  97%|[36m█████████▋[0m| 29/30 [25:41<01:01, 61.90s/q, acc=0.034, correct=1/29][GreedyPass@N N=8]: 100%|[36m██████████[0m| 30/30 [25:42<00:00, 43.41s/q, acc=0.033, correct=1/30]14:26:25 | INFO | evaluator |   [30/30] acc=0.033 (1/30)
+
+[generate] flat  bs=16  Q=30  N=8: 100%|[34m██████████[0m| 15/15 [25:42<00:00, 106.97s/chunk, saved=30/30, seqs=240/240][A[generate] flat  bs=16  Q=30  N=8: 100%|[34m██████████[0m| 15/15 [25:42<00:00, 102.81s/chunk, saved=30/30, seqs=240/240]
+[GreedyPass@N N=8]: 100%|[36m██████████[0m| 30/30 [25:42<00:00, 51.40s/q, acc=0.033, correct=1/30]
+14:26:25 | INFO | evaluator | Summary (final) saved → ./results_updated_mistral_7b_prm/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/greedy_pass_n_aime24_N8_summary.json
+14:26:25 | INFO | evaluator | Done. acc=0.0333 (1/30)  wall=1542.1s  avg=0.00s/q
+14:26:25 | INFO | run_eval | 
+Method                 Accuracy    Correct    Total   Avg time    Wall time
+--------------------------------------------------------------------------
+greedy_pass_n            0.0333          1       30      0.00s      1542.1s
+14:26:25 | INFO | run_eval | Comparison table saved to ./results_updated_mistral_7b_prm/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/comparison_aime24_N8.txt

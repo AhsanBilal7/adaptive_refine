@@ -1,0 +1,98 @@
+01:04:01 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
+01:04:01 | INFO | run_eval | Loading dataset: aime24
+01:04:04 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
+01:04:04 | INFO | run_eval | Loaded 30 examples.
+01:04:04 | INFO | run_eval | Loading model: deepseek-ai/DeepSeek-R1-0528-Qwen3-8B  batch_size=8
+/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+01:04:13 | INFO | model_wrapper | CUDA available: 1 GPU(s)
+01:04:13 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+01:04:13 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
+01:04:13 | INFO | model_wrapper | Loading tokenizer: deepseek-ai/DeepSeek-R1-0528-Qwen3-8B
+01:04:14 | INFO | model_wrapper | Loading model: deepseek-ai/DeepSeek-R1-0528-Qwen3-8B
+Unrecognized keys in `rope_scaling` for 'rope_type'='yarn': {'attn_factor'}
+01:04:16 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.94s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.77s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.80s/it]
+01:04:22 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=8
+01:04:22 | INFO | model_wrapper |   GPU 0 memory: allocated=15.26 GB  reserved=15.41 GB
+01:04:22 | INFO | run_eval | Building verifier: prm
+01:04:22 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+01:04:23 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+01:04:23 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+`torch_dtype` is deprecated! Use `dtype` instead!
+01:04:28 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:04,  1.34s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.32s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.32s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.13s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.20s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+01:04:33 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=8
+01:04:33 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
+01:04:33 | INFO | run_eval | 
+================================================================
+01:04:33 | INFO | run_eval |  Running : greedy
+01:04:33 | INFO | run_eval |  Dataset : aime24  N=8  batch_size=8
+01:04:33 | INFO | run_eval | ================================================================
+01:04:33 | INFO | evaluator | Evaluating 30/30 pending questions  (method=GreedyInference)
+[Greedy] generate (bs=8):   0%|[32m          [0m| 0/4 [00:00<?, ?chunk/s]
+[Greedy] generate (bs=8):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A[Greedy] generate (bs=8):   0%|[32m          [0m| 0/1 [1:34:20<?, ?chunk/s, q=8/8]
+[Greedy] generate (bs=8):   0%|[32m          [0m| 0/4 [1:34:20<?, ?chunk/s]
+Traceback (most recent call last):
+  File "/home/ahsan/adaptive_scientific_discovery/run_eval.py", line 398, in <module>
+    main()
+  File "/home/ahsan/adaptive_scientific_discovery/run_eval.py", line 367, in main
+    summary = evaluate_batch(
+  File "/home/ahsan/adaptive_scientific_discovery/evaluator.py", line 367, in evaluate_batch
+    for ex, res in result_gen:
+  File "/home/ahsan/adaptive_scientific_discovery/evaluator.py", line 138, in _greedy_results
+    traces = method.model.generate_greedy_batch(
+  File "/home/ahsan/adaptive_scientific_discovery/model_wrapper.py", line 358, in generate_greedy_batch
+    self._generate_batch_raw(chunk, do_sample=False,
+  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/ahsan/adaptive_scientific_discovery/model_wrapper.py", line 326, in _generate_batch_raw
+    output_ids = self.model.generate(**enc, **gen_kwargs)
+  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/generation/utils.py", line 2564, in generate
+    result = decoding_method(
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/generation/utils.py", line 2787, in _sample
+    outputs = model_forward(**model_inputs, return_dict=True)
+  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/generic.py", line 918, in wrapper
+    output = func(self, *args, **kwargs)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/models/qwen3/modeling_qwen3.py", line 480, in forward
+    outputs: BaseModelOutputWithPast = self.model(
+  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/generic.py", line 1072, in wrapper
+    outputs = func(self, *args, **kwargs)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/models/qwen3/modeling_qwen3.py", line 410, in forward
+    hidden_states = decoder_layer(
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/modeling_layers.py", line 94, in __call__
+    return super().__call__(*args, **kwargs)
+  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/models/qwen3/modeling_qwen3.py", line 260, in forward
+    hidden_states, _ = self.self_attn(
+  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1739, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1750, in _call_impl
+    return forward_call(*args, **kwargs)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/deprecation.py", line 172, in wrapped_func
+    return func(*args, **kwargs)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/models/qwen3/modeling_qwen3.py", line 216, in forward
+    attn_output, attn_weights = attention_interface(
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 68, in sdpa_attention_forward
+    value = repeat_kv(value, module.num_key_value_groups)
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/integrations/sdpa_attention.py", line 27, in repeat_kv
+    return hidden_states.reshape(batch, num_key_value_heads * n_rep, slen, head_dim)
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 1.92 GiB. GPU 0 has a total capacity of 79.21 GiB of which 1.75 GiB is free. Including non-PyTorch memory, this process has 77.45 GiB memory in use. Of the allocated memory 64.92 GiB is allocated by PyTorch, and 11.69 GiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

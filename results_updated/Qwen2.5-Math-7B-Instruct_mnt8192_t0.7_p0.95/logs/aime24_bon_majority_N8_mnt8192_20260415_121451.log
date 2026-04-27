@@ -1,0 +1,46 @@
+13:34:06 | INFO | run_eval | GPUs available: 2  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
+13:34:06 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 2 GPUs via device_map='auto' (unless --device is pinned).
+13:34:06 | INFO | run_eval | Loading dataset: aime24
+13:34:09 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
+13:34:09 | INFO | run_eval | Loaded 30 examples.
+13:34:09 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=32
+/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+13:34:18 | INFO | model_wrapper | CUDA available: 2 GPU(s)
+13:34:18 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+13:34:18 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
+13:34:18 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=2  dtype=torch.float16  4bit=False  8bit=False
+13:34:18 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
+13:34:19 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:29<01:28, 29.35s/it]Loading checkpoint shards:  50%|█████     | 2/4 [01:00<01:00, 30.20s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [01:27<00:28, 28.95s/it]Loading checkpoint shards: 100%|██████████| 4/4 [01:54<00:00, 28.00s/it]Loading checkpoint shards: 100%|██████████| 4/4 [01:54<00:00, 28.54s/it]
+13:36:16 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1']  (primary=cuda:0)
+13:36:16 | INFO | model_wrapper |   GPU 0 memory: allocated=6.22 GB  reserved=6.24 GB
+13:36:16 | INFO | model_wrapper |   GPU 1 memory: allocated=7.96 GB  reserved=7.98 GB
+13:36:16 | INFO | run_eval | Building verifier: prm
+13:36:16 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+13:36:17 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+13:36:17 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:15<00:45, 15.24s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:26<00:25, 12.90s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:37<00:12, 12.05s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:41<00:00,  8.70s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:41<00:00, 10.28s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+13:36:59 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=32
+13:36:59 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
+13:36:59 | INFO | run_eval | 
+================================================================
+13:36:59 | INFO | run_eval |  Running : bon_majority
+13:36:59 | INFO | run_eval |  Dataset : aime24  N=8  batch_size=32
+13:36:59 | INFO | run_eval | ================================================================
+13:36:59 | INFO | evaluator | Evaluating 30/30 pending questions  (method=BestOfNMajority)
+13:36:59 | INFO | evaluator |   Flat-batch generation: Q=30  N=8  batch_size=32  →  240 total seqs  →  8 generate() calls  →  saving every 4 questions
+[BoN-Majority N=8]:   0%|[33m          [0m| 0/30 [00:00<?, ?q/s]
+[generate] flat  bs=32  Q=30  N=8:   0%|[34m          [0m| 0/8 [00:00<?, ?chunk/s][AThis is a friendly reminder - the current text generation call has exceeded the model's predefined maximum length (4096). Depending on the model, you may observe exceptions, performance degradation, or nothing at all.
+[BoN-Majority N=8]:   3%|[33m▎         [0m| 1/30 [18:28<8:55:56, 1108.84s/q, acc=1.000, correct=1/1][BoN-Majority N=8]:   7%|[33m▋         [0m| 2/30 [18:32<3:33:57, 458.50s/q, acc=0.500, correct=1/2] [BoN-Majority N=8]:  10%|[33m█         [0m| 3/30 [18:32<1:52:14, 249.44s/q, acc=0.667, correct=2/3][BoN-Majority N=8]:  13%|[33m█▎        [0m| 4/30 [18:33<1:05:31, 151.22s/q, acc=0.500, correct=2/4]
+[generate] flat  bs=32  Q=30  N=8:  12%|[34m█▎        [0m| 1/8 [18:33<2:09:53, 1113.36s/chunk, saved=4/30, seqs=32/240][A[BoN-Majority N=8]:  17%|[33m█▋        [0m| 5/30 [36:38<3:23:23, 488.13s/q, acc=0.400, correct=2/5][BoN-Majority N=8]:  20%|[33m██        [0m| 6/30 [36:40<2:09:07, 322.79s/q, acc=0.333, correct=2/6][BoN-Majority N=8]:  23%|[33m██▎       [0m| 7/30 [36:43<1:23:37, 218.14s/q, acc=0.286, correct=2/7][BoN-Majority N=8]:  27%|[33m██▋       [0m| 8/30 [36:43<54:35, 148.87s/q, acc=0.250, correct=2/8]  
+[generate] flat  bs=32  Q=30  N=8:  25%|[34m██▌       [0m| 2/8 [36:43<1:49:59, 1099.95s/chunk, saved=8/30, seqs=64/240][A[BoN-Majority N=8]:  30%|[33m███       [0m| 9/30 [54:46<2:34:16, 440.77s/q, acc=0.333, correct=3/9][BoN-Majority N=8]:  33%|[33m███▎      [0m| 10/30 [54:49<1:41:51, 305.59s/q, acc=0.300, correct=3/10]14:31:49 | INFO | evaluator |   [10/30] acc=0.300 (3/10)
+[BoN-Majority N=8]:  37%|[33m███▋      [0m| 11/30 [54:50<1:07:17, 212.52s/q, acc=0.364, correct=4/11][BoN-Majority N=8]:  40%|[33m████      [0m| 12/30 [54:53<44:32, 148.49s/q, acc=0.333, correct=4/12]  
+[generate] flat  bs=32  Q=30  N=8:  38%|[34m███▊      [0m| 3/8 [54:52<1:31:14, 1094.97s/chunk, saved=12/30, seqs=96/240][A[BoN-Majority N=8]:  43%|[33m████▎     [0m| 13/30 [1:12:53<2:02:02, 430.73s/q, acc=0.385, correct=5/13][BoN-Majority N=8]:  47%|[33m████▋     [0m| 14/30 [1:12:56<1:20:26, 301.63s/q, acc=0.357, correct=5/14][BoN-Majority N=8]:  50%|[33m█████     [0m| 15/30 [1:12:57<52:45, 211.07s/q, acc=0.333, correct=5/15]  [BoN-Majority N=8]:  53%|[33m█████▎    [0m| 16/30 [1:12:59<34:33, 148.08s/q, acc=0.312, correct=5/16]
+[generate] flat  bs=32  Q=30  N=8:  50%|[34m█████     [0m| 4/8 [1:12:59<1:12:46, 1091.62s/chunk, saved=16/30, seqs=128/240][A[BoN-Majority N=8]:  57%|[33m█████▋    [0m| 17/30 [1:30:57<1:32:39, 427.62s/q, acc=0.294, correct=5/17][BoN-Majority N=8]:  60%|[33m██████    [0m| 18/30 [1:30:59<59:59, 299.92s/q, acc=0.278, correct=5/18]  [BoN-Majority N=8]:  63%|[33m██████▎   [0m| 19/30 [1:31:01<38:33, 210.34s/q, acc=0.263, correct=5/19][BoN-Majority N=8]:  67%|[33m██████▋   [0m| 20/30 [1:31:04<24:39, 147.98s/q, acc=0.250, correct=5/20]15:08:03 | INFO | evaluator |   [20/30] acc=0.250 (5/20)
+
+[generate] flat  bs=32  Q=30  N=8:  62%|[34m██████▎   [0m| 5/8 [1:31:04<54:27, 1089.11s/chunk, saved=20/30, seqs=160/240]  [A

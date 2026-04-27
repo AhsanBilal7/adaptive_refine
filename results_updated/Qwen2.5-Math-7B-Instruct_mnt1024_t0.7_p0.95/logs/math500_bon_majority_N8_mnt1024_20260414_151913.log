@@ -1,0 +1,71 @@
+15:21:36 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
+15:21:36 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
+15:21:36 | INFO | run_eval | Loading dataset: math500
+15:21:39 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
+15:21:39 | INFO | run_eval | Loaded 500 examples.
+15:21:39 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=64
+/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+15:21:47 | INFO | model_wrapper | CUDA available: 4 GPU(s)
+15:21:47 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+15:21:47 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
+15:21:47 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
+15:21:47 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
+15:21:47 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
+15:21:47 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
+15:21:48 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:05,  1.94s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:04<00:04,  2.03s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:06<00:02,  2.00s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.84s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.90s/it]
+15:21:58 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
+15:21:58 | INFO | model_wrapper |   GPU 0 memory: allocated=2.75 GB  reserved=2.77 GB
+15:21:58 | INFO | model_wrapper |   GPU 1 memory: allocated=3.91 GB  reserved=3.93 GB
+15:21:58 | INFO | model_wrapper |   GPU 2 memory: allocated=3.91 GB  reserved=3.93 GB
+15:21:58 | INFO | model_wrapper |   GPU 3 memory: allocated=3.62 GB  reserved=3.64 GB
+15:21:58 | INFO | run_eval | Building verifier: prm
+15:21:58 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+15:21:59 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+15:21:59 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.31s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.29s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.28s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.09s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.17s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+15:22:10 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=64
+15:22:10 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
+15:22:10 | INFO | run_eval | 
+================================================================
+15:22:10 | INFO | run_eval |  Running : bon_majority
+15:22:10 | INFO | run_eval |  Dataset : math500  N=8  batch_size=64
+15:22:10 | INFO | run_eval | ================================================================
+15:22:10 | INFO | evaluator | Resuming: 424 questions already done  (acc so far: 342/424)
+15:22:10 | INFO | evaluator | Evaluating 76/500 pending questions  (method=BestOfNMajority)
+15:22:10 | INFO | evaluator |   Flat-batch generation: Q=76  N=8  batch_size=64  →  608 total seqs  →  10 generate() calls  →  saving every 8 questions
+[BoN-Majority N=8]:   0%|[33m          [0m| 0/76 [00:00<?, ?q/s]
+[generate] flat  bs=64  Q=76  N=8:   0%|[34m          [0m| 0/10 [00:00<?, ?chunk/s][A[BoN-Majority N=8]:   1%|[33m▏         [0m| 1/76 [01:54<2:22:57, 114.37s/q, acc=1.000, correct=1/1][BoN-Majority N=8]:   3%|[33m▎         [0m| 2/76 [02:01<1:03:03, 51.12s/q, acc=0.500, correct=1/2] [BoN-Majority N=8]:   4%|[33m▍         [0m| 3/76 [02:01<33:55, 27.88s/q, acc=0.667, correct=2/3]  [BoN-Majority N=8]:   7%|[33m▋         [0m| 5/76 [02:02<14:32, 12.29s/q, acc=0.800, correct=4/5][BoN-Majority N=8]:   8%|[33m▊         [0m| 6/76 [02:02<10:15,  8.80s/q, acc=0.833, correct=5/6]15:24:12 | INFO | evaluator |   [430/500] acc=0.807 (347/430)
+[BoN-Majority N=8]:  11%|[33m█         [0m| 8/76 [02:02<05:37,  4.96s/q, acc=0.875, correct=7/8]
+[generate] flat  bs=64  Q=76  N=8:  10%|[34m█         [0m| 1/10 [02:02<18:26, 122.89s/chunk, saved=8/76, seqs=64/608][A[BoN-Majority N=8]:  12%|[33m█▏        [0m| 9/76 [03:52<33:59, 30.44s/q, acc=0.778, correct=7/9][BoN-Majority N=8]:  14%|[33m█▍        [0m| 11/76 [03:52<19:28, 17.98s/q, acc=0.818, correct=9/11][BoN-Majority N=8]:  17%|[33m█▋        [0m| 13/76 [03:54<12:18, 11.73s/q, acc=0.769, correct=10/13][BoN-Majority N=8]:  18%|[33m█▊        [0m| 14/76 [03:54<09:37,  9.31s/q, acc=0.786, correct=11/14][BoN-Majority N=8]:  21%|[33m██        [0m| 16/76 [03:58<06:31,  6.52s/q, acc=0.812, correct=13/16]15:26:08 | INFO | evaluator |   [440/500] acc=0.807 (355/440)
+
+[generate] flat  bs=64  Q=76  N=8:  20%|[34m██        [0m| 2/10 [03:58<15:49, 118.63s/chunk, saved=16/76, seqs=128/608][A[BoN-Majority N=8]:  22%|[33m██▏       [0m| 17/76 [05:49<28:09, 28.63s/q, acc=0.824, correct=14/17][BoN-Majority N=8]:  25%|[33m██▌       [0m| 19/76 [05:50<17:02, 17.94s/q, acc=0.842, correct=16/19][BoN-Majority N=8]:  28%|[33m██▊       [0m| 21/76 [05:51<10:53, 11.89s/q, acc=0.810, correct=17/21][BoN-Majority N=8]:  29%|[33m██▉       [0m| 22/76 [05:52<08:45,  9.73s/q, acc=0.773, correct=17/22][BoN-Majority N=8]:  32%|[33m███▏      [0m| 24/76 [05:52<05:23,  6.22s/q, acc=0.792, correct=19/24]
+[generate] flat  bs=64  Q=76  N=8:  30%|[34m███       [0m| 3/10 [05:52<13:36, 116.63s/chunk, saved=24/76, seqs=192/608][A[BoN-Majority N=8]:  33%|[33m███▎      [0m| 25/76 [07:40<23:05, 27.16s/q, acc=0.800, correct=20/25]15:29:51 | INFO | evaluator |   [450/500] acc=0.807 (363/450)
+[BoN-Majority N=8]:  36%|[33m███▌      [0m| 27/76 [07:40<13:59, 17.12s/q, acc=0.815, correct=22/27][BoN-Majority N=8]:  38%|[33m███▊      [0m| 29/76 [07:40<08:47, 11.22s/q, acc=0.828, correct=24/29][BoN-Majority N=8]:  41%|[33m████      [0m| 31/76 [07:41<05:42,  7.61s/q, acc=0.806, correct=25/31]
+[generate] flat  bs=64  Q=76  N=8:  40%|[34m████      [0m| 4/10 [07:41<11:21, 113.55s/chunk, saved=32/76, seqs=256/608][A[BoN-Majority N=8]:  43%|[33m████▎     [0m| 33/76 [09:35<16:47, 23.43s/q, acc=0.788, correct=26/33][BoN-Majority N=8]:  46%|[33m████▌     [0m| 35/76 [09:35<10:59, 16.09s/q, acc=0.800, correct=28/35][BoN-Majority N=8]:  47%|[33m████▋     [0m| 36/76 [09:35<08:46, 13.17s/q, acc=0.806, correct=29/36]15:31:46 | INFO | evaluator |   [460/500] acc=0.807 (371/460)
+[BoN-Majority N=8]:  49%|[33m████▊     [0m| 37/76 [09:36<06:55, 10.64s/q, acc=0.784, correct=29/37][BoN-Majority N=8]:  50%|[33m█████     [0m| 38/76 [09:37<05:18,  8.37s/q, acc=0.789, correct=30/38][BoN-Majority N=8]:  53%|[33m█████▎    [0m| 40/76 [09:37<03:03,  5.09s/q, acc=0.800, correct=32/40]
+[generate] flat  bs=64  Q=76  N=8:  50%|[34m█████     [0m| 5/10 [09:37<09:32, 114.40s/chunk, saved=40/76, seqs=320/608][A[BoN-Majority N=8]:  54%|[33m█████▍    [0m| 41/76 [11:27<16:29, 28.28s/q, acc=0.805, correct=33/41][BoN-Majority N=8]:  57%|[33m█████▋    [0m| 43/76 [11:28<09:36, 17.47s/q, acc=0.814, correct=35/43][BoN-Majority N=8]:  59%|[33m█████▉    [0m| 45/76 [11:28<05:50, 11.31s/q, acc=0.822, correct=37/45]15:33:39 | INFO | evaluator |   [470/500] acc=0.809 (380/470)
+[BoN-Majority N=8]:  62%|[33m██████▏   [0m| 47/76 [11:30<03:47,  7.85s/q, acc=0.830, correct=39/47]
+[generate] flat  bs=64  Q=76  N=8:  60%|[34m██████    [0m| 6/10 [11:30<07:36, 114.07s/chunk, saved=48/76, seqs=384/608][A[BoN-Majority N=8]:  64%|[33m██████▍   [0m| 49/76 [13:20<10:24, 23.12s/q, acc=0.837, correct=41/49][BoN-Majority N=8]:  67%|[33m██████▋   [0m| 51/76 [13:20<06:35, 15.82s/q, acc=0.843, correct=43/51][BoN-Majority N=8]:  68%|[33m██████▊   [0m| 52/76 [13:22<05:19, 13.30s/q, acc=0.827, correct=43/52][BoN-Majority N=8]:  71%|[33m███████   [0m| 54/76 [13:23<03:15,  8.88s/q, acc=0.833, correct=45/54][BoN-Majority N=8]:  72%|[33m███████▏  [0m| 55/76 [13:24<02:30,  7.18s/q, acc=0.836, correct=46/55]15:35:34 | INFO | evaluator |   [480/500] acc=0.810 (389/480)
+
+[generate] flat  bs=64  Q=76  N=8:  70%|[34m███████   [0m| 7/10 [13:24<05:41, 113.83s/chunk, saved=56/76, seqs=448/608][A[BoN-Majority N=8]:  75%|[33m███████▌  [0m| 57/76 [15:17<07:54, 24.98s/q, acc=0.842, correct=48/57][BoN-Majority N=8]:  76%|[33m███████▋  [0m| 58/76 [15:19<06:05, 20.33s/q, acc=0.828, correct=48/58][BoN-Majority N=8]:  79%|[33m███████▉  [0m| 60/76 [15:21<03:30, 13.15s/q, acc=0.817, correct=49/60][BoN-Majority N=8]:  82%|[33m████████▏ [0m| 62/76 [15:22<02:03,  8.79s/q, acc=0.823, correct=51/62][BoN-Majority N=8]:  84%|[33m████████▍ [0m| 64/76 [15:22<01:10,  5.91s/q, acc=0.828, correct=53/64]
+[generate] flat  bs=64  Q=76  N=8:  80%|[34m████████  [0m| 8/10 [15:22<03:50, 115.20s/chunk, saved=64/76, seqs=512/608][A[BoN-Majority N=8]:  86%|[33m████████▌ [0m| 65/76 [17:12<04:43, 25.73s/q, acc=0.831, correct=54/65][BoN-Majority N=8]:  87%|[33m████████▋ [0m| 66/76 [17:12<03:22, 20.27s/q, acc=0.833, correct=55/66]15:39:22 | INFO | evaluator |   [490/500] acc=0.810 (397/490)
+[BoN-Majority N=8]:  88%|[33m████████▊ [0m| 67/76 [17:14<02:23, 15.90s/q, acc=0.836, correct=56/67][BoN-Majority N=8]:  89%|[33m████████▉ [0m| 68/76 [17:16<01:39, 12.48s/q, acc=0.838, correct=57/68][BoN-Majority N=8]:  92%|[33m█████████▏[0m| 70/76 [17:16<00:43,  7.30s/q, acc=0.843, correct=59/70][BoN-Majority N=8]:  93%|[33m█████████▎[0m| 71/76 [17:18<00:30,  6.03s/q, acc=0.831, correct=59/71]
+[generate] flat  bs=64  Q=76  N=8:  90%|[34m█████████ [0m| 9/10 [17:18<01:55, 115.41s/chunk, saved=72/76, seqs=576/608][A[BoN-Majority N=8]:  96%|[33m█████████▌[0m| 73/76 [18:59<01:11, 23.71s/q, acc=0.836, correct=61/73][BoN-Majority N=8]:  97%|[33m█████████▋[0m| 74/76 [19:01<00:37, 18.84s/q, acc=0.824, correct=61/74][BoN-Majority N=8]:  99%|[33m█████████▊[0m| 75/76 [19:01<00:14, 14.50s/q, acc=0.813, correct=61/75]15:41:12 | INFO | evaluator |   [500/500] acc=0.808 (404/500)
+
+[generate] flat  bs=64  Q=76  N=8: 100%|[34m██████████[0m| 10/10 [19:01<00:00, 111.78s/chunk, saved=76/76, seqs=608/608][A[generate] flat  bs=64  Q=76  N=8: 100%|[34m██████████[0m| 10/10 [19:01<00:00, 114.20s/chunk, saved=76/76, seqs=608/608]
+[BoN-Majority N=8]: 100%|[33m██████████[0m| 76/76 [19:01<00:00, 15.03s/q, acc=0.816, correct=62/76]
+15:41:12 | INFO | evaluator | Summary (final) saved → ./results_updated/Qwen2.5-Math-7B-Instruct_mnt1024_t0.7_p0.95/bon_majority_math500_N8_summary.json
+15:41:12 | INFO | evaluator | Done. acc=0.8080 (404/500)  wall=1142.1s  avg=0.00s/q
+15:41:12 | INFO | run_eval | Redundancy/vote stats: {'avg_num_clusters': 2.09, 'avg_selected_cluster_size': 6.724, 'avg_max_cluster_size': 6.724, 'frac_selected_from_top_cluster': 1.0}
+15:41:12 | INFO | evaluator | Summary saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt1024_t0.7_p0.95/bon_majority_math500_N8_summary.json
+15:41:12 | INFO | run_eval | 
+Method                 Accuracy    Correct    Total   Avg time    Wall time
+--------------------------------------------------------------------------
+bon_majority             0.8080        404      500      0.00s      1142.1s
+15:41:12 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt1024_t0.7_p0.95/comparison_math500_N8.txt

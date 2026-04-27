@@ -1,0 +1,54 @@
+14:58:10 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
+14:58:10 | INFO | run_eval | Loading dataset: amc23
+14:58:14 | INFO | dataset_loader | Loaded 40 examples from 'amc23' (test split).  Sample answers: ['27', '36', '45']
+14:58:14 | INFO | run_eval | Loaded 40 examples.
+14:58:14 | INFO | run_eval | Loading model: Qwen/Qwen2.5-1.5B-Instruct  batch_size=16
+/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+14:58:23 | INFO | model_wrapper | CUDA available: 1 GPU(s)
+14:58:23 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+14:58:23 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
+14:58:23 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-1.5B-Instruct
+14:58:24 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-1.5B-Instruct
+14:58:25 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+14:58:26 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
+14:58:26 | INFO | model_wrapper |   GPU 0 memory: allocated=2.88 GB  reserved=2.96 GB
+14:58:26 | INFO | run_eval | Building verifier: prm
+14:58:26 | INFO | verifier | Loading PRM tokenizer: peiyi9979/math-shepherd-mistral-7b-prm
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama.LlamaTokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama_fast.LlamaTokenizerFast'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message.
+14:58:28 | INFO | verifier |   step_sep_id ('<extra_0>') = 1
+14:58:28 | INFO | verifier | Loading PRM model: peiyi9979/math-shepherd-mistral-7b-prm
+`torch_dtype` is deprecated! Use `dtype` instead!
+14:58:28 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:02<00:02,  2.83s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.27s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:04<00:00,  2.36s/it]
+14:58:33 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=16
+14:58:34 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='amc23'
+14:58:34 | INFO | run_eval | 
+================================================================
+14:58:34 | INFO | run_eval |  Running : greedy
+14:58:34 | INFO | run_eval |  Dataset : amc23  N=8  batch_size=16
+14:58:34 | INFO | run_eval | ================================================================
+14:58:34 | INFO | evaluator | Evaluating 40/40 pending questions  (method=GreedyInference)
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/3 [00:00<?, ?chunk/s]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][AThe following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:25<00:00, 85.90s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:25<00:00, 85.90s/chunk, q=16/16]
+15:00:01 | INFO | evaluator |   [10/40] acc=0.400 (4/10)
+[Greedy] generate (bs=16):  33%|[32m███▎      [0m| 1/3 [01:27<02:55, 87.60s/chunk, questions=16/40]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:43<00:00, 103.75s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:43<00:00, 103.75s/chunk, q=16/16]
+15:01:45 | INFO | evaluator |   [20/40] acc=0.300 (6/20)
+15:01:46 | INFO | evaluator |   [30/40] acc=0.267 (8/30)
+[Greedy] generate (bs=16):  67%|[32m██████▋   [0m| 2/3 [03:12<01:37, 97.73s/chunk, questions=32/40]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:20<00:00, 80.62s/chunk, q=8/8][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:20<00:00, 80.63s/chunk, q=8/8]
+15:03:07 | INFO | evaluator |   [40/40] acc=0.300 (12/40)
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 3/3 [04:33<00:00, 90.16s/chunk, questions=40/40][Greedy] generate (bs=16): 100%|[32m██████████[0m| 3/3 [04:33<00:00, 91.19s/chunk, questions=40/40]
+15:03:07 | INFO | evaluator | Summary (final) saved → ./results_updated_mistral_7b_prm/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/greedy_amc23_N8_summary.json
+15:03:07 | INFO | evaluator | Done. acc=0.3000 (12/40)  wall=273.6s  avg=6.76s/q
+15:03:07 | INFO | run_eval | 
+Method                 Accuracy    Correct    Total   Avg time    Wall time
+--------------------------------------------------------------------------
+greedy                   0.3000         12       40      6.76s       273.6s
+15:03:07 | INFO | run_eval | Comparison table saved to ./results_updated_mistral_7b_prm/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/comparison_amc23_N8.txt

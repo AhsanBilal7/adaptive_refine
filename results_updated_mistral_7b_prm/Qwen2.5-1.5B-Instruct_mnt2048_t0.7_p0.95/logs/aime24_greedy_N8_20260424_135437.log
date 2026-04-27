@@ -1,0 +1,51 @@
+13:54:46 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
+13:54:46 | INFO | run_eval | Loading dataset: aime24
+13:54:49 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
+13:54:49 | INFO | run_eval | Loaded 30 examples.
+13:54:49 | INFO | run_eval | Loading model: Qwen/Qwen2.5-1.5B-Instruct  batch_size=16
+/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+13:54:58 | INFO | model_wrapper | CUDA available: 1 GPU(s)
+13:54:58 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+13:54:58 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
+13:54:58 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-1.5B-Instruct
+13:54:59 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-1.5B-Instruct
+13:55:00 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+13:55:02 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
+13:55:02 | INFO | model_wrapper |   GPU 0 memory: allocated=2.88 GB  reserved=2.96 GB
+13:55:02 | INFO | run_eval | Building verifier: prm
+13:55:02 | INFO | verifier | Loading PRM tokenizer: peiyi9979/math-shepherd-mistral-7b-prm
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama.LlamaTokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message
+You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama_fast.LlamaTokenizerFast'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message.
+13:55:04 | INFO | verifier |   step_sep_id ('<extra_0>') = 1
+13:55:04 | INFO | verifier | Loading PRM model: peiyi9979/math-shepherd-mistral-7b-prm
+`torch_dtype` is deprecated! Use `dtype` instead!
+Fetching 2 files:   0%|          | 0/2 [00:00<?, ?it/s]Fetching 2 files:  50%|█████     | 1/2 [02:33<02:33, 153.42s/it]Fetching 2 files: 100%|██████████| 2/2 [02:33<00:00, 76.71s/it] 
+13:57:38 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [01:16<01:16, 76.92s/it]Loading checkpoint shards: 100%|██████████| 2/2 [03:03<00:00, 94.56s/it]Loading checkpoint shards: 100%|██████████| 2/2 [03:03<00:00, 91.91s/it]
+14:00:42 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=16
+14:00:43 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
+14:00:43 | INFO | run_eval | 
+================================================================
+14:00:43 | INFO | run_eval |  Running : greedy
+14:00:43 | INFO | run_eval |  Dataset : aime24  N=8  batch_size=16
+14:00:43 | INFO | run_eval | ================================================================
+14:00:43 | INFO | evaluator | Evaluating 30/30 pending questions  (method=GreedyInference)
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/2 [00:00<?, ?chunk/s]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][AThe following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [02:22<00:00, 142.34s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [02:22<00:00, 142.34s/chunk, q=16/16]
+14:03:07 | INFO | evaluator |   [10/30] acc=0.000 (0/10)
+[Greedy] generate (bs=16):  50%|[32m█████     [0m| 1/2 [02:24<02:24, 144.80s/chunk, questions=16/30]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [02:21<00:00, 141.44s/chunk, q=14/14][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [02:21<00:00, 141.44s/chunk, q=14/14]
+14:05:30 | INFO | evaluator |   [20/30] acc=0.000 (0/20)
+14:05:31 | INFO | evaluator |   [30/30] acc=0.000 (0/30)
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 2/2 [04:47<00:00, 143.84s/chunk, questions=30/30][Greedy] generate (bs=16): 100%|[32m██████████[0m| 2/2 [04:47<00:00, 143.99s/chunk, questions=30/30]
+14:05:31 | INFO | evaluator | Summary (final) saved → ./results_updated_mistral_7b_prm/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/greedy_aime24_N8_summary.json
+14:05:31 | INFO | evaluator | Done. acc=0.0000 (0/30)  wall=288.0s  avg=9.46s/q
+14:05:31 | INFO | run_eval | 
+Method                 Accuracy    Correct    Total   Avg time    Wall time
+--------------------------------------------------------------------------
+greedy                   0.0000          0       30      9.46s       288.0s
+14:05:31 | INFO | run_eval | Comparison table saved to ./results_updated_mistral_7b_prm/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/comparison_aime24_N8.txt

@@ -1,0 +1,37 @@
+01:30:29 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA A100 80GB PCIe MIG 1g.10gb']
+01:30:29 | INFO | run_eval | Loading dataset: mmlu
+Traceback (most recent call last):
+  File "/home/ahsan/adaptive_scientific_discovery/dataset_loader.py", line 399, in load_dataset_split
+    from datasets import load_dataset as hf_load  # type: ignore
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/__init__.py", line 17, in <module>
+    from .arrow_dataset import Column, Dataset
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/datasets/arrow_dataset.py", line 58, in <module>
+    import pandas as pd
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/pandas/__init__.py", line 49, in <module>
+    from pandas.core.api import (
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/pandas/core/api.py", line 47, in <module>
+    from pandas.core.groupby import (
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/pandas/core/groupby/__init__.py", line 1, in <module>
+    from pandas.core.groupby.generic import (
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/pandas/core/groupby/generic.py", line 68, in <module>
+    from pandas.core.frame import DataFrame
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/pandas/core/frame.py", line 153, in <module>
+    from pandas.core.generic import (
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/pandas/core/generic.py", line 196, in <module>
+    from pandas.core.window import (
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/pandas/core/window/__init__.py", line 1, in <module>
+    from pandas.core.window.ewm import (
+  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/pandas/core/window/ewm.py", line 11, in <module>
+    import pandas._libs.window.aggregations as window_aggregations
+ImportError: /lib64/libstdc++.so.6: version `CXXABI_1.3.9' not found (required by /home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/pandas/_libs/window/aggregations.cpython-310-x86_64-linux-gnu.so)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ahsan/adaptive_scientific_discovery/run_eval.py", line 398, in <module>
+    main()
+  File "/home/ahsan/adaptive_scientific_discovery/run_eval.py", line 267, in main
+    examples = load_dataset_split(
+  File "/home/ahsan/adaptive_scientific_discovery/dataset_loader.py", line 408, in load_dataset_split
+    raise RuntimeError(
+RuntimeError: Failed to load 'mmlu' from HuggingFace Hub: /lib64/libstdc++.so.6: version `CXXABI_1.3.9' not found (required by /home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/pandas/_libs/window/aggregations.cpython-310-x86_64-linux-gnu.so)

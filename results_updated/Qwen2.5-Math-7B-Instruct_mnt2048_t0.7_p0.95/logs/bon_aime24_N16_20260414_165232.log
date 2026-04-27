@@ -1,0 +1,65 @@
+00:10:46 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
+00:10:46 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
+00:10:46 | WARNING | run_eval | batch_size=8 < N=16.  N samples per question will be split across 2 generate() calls.  Set --batch_size 16 to decode all N samples in one call.
+00:10:46 | INFO | run_eval | Loading dataset: aime24
+00:10:50 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
+00:10:50 | INFO | run_eval | Loaded 30 examples.
+00:10:50 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=8
+/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+00:10:58 | INFO | model_wrapper | CUDA available: 4 GPU(s)
+00:10:58 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+00:10:58 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
+00:10:58 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
+00:10:58 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
+00:10:58 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
+00:10:58 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
+00:10:59 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:06,  2.03s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:04<00:04,  2.06s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:06<00:02,  2.07s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.94s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.99s/it]
+00:11:11 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
+00:11:11 | INFO | model_wrapper |   GPU 0 memory: allocated=2.75 GB  reserved=2.77 GB
+00:11:11 | INFO | model_wrapper |   GPU 1 memory: allocated=3.91 GB  reserved=3.93 GB
+00:11:11 | INFO | model_wrapper |   GPU 2 memory: allocated=3.91 GB  reserved=3.93 GB
+00:11:11 | INFO | model_wrapper |   GPU 3 memory: allocated=3.62 GB  reserved=3.64 GB
+00:11:11 | INFO | run_eval | Building verifier: prm
+00:11:11 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+00:11:12 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+00:11:12 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+`torch_dtype` is deprecated! Use `dtype` instead!
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:04,  1.36s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.37s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:04<00:01,  1.35s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.15s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.22s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+00:11:23 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=8
+00:11:23 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
+00:11:23 | INFO | run_eval | 
+================================================================
+00:11:23 | INFO | run_eval |  Running : bon
+00:11:23 | INFO | run_eval |  Dataset : aime24  N=16  batch_size=8
+00:11:23 | INFO | run_eval | ================================================================
+00:11:23 | INFO | evaluator | Evaluating 30/30 pending questions  (method=BestOfN)
+00:11:23 | INFO | evaluator |   Flat-batch generation: Q=30  N=16  batch_size=8  →  480 total seqs  →  60 generate() calls  →  saving every 0 questions
+[BoN N=16]:   0%|[34m          [0m| 0/30 [00:00<?, ?q/s]
+[generate] flat  bs=8  Q=30  N=16:   0%|[34m          [0m| 0/60 [00:00<?, ?chunk/s][A
+[generate] flat  bs=8  Q=30  N=16:   2%|[34m▏         [0m| 1/60 [02:41<2:38:38, 161.33s/chunk][A[BoN N=16]:   3%|[34m▎         [0m| 1/30 [05:27<2:38:12, 327.33s/q, acc=1.000, correct=1/1]
+[generate] flat  bs=8  Q=30  N=16:   3%|[34m▎         [0m| 2/60 [05:27<2:38:35, 164.06s/chunk, saved=1/30, seqs=16/480][A
+[generate] flat  bs=8  Q=30  N=16:   5%|[34m▌         [0m| 3/60 [07:54<2:28:37, 156.45s/chunk, saved=1/30, seqs=16/480][A[BoN N=16]:   7%|[34m▋         [0m| 2/30 [10:37<2:27:56, 317.00s/q, acc=0.500, correct=1/2]
+[generate] flat  bs=8  Q=30  N=16:   7%|[34m▋         [0m| 4/60 [10:37<2:28:12, 158.79s/chunk, saved=2/30, seqs=32/480][A
+[generate] flat  bs=8  Q=30  N=16:   8%|[34m▊         [0m| 5/60 [12:07<2:02:52, 134.05s/chunk, saved=2/30, seqs=32/480][A[BoN N=16]:  10%|[34m█         [0m| 3/30 [13:41<1:55:18, 256.25s/q, acc=0.667, correct=2/3]
+[generate] flat  bs=8  Q=30  N=16:  10%|[34m█         [0m| 6/60 [13:41<1:48:19, 120.36s/chunk, saved=3/30, seqs=48/480][A
+[generate] flat  bs=8  Q=30  N=16:  12%|[34m█▏        [0m| 7/60 [15:03<1:35:14, 107.81s/chunk, saved=3/30, seqs=48/480][A[BoN N=16]:  13%|[34m█▎        [0m| 4/30 [16:42<1:38:12, 226.63s/q, acc=0.500, correct=2/4]
+[generate] flat  bs=8  Q=30  N=16:  13%|[34m█▎        [0m| 8/60 [16:42<1:31:04, 105.08s/chunk, saved=4/30, seqs=64/480][A
+[generate] flat  bs=8  Q=30  N=16:  15%|[34m█▌        [0m| 9/60 [19:24<1:44:28, 122.91s/chunk, saved=4/30, seqs=64/480][A[BoN N=16]:  17%|[34m█▋        [0m| 5/30 [22:04<1:48:49, 261.18s/q, acc=0.400, correct=2/5]
+[generate] flat  bs=8  Q=30  N=16:  17%|[34m█▋        [0m| 10/60 [22:04<1:52:03, 134.46s/chunk, saved=5/30, seqs=80/480][A
+[generate] flat  bs=8  Q=30  N=16:  18%|[34m█▊        [0m| 11/60 [24:09<1:47:30, 131.64s/chunk, saved=5/30, seqs=80/480][A[BoN N=16]:  20%|[34m██        [0m| 6/30 [26:47<1:47:27, 268.64s/q, acc=0.333, correct=2/6]
+[generate] flat  bs=8  Q=30  N=16:  20%|[34m██        [0m| 12/60 [26:47<1:51:41, 139.62s/chunk, saved=6/30, seqs=96/480][A
+[generate] flat  bs=8  Q=30  N=16:  22%|[34m██▏       [0m| 13/60 [28:14<1:36:50, 123.64s/chunk, saved=6/30, seqs=96/480][A[BoN N=16]:  23%|[34m██▎       [0m| 7/30 [29:36<1:30:23, 235.82s/q, acc=0.286, correct=2/7]
+[generate] flat  bs=8  Q=30  N=16:  23%|[34m██▎       [0m| 14/60 [29:36<1:25:00, 110.88s/chunk, saved=7/30, seqs=112/480][A
+[generate] flat  bs=8  Q=30  N=16:  25%|[34m██▌       [0m| 15/60 [32:10<1:33:05, 124.13s/chunk, saved=7/30, seqs=112/480][A[BoN N=16]:  27%|[34m██▋       [0m| 8/30 [34:38<1:34:15, 257.05s/q, acc=0.250, correct=2/8]
+[generate] flat  bs=8  Q=30  N=16:  27%|[34m██▋       [0m| 16/60 [34:38<1:36:13, 131.22s/chunk, saved=8/30, seqs=128/480][A
+[generate] flat  bs=8  Q=30  N=16:  28%|[34m██▊       [0m| 17/60 [37:13<1:39:06, 138.28s/chunk, saved=8/30, seqs=128/480][A[BoN N=16]:  30%|[34m███       [0m| 9/30 [39:49<1:35:48, 273.74s/q, acc=0.333, correct=3/9]
+[generate] flat  bs=8  Q=30  N=16:  30%|[34m███       [0m| 18/60 [39:49<1:40:28, 143.53s/chunk, saved=9/30, seqs=144/480][A
+[generate] flat  bs=8  Q=30  N=16:  32%|[34m███▏      [0m| 19/60 [42:23<1:40:14, 146.70s/chunk, saved=9/30, seqs=144/480][A[BoN N=16]:  33%|[34m███▎      [0m| 10/30 [43:55<1:28:26, 265.31s/q, acc=0.300, correct=3/10]00:55:18 | INFO | evaluator |   [10/30] acc=0.300 (3/10)
+
+[generate] flat  bs=8  Q=30  N=16:  33%|[34m███▎      [0m| 20/60 [43:55<1:26:55, 130.38s/chunk, saved=10/30, seqs=160/480][A
+[generate] flat  bs=8  Q=30  N=16:  35%|[34m███▌      [0m| 21/60 [45:21<1:16:01, 116.96s/chunk, saved=10/30, seqs=160/480][A

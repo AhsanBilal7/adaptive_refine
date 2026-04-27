@@ -1,0 +1,17 @@
+01:28:41 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA A100 80GB PCIe MIG 1g.10gb']
+01:28:41 | INFO | run_eval | Loading dataset: mmlu
+Traceback (most recent call last):
+  File "/home/ahsan/adaptive_scientific_discovery/dataset_loader.py", line 399, in load_dataset_split
+    from datasets import load_dataset as hf_load  # type: ignore
+ModuleNotFoundError: No module named 'datasets'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/ahsan/adaptive_scientific_discovery/run_eval.py", line 398, in <module>
+    main()
+  File "/home/ahsan/adaptive_scientific_discovery/run_eval.py", line 267, in main
+    examples = load_dataset_split(
+  File "/home/ahsan/adaptive_scientific_discovery/dataset_loader.py", line 408, in load_dataset_split
+    raise RuntimeError(
+RuntimeError: Failed to load 'mmlu' from HuggingFace Hub: No module named 'datasets'

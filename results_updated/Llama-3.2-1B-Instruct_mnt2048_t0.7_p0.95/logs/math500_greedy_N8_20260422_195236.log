@@ -1,0 +1,188 @@
+19:52:43 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
+19:52:43 | INFO | run_eval | Loading dataset: math500
+19:52:48 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
+19:52:48 | INFO | run_eval | Loaded 500 examples.
+19:52:48 | INFO | run_eval | Loading model: meta-llama/Llama-3.2-1B-Instruct  batch_size=16
+/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
+  warnings.warn(
+19:52:57 | INFO | model_wrapper | CUDA available: 1 GPU(s)
+19:52:57 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
+19:52:57 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
+19:52:57 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.2-1B-Instruct
+19:52:58 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.2-1B-Instruct
+19:52:59 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+19:53:01 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
+19:53:01 | INFO | model_wrapper |   GPU 0 memory: allocated=2.30 GB  reserved=2.33 GB
+19:53:01 | INFO | run_eval | Building verifier: prm
+19:53:01 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
+19:53:01 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
+19:53:01 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
+`torch_dtype` is deprecated! Use `dtype` instead!
+19:53:07 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.31s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.28s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.26s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.08s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.15s/it]
+Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
+- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
+- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
+19:53:12 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=16
+19:53:12 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
+19:53:12 | INFO | run_eval | 
+================================================================
+19:53:12 | INFO | run_eval |  Running : greedy
+19:53:12 | INFO | run_eval |  Dataset : math500  N=8  batch_size=16
+19:53:12 | INFO | run_eval | ================================================================
+19:53:12 | INFO | evaluator | Evaluating 500/500 pending questions  (method=GreedyInference)
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/32 [00:00<?, ?chunk/s]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][AThe following generation flags are not valid and may be ignored: ['temperature', 'top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.96s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.96s/chunk, q=16/16]
+19:54:36 | INFO | evaluator |   [10/500] acc=0.300 (3/10)
+[Greedy] generate (bs=16):   3%|[32m▎         [0m| 1/32 [01:25<44:04, 85.30s/chunk, questions=16/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.15s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.15s/chunk, q=16/16]
+19:55:59 | INFO | evaluator |   [20/500] acc=0.200 (4/20)
+19:56:00 | INFO | evaluator |   [30/500] acc=0.233 (7/30)
+[Greedy] generate (bs=16):   6%|[32m▋         [0m| 2/32 [02:47<41:49, 83.65s/chunk, questions=32/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.01s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.01s/chunk, q=16/16]
+19:57:21 | INFO | evaluator |   [40/500] acc=0.300 (12/40)
+[Greedy] generate (bs=16):   9%|[32m▉         [0m| 3/32 [04:09<40:02, 82.85s/chunk, questions=48/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.26s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.26s/chunk, q=16/16]
+19:58:43 | INFO | evaluator |   [50/500] acc=0.340 (17/50)
+19:58:44 | INFO | evaluator |   [60/500] acc=0.367 (22/60)
+[Greedy] generate (bs=16):  12%|[32m█▎        [0m| 4/32 [05:32<38:38, 82.79s/chunk, questions=64/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:23<00:00, 83.39s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:23<00:00, 83.39s/chunk, q=16/16]
+20:00:09 | INFO | evaluator |   [70/500] acc=0.329 (23/70)
+20:00:09 | INFO | evaluator |   [80/500] acc=0.362 (29/80)
+[Greedy] generate (bs=16):  16%|[32m█▌        [0m| 5/32 [06:57<37:33, 83.48s/chunk, questions=80/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [00:33<00:00, 33.69s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [00:33<00:00, 33.69s/chunk, q=16/16]
+20:00:44 | INFO | evaluator |   [90/500] acc=0.344 (31/90)
+[Greedy] generate (bs=16):  19%|[32m█▉        [0m| 6/32 [07:31<29:00, 66.96s/chunk, questions=96/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.24s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.25s/chunk, q=16/16]
+20:02:06 | INFO | evaluator |   [100/500] acc=0.350 (35/100)
+20:02:07 | INFO | evaluator |   [110/500] acc=0.327 (36/110)
+[Greedy] generate (bs=16):  22%|[32m██▏       [0m| 7/32 [08:55<30:06, 72.27s/chunk, questions=112/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:20<00:00, 80.90s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:20<00:00, 80.90s/chunk, q=16/16]
+20:03:29 | INFO | evaluator |   [120/500] acc=0.325 (39/120)
+[Greedy] generate (bs=16):  25%|[32m██▌       [0m| 8/32 [10:17<30:11, 75.48s/chunk, questions=128/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.31s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.31s/chunk, q=16/16]
+20:04:51 | INFO | evaluator |   [130/500] acc=0.315 (41/130)
+20:04:52 | INFO | evaluator |   [140/500] acc=0.307 (43/140)
+[Greedy] generate (bs=16):  28%|[32m██▊       [0m| 9/32 [11:40<29:48, 77.76s/chunk, questions=144/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.53s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.53s/chunk, q=16/16]
+20:06:14 | INFO | evaluator |   [150/500] acc=0.313 (47/150)
+20:06:15 | INFO | evaluator |   [160/500] acc=0.306 (49/160)
+[Greedy] generate (bs=16):  31%|[32m███▏      [0m| 10/32 [13:03<29:05, 79.34s/chunk, questions=160/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.67s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.67s/chunk, q=16/16]
+20:07:38 | INFO | evaluator |   [170/500] acc=0.318 (54/170)
+[Greedy] generate (bs=16):  34%|[32m███▍      [0m| 11/32 [14:25<28:08, 80.39s/chunk, questions=176/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.17s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.17s/chunk, q=16/16]
+20:09:00 | INFO | evaluator |   [180/500] acc=0.322 (58/180)
+20:09:01 | INFO | evaluator |   [190/500] acc=0.316 (60/190)
+[Greedy] generate (bs=16):  38%|[32m███▊      [0m| 12/32 [15:48<27:02, 81.11s/chunk, questions=192/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.29s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.29s/chunk, q=16/16]
+20:10:23 | INFO | evaluator |   [200/500] acc=0.310 (62/200)
+[Greedy] generate (bs=16):  41%|[32m████      [0m| 13/32 [17:11<25:52, 81.69s/chunk, questions=208/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.16s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.16s/chunk, q=16/16]
+20:11:45 | INFO | evaluator |   [210/500] acc=0.295 (62/210)
+20:11:46 | INFO | evaluator |   [220/500] acc=0.295 (65/220)
+[Greedy] generate (bs=16):  44%|[32m████▍     [0m| 14/32 [18:34<24:35, 82.00s/chunk, questions=224/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.86s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.86s/chunk, q=16/16]
+20:13:09 | INFO | evaluator |   [230/500] acc=0.291 (67/230)
+20:13:10 | INFO | evaluator |   [240/500] acc=0.279 (67/240)
+[Greedy] generate (bs=16):  47%|[32m████▋     [0m| 15/32 [19:58<23:22, 82.49s/chunk, questions=240/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.40s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.40s/chunk, q=16/16]
+20:14:33 | INFO | evaluator |   [250/500] acc=0.276 (69/250)
+[Greedy] generate (bs=16):  50%|[32m█████     [0m| 16/32 [21:21<22:02, 82.67s/chunk, questions=256/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [00:38<00:00, 38.22s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [00:38<00:00, 38.22s/chunk, q=16/16]
+20:15:12 | INFO | evaluator |   [260/500] acc=0.281 (73/260)
+20:15:13 | INFO | evaluator |   [270/500] acc=0.285 (77/270)
+[Greedy] generate (bs=16):  53%|[32m█████▎    [0m| 17/32 [22:00<17:25, 69.69s/chunk, questions=272/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:20<00:00, 80.81s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:20<00:00, 80.81s/chunk, q=16/16]
+20:16:34 | INFO | evaluator |   [280/500] acc=0.286 (80/280)
+[Greedy] generate (bs=16):  56%|[32m█████▋    [0m| 18/32 [23:23<17:10, 73.60s/chunk, questions=288/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.73s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.73s/chunk, q=16/16]
+20:17:57 | INFO | evaluator |   [290/500] acc=0.279 (81/290)
+20:17:59 | INFO | evaluator |   [300/500] acc=0.273 (82/300)
+[Greedy] generate (bs=16):  59%|[32m█████▉    [0m| 19/32 [24:47<16:36, 76.63s/chunk, questions=304/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [00:24<00:00, 24.23s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [00:24<00:00, 24.23s/chunk, q=16/16]
+20:18:24 | INFO | evaluator |   [310/500] acc=0.265 (82/310)
+20:18:25 | INFO | evaluator |   [320/500] acc=0.266 (85/320)
+[Greedy] generate (bs=16):  62%|[32m██████▎   [0m| 20/32 [25:12<12:16, 61.40s/chunk, questions=320/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.44s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.44s/chunk, q=16/16]
+20:19:48 | INFO | evaluator |   [330/500] acc=0.267 (88/330)
+[Greedy] generate (bs=16):  66%|[32m██████▌   [0m| 21/32 [26:35<12:26, 67.89s/chunk, questions=336/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.60s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.60s/chunk, q=16/16]
+20:21:10 | INFO | evaluator |   [340/500] acc=0.271 (92/340)
+20:21:11 | INFO | evaluator |   [350/500] acc=0.274 (96/350)
+[Greedy] generate (bs=16):  69%|[32m██████▉   [0m| 22/32 [27:59<12:04, 72.48s/chunk, questions=352/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.31s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.31s/chunk, q=16/16]
+20:22:34 | INFO | evaluator |   [360/500] acc=0.269 (97/360)
+[Greedy] generate (bs=16):  72%|[32m███████▏  [0m| 23/32 [29:22<11:21, 75.68s/chunk, questions=368/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:22<00:00, 82.73s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:22<00:00, 82.73s/chunk, q=16/16]
+20:23:57 | INFO | evaluator |   [370/500] acc=0.273 (101/370)
+20:23:58 | INFO | evaluator |   [380/500] acc=0.274 (104/380)
+[Greedy] generate (bs=16):  75%|[32m███████▌  [0m| 24/32 [30:46<10:26, 78.27s/chunk, questions=384/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:22<00:00, 82.19s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:22<00:00, 82.19s/chunk, q=16/16]
+20:25:21 | INFO | evaluator |   [390/500] acc=0.277 (108/390)
+20:25:23 | INFO | evaluator |   [400/500] acc=0.275 (110/400)
+[Greedy] generate (bs=16):  78%|[32m███████▊  [0m| 25/32 [32:10<09:19, 79.94s/chunk, questions=400/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.56s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.56s/chunk, q=16/16]
+20:26:45 | INFO | evaluator |   [410/500] acc=0.280 (115/410)
+[Greedy] generate (bs=16):  81%|[32m████████▏ [0m| 26/32 [33:33<08:05, 80.94s/chunk, questions=416/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.39s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.39s/chunk, q=16/16]
+20:28:08 | INFO | evaluator |   [420/500] acc=0.279 (117/420)
+20:28:09 | INFO | evaluator |   [430/500] acc=0.277 (119/430)
+[Greedy] generate (bs=16):  84%|[32m████████▍ [0m| 27/32 [34:57<06:48, 81.77s/chunk, questions=432/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.42s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.42s/chunk, q=16/16]
+20:29:32 | INFO | evaluator |   [440/500] acc=0.280 (123/440)
+[Greedy] generate (bs=16):  88%|[32m████████▊ [0m| 28/32 [36:20<05:28, 82.12s/chunk, questions=448/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.60s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.60s/chunk, q=16/16]
+20:30:54 | INFO | evaluator |   [450/500] acc=0.282 (127/450)
+20:30:56 | INFO | evaluator |   [460/500] acc=0.283 (130/460)
+[Greedy] generate (bs=16):  91%|[32m█████████ [0m| 29/32 [37:43<04:07, 82.49s/chunk, questions=464/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.16s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:21<00:00, 81.16s/chunk, q=16/16]
+20:32:18 | INFO | evaluator |   [470/500] acc=0.285 (134/470)
+20:32:19 | INFO | evaluator |   [480/500] acc=0.279 (134/480)
+[Greedy] generate (bs=16):  94%|[32m█████████▍[0m| 30/32 [39:07<02:45, 82.75s/chunk, questions=480/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:20<00:00, 80.83s/chunk, q=16/16][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:20<00:00, 80.83s/chunk, q=16/16]
+20:33:41 | INFO | evaluator |   [490/500] acc=0.278 (136/490)
+[Greedy] generate (bs=16):  97%|[32m█████████▋[0m| 31/32 [40:30<01:22, 82.95s/chunk, questions=496/500]
+[Greedy] generate (bs=16):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:19<00:00, 79.92s/chunk, q=4/4][A[Greedy] generate (bs=16): 100%|[32m██████████[0m| 1/1 [01:19<00:00, 79.92s/chunk, q=4/4]
+20:35:03 | INFO | evaluator |   [500/500] acc=0.272 (136/500)
+[Greedy] generate (bs=16): 100%|[32m██████████[0m| 32/32 [41:50<00:00, 82.21s/chunk, questions=500/500][Greedy] generate (bs=16): 100%|[32m██████████[0m| 32/32 [41:50<00:00, 78.47s/chunk, questions=500/500]
+20:35:03 | INFO | evaluator | Summary (final) saved → ./results_updated/Llama-3.2-1B-Instruct_mnt2048_t0.7_p0.95/greedy_math500_N8_summary.json
+20:35:03 | INFO | evaluator | Done. acc=0.2720 (136/500)  wall=2511.0s  avg=4.92s/q
+20:35:03 | INFO | run_eval | 
+Method                 Accuracy    Correct    Total   Avg time    Wall time
+--------------------------------------------------------------------------
+greedy                   0.2720        136      500      4.92s      2511.0s
+20:35:03 | INFO | run_eval | Comparison table saved to ./results_updated/Llama-3.2-1B-Instruct_mnt2048_t0.7_p0.95/comparison_math500_N8.txt
