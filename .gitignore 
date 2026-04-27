@@ -5,4 +5,7 @@ __pycache__/
 *.log
 *.json
 *.jsonl
-*.txt
+*.png
+*.pdf
+*.csv
+
