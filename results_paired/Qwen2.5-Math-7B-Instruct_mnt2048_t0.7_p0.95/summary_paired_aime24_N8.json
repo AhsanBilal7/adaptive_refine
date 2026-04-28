@@ -165,8 +165,13 @@
     "n_total": 30
   },
   "cimr_full": {
-    "accuracy": 13.33,
-    "n_correct": 4,
+    "accuracy": 3.33,
+    "n_correct": 1,
+    "n_total": 30
+  },
+  "cimr_full_mv": {
+    "accuracy": 3.33,
+    "n_correct": 1,
     "n_total": 30
   },
   "cimr_concise": {
@@ -174,9 +179,19 @@
     "n_correct": 5,
     "n_total": 30
   },
-  "cimr_answer_only": {
+  "cimr_concise_mv": {
     "accuracy": 16.67,
     "n_correct": 5,
+    "n_total": 30
+  },
+  "cimr_answer_only": {
+    "accuracy": 23.33,
+    "n_correct": 7,
+    "n_total": 30
+  },
+  "cimr_answer_only_mv": {
+    "accuracy": 23.33,
+    "n_correct": 7,
     "n_total": 30
   },
   "__redundancy__": {

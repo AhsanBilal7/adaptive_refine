@@ -163,6 +163,32 @@ def _collect_all_traces(
     all_traces.sort(key=lambda x: x["trace_idx"])
     return all_traces
 
+# def _collect_all_traces(
+#     clusters: List[Dict[str, Any]],
+# ) -> List[Dict[str, Any]]:
+#     all_traces = []
+
+#     for c in clusters:
+#         if not c["traces"]:
+#             continue
+
+#         # pick trace with highest PRM score in this cluster
+#         best_trace = max(c["traces"], key=lambda t: t["prm_score"])
+
+#         all_traces.append(
+#             {
+#                 "trace_idx": best_trace["trace_idx"],
+#                 "cluster_id": c["cluster_id"],
+#                 "prm_score": best_trace["prm_score"],
+#                 "answer": str(best_trace["answer"]).strip(),
+#                 "text": best_trace["text"],
+#             }
+#         )
+
+#     # optional: sort by cluster_id instead of trace_idx (more logical here)
+#     all_traces.sort(key=lambda x: x["cluster_id"])
+#     return all_traces
+
 
 def _answer_stats(
     clusters: List[Dict[str, Any]],
@@ -467,3 +493,255 @@ def build_judge_prompt(
         )
 
     return SYSTEM_PROMPT, user, clusters
+
+# =============================================================================
+# Per-cluster judge prompt (answer-clustered CIMR variant)
+# =============================================================================
+#
+# Design
+# ------
+# Traces are grouped by their EXTRACTED FINAL ANSWER (not by embedding-based
+# clustering). For each answer-cluster c, the judge receives:
+#
+#   * The reasoning traces in cluster c
+#   * The set of answers proposed by OTHER clusters (so the judge sees that
+#     alternative numerical solutions exist, but not their full reasoning)
+#
+# The judge re-checks the reasoning in cluster c, decides whether it is sound,
+# and emits a final answer in \boxed{...}. This produces one judge response
+# per answer-cluster (K total). Each response is then scored by the PRM, and
+# the final answer is selected by either highest-PRM or majority-vote across
+# the K responses.
+#
+# Why a separate prompt builder?
+#   The original prompts (full / concise / answer_only) ask the judge to pick
+#   ONE answer from N traces all at once.  The per-cluster design instead
+#   asks the judge to verify ONE candidate answer at a time, with knowledge
+#   of competing alternatives.
+#
+# Variant semantics (per-cluster prompts only)
+# --------------------------------------------
+#   "full"        : pass every trace in the cluster, in full (no truncation).
+#   "concise"     : pass only the single trace with the highest PRM score.
+#   "answer_only" : pass NO traces — the judge sees only the candidate answer
+#                   and the alternatives proposed by other clusters.
+#
+# The legacy `max_chars_per_trace` / `CIMR_MAX_TRACE_CHARS` knob is gone:
+# trace content is now controlled entirely by the variant.
+
+PER_CLUSTER_SYSTEM_PROMPT = (
+    "You are a careful math answer checker. "
+    "You will be shown a problem, a candidate final answer, and reasoning that supports it. "
+    "Decide what the correct final answer to the problem is, then output it once.\n\n"
+    "Hard rules:\n"
+    "- Be brief. At most a short paragraph of analysis.\n"
+    "- Do not repeat sentences or phrases. Never restart the analysis mid-response.\n"
+    "- Do not output reasoning past the final answer.\n"
+    "- The very last line must be exactly: \\boxed{<answer>}"
+)
+
+
+PER_CLUSTER_SYSTEM_PROMPT_ANSWER_ONLY = (
+    "You are a careful math answer checker. "
+    "You will be shown a problem, a candidate final answer, and a few alternative answers. "
+    "No reasoning is provided. "
+    "Decide what the correct final answer is and output it once.\n\n"
+    "Hard rules:\n"
+    "- Be brief. At most a few short sentences.\n"
+    "- Do not repeat sentences or phrases. Never restart the analysis mid-response.\n"
+    "- Do not output reasoning past the final answer.\n"
+    "- The very last line must be exactly: \\boxed{<answer>}"
+)
+
+
+# =============================================================================
+# Few-shot examples
+# =============================================================================
+# These are appended near the end of every per-cluster prompt so the judge
+# sees concrete demonstrations of the expected output shape: a short analysis
+# followed by a single final \boxed{...} line.  No PRM scores, no rankings,
+# and no mention of "cluster" — just answer-checking shape.
+#
+# Three small examples cover:
+#   (1) candidate is correct  → confirm
+#   (2) candidate is wrong, an alternative is right  → switch to alternative
+#   (3) no alternative shown   → confirm or correct on its own merits
+
+_FEW_SHOT_EXAMPLES_FULL_CONCISE = """\
+Here are short examples that show the exact output shape required.
+
+#EXAMPLE 1
+Problem: What is 7 + 5?
+Candidate final answer: 12
+Reasoning (excerpt): "7 + 5 equals 12."
+Other answers proposed: 11
+Response:
+The arithmetic 7 + 5 = 12 is correct.
+\\boxed{12}
+
+#EXAMPLE 2
+Problem: What is the smallest prime greater than 20?
+Candidate final answer: 21
+Reasoning (excerpt): "21 comes right after 20, so 21."
+Other answers proposed: 23
+Response:
+21 = 3 x 7 is composite, so the candidate is wrong. The smallest prime above 20 is 23.
+\\boxed{23}
+
+#EXAMPLE 3
+Problem: Compute 6!.
+Candidate final answer: 720
+Reasoning (excerpt): "6! = 6*5*4*3*2*1 = 720."
+Other answers proposed: (none)
+Response:
+6! = 720 is correct.
+\\boxed{720}
+"""
+
+
+_FEW_SHOT_EXAMPLES_ANSWER_ONLY = """\
+Here are short examples that show the exact output shape required.
+
+#EXAMPLE 1
+Problem: What is 7 + 5?
+Candidate final answer: 12
+Other answers proposed: 11
+Response:
+7 + 5 = 12, so the candidate is correct.
+\\boxed{12}
+
+#EXAMPLE 2
+Problem: What is the smallest prime greater than 20?
+Candidate final answer: 21
+Other answers proposed: 23
+Response:
+21 is composite (3 x 7), so 23 is correct.
+\\boxed{23}
+
+#EXAMPLE 3
+Problem: Compute 6!.
+Candidate final answer: 720
+Other answers proposed: (none)
+Response:
+6! = 720.
+\\boxed{720}
+"""
+
+
+def build_per_cluster_judge_prompt(
+    question:              str,
+    cluster_answer:        str,
+    cluster_traces:        List[str],
+    other_cluster_answers: List[str],
+    variant:               str = "full",
+    cluster_prm_scores:    List[float] = None,
+) -> str:
+    """
+    Build a judge prompt for ONE answer-cluster.
+
+    The `variant` parameter controls *what reasoning content* the judge sees:
+
+      "full"        : every trace in the cluster, in full (no truncation).
+      "concise"     : only the single trace with the highest PRM score in
+                      the cluster, in full.
+      "answer_only" : no traces — the judge sees only the candidate answer
+                      and the answers proposed by other clusters.
+
+    The prompt deliberately does NOT include any PRM scores, ranking
+    information, mean/max statistics, or cluster sizes.  The judge sees only
+    the problem, the candidate answer, the supporting reasoning (when
+    applicable), and the alternative answers, framed by simple `#HEADING`
+    sections and three short worked examples.
+
+    cluster_prm_scores is used internally to pick the top trace under the
+    "concise" variant; it is NOT shown to the judge.
+    """
+    if variant not in ("full", "concise", "answer_only"):
+        raise ValueError(
+            f"Unknown variant '{variant}'. "
+            f"Choose: 'full' | 'concise' | 'answer_only'"
+        )
+
+    # Deduplicate and tidy the alternatives
+    others = [str(a).strip() for a in other_cluster_answers if str(a).strip()]
+    others = list(dict.fromkeys(others))
+    others_display = ", ".join(others) if others else "(none)"
+    cand_display   = cluster_answer.strip() if cluster_answer else "(none)"
+
+    # ── answer_only ──────────────────────────────────────────────────────
+    if variant == "answer_only":
+        lines = [
+            "Decide what the correct final answer to the problem is. "
+            "End your response with one line: \\boxed{<answer>}.",
+            "",
+            "#PROBLEM",
+            question.strip(),
+            "",
+            "#CANDIDATE ANSWER",
+            cand_display,
+            "",
+            "#OTHER ANSWERS PROPOSED",
+            others_display,
+            "",
+            _FEW_SHOT_EXAMPLES_ANSWER_ONLY.rstrip(),
+            "",
+            "#YOUR TASK",
+            "Now answer the actual problem above. Keep it brief, do not "
+            "repeat yourself, and end with one line: \\boxed{<answer>}.",
+        ]
+        return "\n".join(lines)
+
+    # ── full / concise: pick traces to include ───────────────────────────
+    if variant == "concise":
+        if cluster_traces:
+            if cluster_prm_scores and len(cluster_prm_scores) == len(cluster_traces):
+                best_k = int(max(
+                    range(len(cluster_traces)),
+                    key=lambda i: float(cluster_prm_scores[i]),
+                ))
+            else:
+                best_k = 0
+            selected_traces = [cluster_traces[best_k]]
+        else:
+            selected_traces = []
+    else:  # full
+        selected_traces = list(cluster_traces)
+
+    lines = [
+        "Check the candidate answer against the reasoning shown. Decide "
+        "what the correct final answer to the problem is. End your response "
+        "with one line: \\boxed{<answer>}.",
+        "",
+        "#PROBLEM",
+        question.strip(),
+        "",
+        "#CANDIDATE ANSWER",
+        cand_display,
+        "",
+        "#OTHER ANSWERS PROPOSED",
+        others_display,
+        "",
+        "#REASONING",
+    ]
+
+    if not selected_traces:
+        lines.append("(no reasoning supplied)")
+    else:
+        for k, trace in enumerate(selected_traces, start=1):
+            body = str(trace).strip()
+            lines += [
+                f"##TRACE {k}",
+                body,
+                "",
+            ]
+
+    lines += [
+        "",
+        _FEW_SHOT_EXAMPLES_FULL_CONCISE.rstrip(),
+        "",
+        "#YOUR TASK",
+        "Now answer the actual problem above. Keep it brief, do not repeat "
+        "yourself, and end with one line: \\boxed{<answer>}.",
+    ]
+
+    return "\n".join(lines)

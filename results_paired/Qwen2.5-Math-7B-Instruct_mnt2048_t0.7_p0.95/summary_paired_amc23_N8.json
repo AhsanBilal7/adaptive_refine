@@ -165,18 +165,13 @@
     "n_total": 40
   },
   "cimr_full": {
-    "accuracy": 55.0,
-    "n_correct": 22,
+    "accuracy": 35.0,
+    "n_correct": 14,
     "n_total": 40
   },
-  "cimr_concise": {
-    "accuracy": 70.0,
-    "n_correct": 28,
-    "n_total": 40
-  },
-  "cimr_answer_only": {
-    "accuracy": 72.5,
-    "n_correct": 29,
+  "cimr_full_mv": {
+    "accuracy": 32.5,
+    "n_correct": 13,
     "n_total": 40
   },
   "__redundancy__": {

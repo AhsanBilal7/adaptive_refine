@@ -14,9 +14,9 @@ Method / $\alpha$ & $\tau=0.70$ & $\tau=0.75$ & $\tau=0.80$ & $\tau=0.85$ & $\ta
 BoN (Oracle) & 16.7 & 16.7 & 16.7 & 16.7 & 16.7 & 16.7 \\
 Majority Voting & 13.3 & 13.3 & 13.3 & 13.3 & 13.3 & 13.3 \\
 Oracle Upper Bound & 33.3 & 33.3 & 33.3 & 33.3 & 33.3 & 33.3 \\
-CIMR (full) & 10.0 & 10.0 & 10.0 & 10.0 & 10.0 & 10.0 \\
-CIMR (concise) & 13.3 & 13.3 & 13.3 & 13.3 & 13.3 & 13.3 \\
-CIMR (answer_only) & 13.3 & 13.3 & 13.3 & 13.3 & 13.3 & 13.3 \\
+CIMR (full) & 3.3 & 3.3 & 3.3 & 3.3 & 3.3 & 3.3 \\
+CIMR (concise) & 16.7 & 16.7 & 16.7 & 16.7 & 16.7 & 16.7 \\
+CIMR (answer_only) & 3.3 & 3.3 & 3.3 & 3.3 & 3.3 & 3.3 \\
 \midrule
 DN-BoN ($\alpha=0$, = BoN) & \textbf{16.7} & \textbf{16.7} & \textbf{16.7} & \textbf{16.7} & \textbf{16.7} & \textbf{16.7} \\
 DN-BoN ($\alpha=0.25$) & \textbf{16.7} & \textbf{16.7} & \textbf{16.7} & \textbf{16.7} & 13.3 & 13.3 \\

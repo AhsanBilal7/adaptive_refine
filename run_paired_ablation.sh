@@ -64,17 +64,34 @@ TAU_VALUES="0.70 0.75 0.80 0.85 0.90 0.95"
 # Batch sizes — set to N for BoN (all N prompts in one generate() call)
 BATCH_SIZE=32       # matches N_DEFAULT; adjust per VRAM
 
-# CIMR (Cluster-Informed Meta-Reasoning) — LLM-as-judge over clusters
+# CIMR (Cluster-Informed Meta-Reasoning) — answer-clustered, per-cluster judge
+# ─────────────────────────────────────────────────────────────────────────────
+# Algorithm (revised):
+#   1. Group the N traces by their EXTRACTED FINAL ANSWER → K answer-clusters.
+#   2. For each cluster c, run the judge on (cluster c's traces +
+#      answers from the OTHER clusters)   →  K judge responses per question.
+#   3. Score each judge response with the PRM verifier.
+#   4. Two final selections per question (both reported in the summary):
+#        cimr_<variant>     : answer of the judge-response with highest PRM
+#        cimr_<variant>_mv  : majority vote of the K judge-extracted answers
+#                              (ties broken by sum-of-PRM)
+#
+# Variant semantics (NEW): the variant string controls PROMPT CONTENT, not
+# truncation budgets.
+#   full        : every trace in the cluster, in full.
+#   concise     : only the highest-PRM trace in the cluster.
+#   answer_only : no traces — the judge sees only the candidate answer and
+#                 the answers proposed by other clusters.
+# (CIMR_TAU and CIMR_MAX_TRACE_CHARS have been removed; they are no longer
+# used by the new variant logic.)
 ENABLE_CIMR=1                   # set to 0 to disable CIMR variants
-CIMR_VARIANTS="full concise answer_only"    # prompt variants to evaluate
-# CIMR_VARIANTS="full"    # prompt variants to evaluate
-CIMR_TAU=0.85                   # clustering threshold for CIMR
-CIMR_MAX_TRACE_CHARS=6000       # max chars per trace in judge prompt
-CIMR_MAX_JUDGE_TOKENS=4096      # max tokens for judge response
+CIMR_VARIANTS="full concise answer_only"   # all three variants by default
+CIMR_MAX_JUDGE_TOKENS=2048      # max tokens for judge response (per cluster)
 # Number of judge prompts packed into one model.generate() call.
-# Increase for higher GPU utilisation.
-# Recommended: 4 (full traces, H100 80GB, N=8); 8-16 (concise/answer_only).
-CIMR_JUDGE_BATCH_SIZE=32
+# In the new design each question yields K (≈ 1–4) prompts, so the total
+# number of prompts dispatched per dataset is roughly K × Q.  Tune to VRAM.
+# Recommended: 8–16 (full traces, H100 80GB, N=8); 16–32 (concise/answer_only).
+CIMR_JUDGE_BATCH_SIZE=64
 
 # Output root
 BASE_OUT="./results_paired"
@@ -108,7 +125,7 @@ fi
 
 CIMR_FLAGS=""
 if [[ "${ENABLE_CIMR}" == "1" ]]; then
-    CIMR_FLAGS="--enable_cimr --cimr_variants ${CIMR_VARIANTS} --cimr_tau ${CIMR_TAU} --cimr_max_trace_chars ${CIMR_MAX_TRACE_CHARS} --cimr_max_judge_tokens ${CIMR_MAX_JUDGE_TOKENS} --cimr_judge_batch_size ${CIMR_JUDGE_BATCH_SIZE}"
+    CIMR_FLAGS="--enable_cimr --cimr_variants ${CIMR_VARIANTS} --cimr_max_judge_tokens ${CIMR_MAX_JUDGE_TOKENS} --cimr_judge_batch_size ${CIMR_JUDGE_BATCH_SIZE}"
 fi
 
 COMMON_ARGS=(

@@ -153,13 +153,22 @@ def parse_args():
     g.add_argument("--enable_cimr", action="store_true",
                    help="Enable CIMR meta-judge (adds one LLM forward pass per question)")
     g.add_argument("--cimr_variants", nargs="+", type=str,
-                   default=["full", "concise"],
+                   default=["full", "concise", "answer_only"],
                    choices=["full", "concise", "answer_only"],
-                   help="CIMR prompt variants to evaluate")
+                   help=(
+                       "CIMR prompt variants to evaluate.  Variant semantics "
+                       "now control PROMPT CONTENT, not truncation:  "
+                       "full = all traces in cluster;  "
+                       "concise = only the highest-PRM trace in cluster;  "
+                       "answer_only = no traces, only the candidate answer "
+                       "and the answers from other clusters."
+                   ))
+    # ── Deprecated CLI knobs (kept so existing scripts don't crash) ──────────
+    # These are no longer used by the new variant logic; pass-through silently.
     g.add_argument("--cimr_tau", type=float, default=0.85,
-                   help="τ for CIMR clustering (fixed; not swept)")
+                   help="[DEPRECATED] no longer used (clustering is answer-based).")
     g.add_argument("--cimr_max_trace_chars", type=int, default=3000,
-                   help="Max chars per representative trace in CIMR judge prompt")
+                   help="[DEPRECATED] no longer used; trace content is set by --cimr_variants.")
     g.add_argument("--cimr_max_judge_tokens", type=int, default=2048,
                    help="Max tokens for CIMR judge response")
     g.add_argument("--cimr_judge_batch_size", type=int, default=4,
@@ -293,6 +302,7 @@ def apply_all_methods(
     clustering_method: str = "agglomerative",
     # CIMR arguments
     judge_model=None,              # HFModelWrapper for CIMR judge (None = skip CIMR)
+    verifier=None,                 # PRM verifier for CIMR PRM-on-judge scoring
     cimr_variants: Optional[List[str]] = None,
     cimr_tau: float = 0.85,
     cimr_max_trace_chars: int = 3000,
@@ -422,16 +432,22 @@ def apply_all_methods(
             )
 
     # ── CIMR: Cluster-Informed Meta-Reasoning ────────────────────────────────
+    # NOTE: in the new design, "clusters" are formed inside cimr_select_from_cache
+    # based on EXTRACTED FINAL ANSWERS (not embeddings).  cimr_labels below is
+    # only used to compute diversity metrics for logging — it has no effect on
+    # the CIMR selection.  Each call now produces TWO predictions per variant:
+    #   * cimr_<variant>     = pick by max PRM-on-judge-response
+    #   * cimr_<variant>_mv  = pick by majority vote of the K judge responses
     if judge_model is not None and cimr_variants:
         from cimr_inference import cimr_select_from_cache
 
-        # Cluster once with the CIMR-specific tau
+        # Diversity metrics from embedding-clustering (logging only)
         try:
             cluster_manager.similarity_threshold = cimr_tau
             cluster_manager.distance_threshold   = 1.0 - cimr_tau
             cimr_labels, cimr_sizes = cluster_manager.cluster(traces)
         except Exception as e:
-            logger.warning(f"CIMR clustering failed: {e}. Using singleton clusters.")
+            logger.warning(f"CIMR (diagnostic) clustering failed: {e}. Using singleton clusters.")
             cimr_labels = np.arange(N, dtype=int)
             cimr_sizes  = np.ones(N, dtype=int)
 
@@ -443,11 +459,12 @@ def apply_all_methods(
                     question=question,
                     traces=traces,
                     prm_scores=prm_scores.tolist(),
-                    cluster_labels=cimr_labels.tolist(),
+                    cluster_labels=cimr_labels.tolist(),  # ignored downstream
                     answers=answers,
                     judge_model=judge_model,
                     ev=ev,
                     data_name=data_name,
+                    verifier=verifier,                    # NEW: PRM-on-response
                     variant=variant,
                     max_trace_chars=cimr_max_trace_chars,
                     max_judge_tokens=cimr_max_judge_tokens,
@@ -455,18 +472,14 @@ def apply_all_methods(
                     judge_batch_size=cimr_judge_batch_size,
                 )
 
-                key = f"cimr_{variant}"
-                results[key] = dict(
-                    selected_idx=-1,   # CIMR doesn't select a single trace
-                    predicted_answer=cimr_result["predicted_answer"],
-                    is_correct=cimr_result["is_correct"],
+                # Common diagnostic block, reused for both selection variants
+                _common = dict(
+                    selected_idx=-1,
                     raw_score=float("nan"),
                     norm_score=float("nan"),
                     cluster_size=-1,
                     alpha=float("nan"),
                     tau=cimr_tau,
-                    method=f"cimr_{variant}",
-                    # Diversity metrics (from CIMR clustering)
                     fmax=cimr_div["fmax"],
                     H=cimr_div["H"],
                     He=cimr_div["He"],
@@ -476,22 +489,51 @@ def apply_all_methods(
                     judge_tokens=cimr_result.get("approx_input_tokens", 0),
                     judge_elapsed_sec=cimr_result.get("elapsed_sec", 0.0),
                     fallback=cimr_result.get("fallback", False),
-                    # Cluster details for analysis
                     clusters_shown=cimr_result.get("clusters_meta", []),
-                    # ── Full judge trace and extracted answer ─────────────
                     judge_raw_response=cimr_result.get("judge_response", ""),
-                    cimr_extracted_answer=cimr_result["predicted_answer"],
+                    judge_responses_per_cluster=cimr_result.get(
+                        "judge_responses_per_cluster", []
+                    ),
+                    judge_prm_scores=cimr_result.get("judge_prm_scores", []),
+                    judge_extracted_answers=cimr_result.get(
+                        "judge_extracted_answers", []
+                    ),
+                    cimr_full_log=cimr_result.get("cimr_full_log", {}),
                 )
+
+                # cimr_<variant> :  PRM-on-response selection (legacy key name)
+                key_prm = f"cimr_{variant}"
+                results[key_prm] = dict(
+                    method=key_prm,
+                    predicted_answer=cimr_result["pred_prm"],
+                    is_correct=cimr_result["is_correct_prm"],
+                    cimr_extracted_answer=cimr_result["pred_prm"],
+                    selection_rule="prm_on_judge_response",
+                    **_common,
+                )
+
+                # cimr_<variant>_mv : majority-vote selection
+                key_mv = f"cimr_{variant}_mv"
+                results[key_mv] = dict(
+                    method=key_mv,
+                    predicted_answer=cimr_result["pred_majority"],
+                    is_correct=cimr_result["is_correct_majority"],
+                    cimr_extracted_answer=cimr_result["pred_majority"],
+                    selection_rule="majority_vote_of_judges",
+                    **_common,
+                )
+
             except Exception as e:
                 logger.error(f"CIMR variant '{variant}' failed: {e}")
-                results[f"cimr_{variant}"] = dict(
+                err_block = dict(
                     predicted_answer="",
                     is_correct=False,
-                    method=f"cimr_{variant}",
                     error=str(e),
                     judge_raw_response="",
                     cimr_extracted_answer="",
                 )
+                results[f"cimr_{variant}"]    = dict(method=f"cimr_{variant}",    **err_block)
+                results[f"cimr_{variant}_mv"] = dict(method=f"cimr_{variant}_mv", **err_block)
 
     # ── Per-question cross-method analysis ───────────────────────────────────
     # Multiplicity bias detection (Theorem 1 manifestation)
@@ -898,13 +940,22 @@ def build_help_hurt_analysis(
             prm_scores=rec.get("prm_scores", []),
             cluster_labels=qr.get(dnbon_key, {}).get("cluster_labels", []),
             cluster_sizes_all=qr.get(dnbon_key, {}).get("cluster_sizes_all", []),
-            # ── CIMR judge outputs ────────────────────────────────────────
+            # ── CIMR judge outputs (PRM-on-response selection) ────────────
             cimr_full_correct=qr.get("cimr_full", {}).get("is_correct", None),
             cimr_full_answer=qr.get("cimr_full", {}).get("cimr_extracted_answer", ""),
             cimr_full_raw_response=qr.get("cimr_full", {}).get("judge_raw_response", ""),
             cimr_concise_correct=qr.get("cimr_concise", {}).get("is_correct", None),
             cimr_concise_answer=qr.get("cimr_concise", {}).get("cimr_extracted_answer", ""),
             cimr_concise_raw_response=qr.get("cimr_concise", {}).get("judge_raw_response", ""),
+            # ── CIMR judge outputs (majority-vote selection) ──────────────
+            cimr_full_mv_correct=qr.get("cimr_full_mv", {}).get("is_correct", None),
+            cimr_full_mv_answer=qr.get("cimr_full_mv", {}).get("cimr_extracted_answer", ""),
+            cimr_concise_mv_correct=qr.get("cimr_concise_mv", {}).get("is_correct", None),
+            cimr_concise_mv_answer=qr.get("cimr_concise_mv", {}).get("cimr_extracted_answer", ""),
+            # ── Per-cluster judge diagnostics (full variant) ──────────────
+            cimr_full_judge_prm_scores=qr.get("cimr_full", {}).get("judge_prm_scores", []),
+            cimr_full_judge_extracted=qr.get("cimr_full", {}).get("judge_extracted_answers", []),
+            cimr_full_n_clusters=qr.get("cimr_full", {}).get("n_clusters", 0),
         )
 
         if not bon_correct and dnbon_correct:
@@ -1303,6 +1354,7 @@ def main():
             data_name=data_name,
             clustering_method=args.clustering_method,
             judge_model=None,           # CIMR deferred to Pass 2
+            verifier=verifier,          # carried for future use; unused in Pass 1
             cimr_variants=None,
             cimr_tau=args.cimr_tau,
             cimr_max_trace_chars=args.cimr_max_trace_chars,
@@ -1369,6 +1421,7 @@ def main():
                 judge_model         = judge_model,
                 ev                  = ev,
                 data_name           = data_name,
+                verifier            = verifier,                              # NEW: PRM-on-judge-response
                 variant             = variant,
                 max_trace_chars     = args.cimr_max_trace_chars,
                 max_judge_tokens    = args.cimr_max_judge_tokens,
@@ -1376,48 +1429,74 @@ def main():
                 gold_answers        = [_cimr_inputs[i]["gold"]            for i in valid_idxs],
             )
 
-            # Merge CIMR results back into per-question result dicts
+            # Merge CIMR results back into per-question result dicts.
+            # Each judge-batch result yields TWO rows in the per-question dict:
+            #   cimr_<variant>     : selected by max PRM-on-judge-response
+            #   cimr_<variant>_mv  : selected by majority vote of judge answers
             for new_i, orig_i in enumerate(valid_idxs):
                 jr       = judge_results_valid[new_i]
-                ci       = _cimr_inputs[orig_i]
-                cimr_div = ci["cimr_div"]
-                key      = f"cimr_{variant}"
+                ci_in    = _cimr_inputs[orig_i]
+                cimr_div = ci_in["cimr_div"]
 
-                all_question_results[orig_i][key] = dict(
-                    selected_idx         = -1,
-                    predicted_answer     = jr["predicted_answer"],
-                    is_correct           = jr["is_correct"],
-                    raw_score            = float("nan"),
-                    norm_score           = float("nan"),
-                    cluster_size         = -1,
-                    alpha                = float("nan"),
-                    tau                  = args.cimr_tau,
-                    method               = key,
-                    fmax                 = cimr_div["fmax"],
-                    H                    = cimr_div["H"],
-                    He                   = cimr_div["He"],
-                    M                    = cimr_div["M"],
-                    r                    = cimr_div["r"],
-                    n_clusters           = jr["n_clusters"],
-                    judge_tokens         = jr.get("approx_input_tokens", 0),
-                    judge_elapsed_sec    = jr.get("elapsed_sec", 0.0),
-                    fallback             = jr.get("fallback", False),
-                    clusters_shown       = jr.get("clusters_meta", []),
-                    judge_raw_response   = jr.get("judge_response", ""),
-                    cimr_extracted_answer= jr["predicted_answer"],
+                _common = dict(
+                    selected_idx                = -1,
+                    raw_score                   = float("nan"),
+                    norm_score                  = float("nan"),
+                    cluster_size                = -1,
+                    alpha                       = float("nan"),
+                    tau                         = args.cimr_tau,
+                    fmax                        = cimr_div["fmax"],
+                    H                           = cimr_div["H"],
+                    He                          = cimr_div["He"],
+                    M                           = cimr_div["M"],
+                    r                           = cimr_div["r"],
+                    n_clusters                  = jr["n_clusters"],
+                    judge_tokens                = jr.get("approx_input_tokens", 0),
+                    judge_elapsed_sec           = jr.get("elapsed_sec", 0.0),
+                    fallback                    = jr.get("fallback", False),
+                    clusters_shown              = jr.get("clusters_meta", []),
+                    judge_raw_response          = jr.get("judge_response", ""),
+                    judge_responses_per_cluster = jr.get(
+                        "judge_responses_per_cluster", []
+                    ),
+                    judge_prm_scores            = jr.get("judge_prm_scores", []),
+                    judge_extracted_answers     = jr.get(
+                        "judge_extracted_answers", []
+                    ),
+                    cimr_full_log               = jr.get("cimr_full_log", {}),
+                )
+
+                key_prm = f"cimr_{variant}"
+                all_question_results[orig_i][key_prm] = dict(
+                    method                = key_prm,
+                    predicted_answer      = jr["pred_prm"],
+                    is_correct            = jr["is_correct_prm"],
+                    cimr_extracted_answer = jr["pred_prm"],
+                    selection_rule        = "prm_on_judge_response",
+                    **_common,
+                )
+
+                key_mv = f"cimr_{variant}_mv"
+                all_question_results[orig_i][key_mv] = dict(
+                    method                = key_mv,
+                    predicted_answer      = jr["pred_majority"],
+                    is_correct            = jr["is_correct_majority"],
+                    cimr_extracted_answer = jr["pred_majority"],
+                    selection_rule        = "majority_vote_of_judges",
+                    **_common,
                 )
 
         # Fill in error placeholders for any variant on skipped questions
         skipped_idxs = [i for i, ci in enumerate(_cimr_inputs) if ci is None]
         for orig_i in skipped_idxs:
             for variant in cimr_variants:
-                key = f"cimr_{variant}"
-                if key not in all_question_results[orig_i]:
-                    all_question_results[orig_i][key] = dict(
-                        predicted_answer="", is_correct=False,
-                        method=key, error="skipped",
-                        judge_raw_response="", cimr_extracted_answer="",
-                    )
+                for key in (f"cimr_{variant}", f"cimr_{variant}_mv"):
+                    if key not in all_question_results[orig_i]:
+                        all_question_results[orig_i][key] = dict(
+                            predicted_answer="", is_correct=False,
+                            method=key, error="skipped",
+                            judge_raw_response="", cimr_extracted_answer="",
+                        )
 
     # ─────────────────────────────────────────────────────────────────────────
     # Write results JSONL + per-question detailed log
@@ -1425,7 +1504,16 @@ def main():
     results_path = os.path.join(args.output_dir, f"results_paired_{tag}.jsonl")
     results_f    = open(results_path, "w", encoding="utf-8")
 
-    _STRIP_KEYS    = {"raw_scores", "norm_scores", "cluster_labels", "cluster_sizes_all"}
+    _STRIP_KEYS    = {
+        "raw_scores", "norm_scores", "cluster_labels", "cluster_sizes_all",
+        # CIMR per-cluster artifacts — kept in-memory for analysis but
+        # excluded from the on-disk JSONL to control file size.  The
+        # comprehensive per-question record is persisted separately to
+        # cimr_results_<tag>.json.
+        "judge_responses_per_cluster", "judge_raw_response",
+        "judge_prm_scores", "judge_extracted_answers",
+        "clusters_shown", "cimr_full_log",
+    }
     _default_dn_key = (
         f"dn_bon_tau"
         f"{args.tau_values[len(args.tau_values)//2]:.2f}"
@@ -1543,6 +1631,96 @@ def main():
     results_f.close()
     logger.info(f"Per-question results → {results_path}")
 
+    # ─────────────────────────────────────────────────────────────────────────
+    # Comprehensive CIMR per-question record  →  cimr_results_<tag>.json
+    # ─────────────────────────────────────────────────────────────────────────
+    # For every question and every CIMR variant, this captures EVERYTHING
+    # needed to reproduce / inspect the selection:
+    #
+    #   * the original problem and gold answer
+    #   * every cluster (formed by extracted final answer)
+    #   * every trace inside each cluster: the raw LLM-generated text, its
+    #     extracted answer, its raw PRM score, and its normalised PRM score
+    #   * the judge's raw response per cluster, the judge's extracted answer
+    #     per cluster, and the PRM-on-judge-response score per cluster
+    #   * the final aggregated predictions: PRM-score winner and majority
+    #     vote, plus correctness flags vs. the gold answer
+    if args.enable_cimr and cimr_variants:
+        cimr_results_path = os.path.join(
+            args.output_dir, f"cimr_results_{tag}.json"
+        )
+        cimr_records: List[Dict[str, Any]] = []
+        for i, qr in enumerate(all_question_results):
+            rec = records[i] if i < len(records) else {}
+            qid = qr.get("__id__", str(i))
+
+            per_variant: Dict[str, Any] = {}
+            for variant in cimr_variants:
+                key_prm = f"cimr_{variant}"
+                key_mv  = f"cimr_{variant}_mv"
+                cr      = qr.get(key_prm, {}) or {}
+                cr_mv   = qr.get(key_mv, {})  or {}
+
+                full_log = cr.get("cimr_full_log", {}) or {}
+
+                per_variant[variant] = dict(
+                    variant                 = variant,
+                    fallback                = cr.get("fallback", False),
+                    n_clusters              = cr.get("n_clusters", 0),
+                    judge_elapsed_sec       = cr.get("judge_elapsed_sec", 0.0),
+                    judge_tokens            = cr.get("judge_tokens", 0),
+                    # Raw per-trace info (BEFORE clustering)
+                    n_traces                = full_log.get("n_traces", 0),
+                    all_trace_prm_scores    = full_log.get(
+                        "all_trace_prm_scores", []
+                    ),
+                    all_trace_prm_normalized= full_log.get(
+                        "all_trace_prm_normalized", []
+                    ),
+                    all_trace_extracted_answers = full_log.get(
+                        "all_trace_extracted_answers", []
+                    ),
+                    # Full clusters with traces, judge artifacts, scores
+                    clusters                = full_log.get("clusters", []),
+                    # Final aggregated predictions
+                    pred_prm_score          = cr.get(
+                        "predicted_answer",
+                        full_log.get("pred_prm_score", "")
+                    ),
+                    pred_majority           = cr_mv.get(
+                        "predicted_answer",
+                        full_log.get("pred_majority", "")
+                    ),
+                    is_correct_prm          = cr.get(
+                        "is_correct",
+                        full_log.get("is_correct_prm", None)
+                    ),
+                    is_correct_majority     = cr_mv.get(
+                        "is_correct",
+                        full_log.get("is_correct_majority", None)
+                    ),
+                    best_cluster_idx_prm    = full_log.get(
+                        "best_cluster_idx_prm", -1
+                    ),
+                    majority_cluster_idx    = full_log.get(
+                        "majority_cluster_idx", -1
+                    ),
+                )
+
+            cimr_records.append(dict(
+                id           = qid,
+                question     = rec.get("question", ""),
+                gold_answer  = rec.get("gold_answer", None),
+                variants     = per_variant,
+            ))
+
+        with open(cimr_results_path, "w", encoding="utf-8") as f:
+            json.dump(cimr_records, f, indent=2, ensure_ascii=False)
+        logger.info(
+            f"CIMR per-question results → {cimr_results_path} "
+            f"(Q={len(cimr_records)}, variants={cimr_variants})"
+        )
+
     # ── 8. Aggregate ──────────────────────────────────────────────────────────
     logger.info("Aggregating results...")
     summary = aggregate_results(
@@ -1605,14 +1783,16 @@ def main():
             s = summary[method]
             logger.info(f"  {method:<25s}  acc={s['accuracy']:6.2f}%  "
                         f"({s['n_correct']}/{s['n_total']})")
-    # CIMR results
+    # CIMR results — print both selection rules side by side
     for variant in (args.cimr_variants if args.enable_cimr else []):
-        cimr_key = f"cimr_{variant}"
-        if cimr_key in summary:
-            s = summary[cimr_key]
-            logger.info(f"  CIMR ({variant}){' '*(17 - len(variant))}  "
-                        f"acc={s['accuracy']:6.2f}%  "
-                        f"({s['n_correct']}/{s['n_total']})")
+        for sel_suffix, sel_label in [("", "PRM"), ("_mv", "MV ")]:
+            cimr_key = f"cimr_{variant}{sel_suffix}"
+            if cimr_key in summary:
+                s = summary[cimr_key]
+                pad_var = variant + sel_suffix
+                logger.info(f"  CIMR-{sel_label} ({pad_var}){' '*(15 - len(pad_var))}  "
+                            f"acc={s['accuracy']:6.2f}%  "
+                            f"({s['n_correct']}/{s['n_total']})")
     logger.info("  " + "─" * 60)
     logger.info(f"  {'Method / (α, τ)':<25s}  {'Accuracy':>10}  Δ vs BoN")
     logger.info("  " + "─" * 60)
