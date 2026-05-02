@@ -1,58 +1,47 @@
 """
 cimr_inference.py
 =================
-CIMR orchestrator — runs N rollouts × d steps per question, with
-self-critique + self-correction in every step, and aggregates via
-both **majority vote** and **max PRM**.  Saves and resumes on the go
-at the (question, rollout, step) granularity.
+CIMR orchestrator — runs N rollouts × d depth-steps per question.
 
-Pipeline (per question)
------------------------
+Pipeline
+--------
+For each question:
+  depth 1:  batch-generate reasoning for N rollouts simultaneously
+            batch self-critique all N traces
+            batch self-correct  all N traces
+            PRM-score all N corrected traces
+  depth 2:  same, feeding depth-1 corrected traces as context
+  ...
+  depth d:  → N final corrected traces + answers
 
-  for rollout i in 1..N:                                     # N independent
-      for step k in 1..d:                                    # d sequential
-          generate reasoning  given (question, prev_corrected)
-          self-critique
-          self-correction
-          PRM-score the corrected trace
-      rollout_i.final_answer    = step d's corrected answer
-      rollout_i.final_prm_score = step d's corrected PRM
-  # Aggregation across N rollouts
-  pred_majority = mode of [rollout_i.final_answer for i in 1..N]
-  pred_max_prm  = answer of argmax_i rollout_i.final_prm_score
+Aggregation across N rollouts:
+  majority  — modal corrected answer across the N rollouts
+  max_prm   — answer of the rollout with the highest final PRM score
 
-Both `pred_majority` and `pred_max_prm` are reported per question, and
-both their accuracies are recorded.
+Both are reported per question.
 
-Resume / on-the-go save
------------------------
-After every step finishes (yes — every step, not just every rollout),
-the orchestrator persists the question's running state to disk at
-``<output_dir>/cimr_full_results_<dataset>_N<N>_d<D>.json``.  On rerun,
-the orchestrator:
-  1. Loads any previously-completed state for the question.
-  2. Skips any rollout that is already fully finished (n_steps_done==d).
-  3. Resumes a partially-finished rollout at the first step that was
-     not yet saved.
-
-Each rollout is FRESHLY GENERATED — there is no dependency on the
-sample cache used by the baseline methods.
-
-Module layout
+Save / Resume
 -------------
-This file orchestrates; the heavy lifting lives in:
-  cimr_step.py        — one (generate, critique, correct, score) cycle
-  cimr_rollout.py     — chains d steps for one rollout
-  cimr_aggregator.py  — majority vote + max PRM across N rollouts
-  cimr_prompts.py     — step-1 + step-k continuation prompts
+The orchestrator persists state to disk after every (rollout, depth) step
+at ``<output_dir>/cimr_full_results_<dataset>_N<N>_d<D>.json``.
+On rerun:
+  - Already-completed questions are skipped.
+  - Partially-completed rollouts resume from their last saved depth.
 
-Public symbols
---------------
-  SELECTION_RULE_NAMES         — selection rules registered with the harness
-  CIMRConfig                   — bag of all CIMR knobs
-  CIMRInferencer               — main orchestrator class
-  run_cimr_for_question        — thin per-question wrapper
-  open_cimr_store / save_cimr_store
+Configuration
+-------------
+All knobs live on ``CIMRConfig``.  To change depth d or rollout count N
+from a shell script:
+
+    export CIMR_DEPTH=4
+    export CIMR_N=8
+
+Then in Python:
+    import os
+    config = CIMRConfig(
+        depth      = int(os.environ.get("CIMR_DEPTH", 4)),
+        n_rollouts = int(os.environ.get("CIMR_N", 8)),
+    )
 """
 
 from __future__ import annotations
@@ -64,22 +53,15 @@ import time
 from dataclasses import dataclass, field, asdict
 from typing import Any, Dict, List, Optional, Tuple
 
+from tqdm import tqdm
+
 from .cimr_step import CIMRStepConfig
-from .cimr_rollout import run_one_rollout
+from .cimr_rollout import run_all_rollouts_batched
 from .cimr_aggregator import aggregate_rollouts
 
 logger = logging.getLogger(__name__)
 
-
-# =============================================================================
-# Selection rules registered with the run_paired_ablation harness
-# =============================================================================
-
-SELECTION_RULE_NAMES: List[str] = [
-    "majority",   # majority vote across N rollouts
-    "max_prm",    # argmax PRM across N rollouts (Best-of-N over corrected)
-]
-
+SELECTION_RULE_NAMES: List[str] = ["majority", "max_prm"]
 
 # =============================================================================
 # Config
@@ -87,34 +69,31 @@ SELECTION_RULE_NAMES: List[str] = [
 
 @dataclass
 class CIMRConfig:
-    """All CIMR knobs in one place.
+    """All CIMR knobs in one dataclass.
 
-    The step-level knobs (max-tokens / max-chars) live on the nested
-    ``step_config`` for separation of concerns; everything else (N, D,
-    seeds, output dir) lives on this object.
+    n_rollouts : N — independent rollouts per question.
+    depth      : d — self-critique/correct refinement depths per rollout.
+                     Env var: CIMR_DEPTH.  Saved in the output filename
+                     as ``_N{N}_d{D}.json``.
+    step_config: CIMRStepConfig — generation / critique / correction knobs.
+    rollout_temperature / rollout_top_p :
+        Sampling temperature/top-p used for step-1 reasoning generation
+        (gives diversity across the N rollouts).  Later depths are greedy
+        unless step_config.reasoning_do_sample is True.
     """
-    # Question-level
-    n_rollouts:          int = 8                  # N
-    depth:               int = 4                  # d
-    # Step-level knobs
+    n_rollouts:          int            = 8
+    depth:               int            = 4
     step_config:         CIMRStepConfig = field(default_factory=CIMRStepConfig)
-
-    # Optional model-level overrides (mostly needed for the very first step
-    # of each rollout where we want sampling temperature > 0 to give
-    # different rollouts different starting points).
-    rollout_temperature: float = 0.7
-    rollout_top_p:       float = 0.95
+    rollout_temperature: float          = 0.7
+    rollout_top_p:       float          = 0.95
 
 
 # =============================================================================
-# Persistence (per-question store)
+# Persistence helpers
 # =============================================================================
 
-def cimr_store_path(
-    output_dir: str, dataset: str, N: int, D: int,
-) -> str:
-    """Path for the per-(dataset, N, D) results store.  N and D are
-    embedded in the filename so different sweeps don't collide."""
+def cimr_store_path(output_dir: str, dataset: str, N: int, D: int) -> str:
+    """Return the path for the (dataset, N, D) results file."""
     return os.path.join(
         output_dir, f"cimr_full_results_{dataset}_N{N}_d{D}.json"
     )
@@ -124,7 +103,7 @@ def open_cimr_store(
     output_dir: str, dataset: str, N: int, D: int,
 ) -> Tuple[str, Dict[str, Any]]:
     """Open (or create) the CIMR results store and return (path, store)."""
-    path = cimr_store_path(output_dir, dataset, N, D)
+    path  = cimr_store_path(output_dir, dataset, N, D)
     store: Dict[str, Any] = {}
     if os.path.exists(path):
         try:
@@ -141,12 +120,12 @@ def open_cimr_store(
         except Exception as e:
             logger.warning(f"[CIMR] could not load existing store {path}: {e}")
     else:
-        logger.info(f"[CIMR] starting a fresh CIMR store at {path}")
+        logger.info(f"[CIMR] starting fresh store at {path}")
     return path, store
 
 
 def save_cimr_store(path: str, store: Dict[str, Any]) -> None:
-    """Atomic save of the CIMR store."""
+    """Atomic save of the CIMR store (write-then-rename)."""
     tmp = path + ".tmp"
     with open(tmp, "w", encoding="utf-8") as f:
         json.dump(store, f, indent=2, ensure_ascii=False, default=str)
@@ -157,26 +136,26 @@ def save_cimr_store(path: str, store: Dict[str, Any]) -> None:
 # Per-question record helpers
 # =============================================================================
 
-def _empty_question_record(qid: str, question: str, gold: Optional[str],
-                           N: int, D: int) -> Dict[str, Any]:
+def _empty_question_record(
+    qid: str, question: str, gold: Optional[str], N: int, D: int,
+) -> Dict[str, Any]:
     return dict(
-        id           = qid,
-        question     = question,
-        gold_answer  = gold,
-        N            = N,
-        depth        = D,
-        rollouts     = [None] * N,    # filled in incrementally
-        completed    = False,
-        aggregation  = None,
-        elapsed_sec  = 0.0,
+        id          = qid,
+        question    = question,
+        gold_answer = gold,
+        N           = N,
+        depth       = D,
+        rollouts    = [None] * N,
+        completed   = False,
+        aggregation = None,
+        elapsed_sec = 0.0,
     )
 
 
 def _question_is_complete(qrec: Dict[str, Any]) -> bool:
-    """A question is complete iff every rollout slot is non-None and
-    each has the full count of finished steps."""
+    """True iff every rollout slot is non-None and has all D steps done."""
     rollouts = qrec.get("rollouts") or []
-    if not rollouts or len(rollouts) < int(qrec.get("N", 0)):
+    if len(rollouts) < int(qrec.get("N", 0)):
         return False
     D = int(qrec.get("depth", 0))
     for r in rollouts:
@@ -194,19 +173,22 @@ def _question_is_complete(qrec: Dict[str, Any]) -> bool:
 # =============================================================================
 
 class CIMRInferencer:
-    """Main orchestrator.  Holds references to the model + verifier +
-    evaluator and runs N rollouts × d steps for one question at a
-    time, persisting after every step."""
+    """Main CIMR orchestrator.
+
+    Runs N rollouts × d steps per question using batched generation at
+    each depth level (all N rollouts processed in one GPU pass per phase).
+    Persists after every (rollout, depth) step for crash-safe resumption.
+    """
 
     def __init__(
         self,
         model,
         verifier,
         ev,
-        data_name:        str,
-        config:           CIMRConfig,
-        output_dir:       str,
-        dataset:          str,
+        data_name:  str,
+        config:     CIMRConfig,
+        output_dir: str,
+        dataset:    str,
     ):
         self.model      = model
         self.verifier   = verifier
@@ -216,27 +198,30 @@ class CIMRInferencer:
         self.output_dir = output_dir
         self.dataset    = dataset
 
-        # Resume state
+        os.makedirs(output_dir, exist_ok=True)
         self.store_path, self.store = open_cimr_store(
-            output_dir=output_dir, dataset=dataset,
-            N=config.n_rollouts, D=config.depth,
+            output_dir = output_dir,
+            dataset    = dataset,
+            N          = config.n_rollouts,
+            D          = config.depth,
         )
 
     # ------------------------------------------------------------------
-    # Public: run one question end-to-end
+    # Single-question execution
     # ------------------------------------------------------------------
+
     def run_question(
         self,
         question:    str,
         gold_answer: Optional[str],
         qid:         str,
     ) -> Dict[str, Any]:
-        """Run N rollouts × D steps for the given question.
+        """Run N rollouts × D depth-steps for one question.
 
-        If the question is already fully complete in the store, return
-        the cached record without doing any work.  Otherwise, run any
-        missing rollouts (or resume partially-finished ones), persist
-        after every step, and finally aggregate.
+        If the question is already fully complete in the store, the cached
+        record is returned immediately.  Otherwise, any missing rollouts
+        (or partially-finished ones) are computed, persisted after every
+        step, and aggregated.
         """
         N = int(self.config.n_rollouts)
         D = int(self.config.depth)
@@ -247,101 +232,59 @@ class CIMRInferencer:
             self.store[str(qid)] = qrec
             save_cimr_store(self.store_path, self.store)
         else:
-            # Defensive: pad rollout list if N grew across runs
-            if len(qrec.get("rollouts", [])) < N:
-                qrec["rollouts"] = (
-                    list(qrec.get("rollouts", []))
-                    + [None] * (N - len(qrec.get("rollouts", [])))
-                )
+            # Pad rollout list if N grew across runs.
+            existing = list(qrec.get("rollouts", []))
+            if len(existing) < N:
+                qrec["rollouts"] = existing + [None] * (N - len(existing))
 
-        # Already done?  Just return.
         if _question_is_complete(qrec):
             logger.debug(
-                f"[CIMR q={qid}] all {N} rollouts × {D} steps already done; "
-                f"skipping."
+                f"[CIMR q={qid}] already complete ({N}×{D}); skipping."
             )
-            # Make sure aggregation is up to date (e.g. if we changed the
-            # gold answer or evaluator since saving).
             if qrec.get("aggregation") is None:
                 qrec["aggregation"] = aggregate_rollouts(
-                    rollouts    = qrec.get("rollouts", []),
-                    gold_answer = qrec.get("gold_answer"),
-                    ev          = self.ev,
-                    data_name   = self.data_name,
+                    rollouts   = qrec.get("rollouts", []),
+                    gold_answer= qrec.get("gold_answer"),
+                    ev         = self.ev,
+                    data_name  = self.data_name,
                 )
                 qrec["completed"] = True
                 save_cimr_store(self.store_path, self.store)
             return qrec
 
         t_q = time.time()
-        # Snapshot pre-existing elapsed time once — we'll add this run's
-        # wall-clock to it at the end.  This keeps the cumulative time
-        # accurate across resumes.
-        qrec["elapsed_sec_baseline"] = float(qrec.get("elapsed_sec", 0.0))
+        elapsed_baseline = float(qrec.get("elapsed_sec", 0.0))
 
-        # The "sibling answer" provider lets each rollout's critique +
-        # correction agents see the OTHER rollouts' current best answers.
-        # Used only when config.step_config.other_answer_aware is True.
-        def sibling_provider(self_rollout_idx: int) -> List[str]:
-            sibs: List[str] = []
-            rollouts = qrec.get("rollouts") or []
-            for j, r in enumerate(rollouts):
-                if j == self_rollout_idx or r is None:
-                    continue
-                ans = str(r.get("final_answer", "")).strip()
-                # If a rollout is mid-flight, fall back to its latest
-                # corrected answer from the most recent saved step.
-                if not ans and r.get("steps"):
-                    ans = str(r["steps"][-1].get("corrected_answer", "")).strip()
-                if ans:
-                    sibs.append(ans)
-            return sibs
-
-        # Iterate over the N rollout slots.
-        for i in range(N):
-            existing = qrec["rollouts"][i]
-            already_done = (
-                existing is not None
-                and int(existing.get("n_steps_done", 0)) >= D
-                and bool(existing.get("completed", False))
+        # Callback: persist after every (rollout_i, depth) step.
+        def on_rollout_step_complete(
+            rollout_i:      int,
+            running_record: Dict[str, Any],
+        ) -> None:
+            qrec["rollouts"][rollout_i] = running_record
+            qrec["elapsed_sec"] = round(
+                elapsed_baseline + (time.time() - t_q), 3
             )
-            if already_done:
-                continue
-
-            # Persist after every step inside this rollout
-            baseline = float(qrec["elapsed_sec_baseline"])
-            def on_step_complete(
-                running_record: Dict[str, Any],
-                _i:          int = i,
-                _baseline:   float = baseline,
-            ) -> None:
-                qrec["rollouts"][_i] = running_record
-                qrec["elapsed_sec"]  = round(
-                    _baseline + (time.time() - t_q), 3
-                )
-                save_cimr_store(self.store_path, self.store)
-
-            rollout_record = run_one_rollout(
-                model       = self.model,
-                verifier    = self.verifier,
-                ev          = self.ev,
-                data_name   = self.data_name,
-                question    = question,
-                gold_answer = gold_answer,
-                rollout_idx = i,
-                total_steps = D,
-                config      = self.config.step_config,
-                sibling_answers_provider = (
-                    sibling_provider
-                    if self.config.step_config.other_answer_aware else None
-                ),
-                on_step_complete = on_step_complete,
-                resume_state     = existing,
-            )
-            qrec["rollouts"][i] = rollout_record
             save_cimr_store(self.store_path, self.store)
 
-        # ── Aggregate across the N rollouts ──────────────────────────────
+        resume_states = [qrec["rollouts"][i] for i in range(N)]
+
+        rollout_records = run_all_rollouts_batched(
+            model                    = self.model,
+            verifier                 = self.verifier,
+            ev                       = self.ev,
+            data_name                = self.data_name,
+            question                 = question,
+            gold_answer              = gold_answer,
+            n_rollouts               = N,
+            total_steps              = D,
+            config                   = self.config.step_config,
+            on_rollout_step_complete = on_rollout_step_complete,
+            resume_states            = resume_states,
+        )
+
+        qrec["rollouts"] = rollout_records
+
+        # Aggregate across N rollouts.
         agg = aggregate_rollouts(
             rollouts    = qrec["rollouts"],
             gold_answer = gold_answer,
@@ -350,17 +293,83 @@ class CIMRInferencer:
         )
         qrec["aggregation"] = agg
         qrec["completed"]   = True
-        # Final elapsed time = pre-existing baseline + this invocation's time
-        prior = qrec.get("elapsed_sec_baseline", 0.0)
-        qrec["elapsed_sec"] = round(float(prior) + (time.time() - t_q), 3)
-        qrec.pop("elapsed_sec_baseline", None)
+        qrec["elapsed_sec"] = round(
+            elapsed_baseline + (time.time() - t_q), 3
+        )
         save_cimr_store(self.store_path, self.store)
 
         return qrec
 
+    # ------------------------------------------------------------------
+    # Batch execution over a list of questions
+    # ------------------------------------------------------------------
+
+    def run_questions_batch(
+        self,
+        examples: List[Dict[str, Any]],
+    ) -> List[Dict[str, Any]]:
+        """Run CIMR for every question in ``examples``.
+
+        Questions are processed sequentially; within each question N
+        rollouts are batched together at each depth level.
+
+        Each example dict should have:
+            question  (or "problem")
+            answer    (or "gold_answer")  — optional
+            id        (or "idx")          — optional; falls back to index
+
+        Returns a list of question-record dicts in the same order as
+        ``examples``.
+        """
+        N = self.config.n_rollouts
+        D = self.config.depth
+        results: List[Dict[str, Any]] = []
+
+        pbar = tqdm(
+            examples,
+            desc  = f"[CIMR N={N} d={D} dataset={self.dataset}]",
+            unit  = "q",
+            dynamic_ncols = True,
+            colour = "cyan",
+        )
+        n_maj_correct = 0
+        n_prm_correct = 0
+
+        for i, ex in enumerate(pbar):
+            q    = ex.get("question") or ex.get("problem") or ""
+            gold = ex.get("answer")   or ex.get("gold_answer")
+            qid  = str(ex.get("id")  or ex.get("idx") or i)
+
+            try:
+                qrec = self.run_question(question=q, gold_answer=gold, qid=qid)
+            except Exception as e:
+                logger.error(f"[CIMR] question {qid} failed: {e}", exc_info=True)
+                qrec = dict(
+                    id=qid, question=q, gold_answer=gold,
+                    completed=False, error=str(e),
+                )
+
+            results.append(qrec)
+
+            agg = qrec.get("aggregation") or {}
+            if agg.get("majority_is_correct") is not None:
+                n_maj_correct += int(bool(agg["majority_is_correct"]))
+            if agg.get("max_prm_is_correct") is not None:
+                n_prm_correct += int(bool(agg["max_prm_is_correct"]))
+
+            pbar.set_postfix(
+                maj  = f"{n_maj_correct/(i+1):.3f}",
+                prm  = f"{n_prm_correct/(i+1):.3f}",
+                done = f"{i+1}/{len(examples)}",
+                refresh = False,
+            )
+
+        pbar.close()
+        return results
+
 
 # =============================================================================
-# Per-question wrapper (used by the harness)
+# Thin per-question wrapper (used by external harnesses)
 # =============================================================================
 
 def run_cimr_for_question(
@@ -371,7 +380,9 @@ def run_cimr_for_question(
 ) -> Dict[str, Any]:
     """Thin wrapper that delegates to ``CIMRInferencer.run_question``."""
     return inferencer.run_question(
-        question=question, gold_answer=gold_answer, qid=str(qid),
+        question    = question,
+        gold_answer = gold_answer,
+        qid         = str(qid),
     )
 
 

@@ -1,34 +1,28 @@
 """
 cimr_step.py
 ============
-One step of the CIMR pipeline.
+One step of the CIMR pipeline, with both single-rollout and batched
+N-rollout execution.
 
-A "step" is a self-contained unit of work:
-
-  1. GENERATE  — produce a reasoning trace.
+A "step" (one depth level) is:
+  1. GENERATE  — produce a reasoning trace (CRISP-style numbered steps).
                  Step 1 generates from the question alone.
-                 Steps 2..d generate given the question PLUS the
-                 corrected output of the previous step.
-  2. CRITIQUE  — the self-critique agent reads (PROBLEM, TRACE) and
-                 emits a short paragraph naming the error TYPE / LOCATION
-                 (or confirming correctness).  Does NOT re-solve.
-  3. CORRECT   — the self-correction agent reads
-                 (PROBLEM, TRACE, CRITIQUE) and emits a CORRECTED TRACE
-                 ending in ``Final answer: \\boxed{<answer>}``.
-  4. SCORE     — the corrected trace is PRM-scored (Qwen2.5-Math-PRM-7B)
-                 → V_step.
+                 Steps 2..d extend the corrected output of the prior step.
+  2. CRITIQUE  — self-critique agent reads (PROBLEM, TRACE) and emits
+                 a short error diagnosis (or confirms correctness).
+  3. CORRECT   — self-correction agent reads (PROBLEM, TRACE, CRITIQUE)
+                 and emits a corrected trace ending in Final answer: \\boxed{}.
+  4. SCORE     — corrected trace is PRM-scored → V_step.
 
-The corrected trace is what gets passed forward to the next step (or
-returned as the rollout's final answer if this is the last step).
-
-This module does **one step**.  It is stateless w.r.t. the rollout —
-the rollout layer (``cimr_rollout.py``) threads corrected outputs from
-step k into step k+1.
+The corrected trace is passed forward to the next depth level.
 
 Public symbols
 --------------
-  CIMRStepConfig   — dataclass-ish bag of step-level knobs.
-  run_one_step()   — the main function; returns a CIMRStepResult dict.
+  CIMRStepConfig   — dataclass of step-level knobs.
+  run_one_step()   — single-rollout step (kept for resume compatibility).
+  run_step_batch() — batched N-rollout step (main path for new runs).
+  extract_answer, extract_boxed, truncate_at_first_boxed
+  build_chat_prompt, score_one_trace, score_traces_batch
 """
 
 from __future__ import annotations
@@ -36,7 +30,7 @@ from __future__ import annotations
 import logging
 import re
 import time
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
 import numpy as np
@@ -45,16 +39,14 @@ logger = logging.getLogger(__name__)
 
 
 # =============================================================================
-# Helpers (boxed-answer extraction, post-correction trim)
+# Helpers — boxed answer, post-correction trim
 # =============================================================================
 
 _BOXED_OPEN_RE = re.compile(r"\\boxed\{")
 
 
 def extract_boxed(text: str) -> str:
-    """Return the content of the LAST ``\\boxed{...}`` in `text`,
-    handling nested braces.  Falls back to the last number/expression in
-    the text when no ``\\boxed{}`` is found."""
+    """Return content of the LAST \\boxed{...}, handling nested braces."""
     if not text:
         return ""
     matches = list(re.finditer(r"\\boxed\{", text))
@@ -70,14 +62,12 @@ def extract_boxed(text: str) -> str:
         elif text[i] == "}":
             depth -= 1
         i += 1
-    return text[start: i - 1].strip() if depth == 0 else text[start:].strip()
+    return text[start : i - 1].strip() if depth == 0 else text[start:].strip()
 
 
 def truncate_at_first_boxed(text: str) -> str:
-    """If `text` contains ``\\boxed{...}``, return the substring up to
-    and including the FIRST such expression.  Removes any post-answer
-    rambling, which both saves tokens downstream and makes PRM scoring
-    cleaner."""
+    """Return substring up to and including the FIRST \\boxed{...}.
+    Removes post-answer rambling for cleaner PRM scoring."""
     if not text:
         return text
     m = _BOXED_OPEN_RE.search(text)
@@ -99,8 +89,7 @@ def truncate_at_first_boxed(text: str) -> str:
 
 
 def extract_answer(text: str, ev=None, data_name: str = "") -> str:
-    """Multi-strategy answer extraction.  Priority: \\boxed{} →
-    evaluator's own → last numeric token."""
+    """Multi-strategy answer extraction.  Priority: \\boxed{} → evaluator → last number."""
     ans = extract_boxed(text)
     if ans:
         return ans
@@ -117,14 +106,11 @@ def extract_answer(text: str, ev=None, data_name: str = "") -> str:
 
 
 # =============================================================================
-# Chat-template prompt builder (works with HFModelWrapper-like models)
+# Chat-template prompt builder
 # =============================================================================
 
-def build_chat_prompt(
-    model, system_content: str, user_content: str,
-) -> str:
-    """Format a (system, user) prompt using the model's chat template.
-    Falls back to plain concatenation if the template is unavailable."""
+def build_chat_prompt(model, system_content: str, user_content: str) -> str:
+    """Format a (system, user) prompt using the model's chat template."""
     tok = getattr(model, "tokenizer", None)
     if tok is not None and getattr(tok, "chat_template", None):
         messages = [
@@ -141,7 +127,7 @@ def build_chat_prompt(
 
 
 # =============================================================================
-# Generic generation helper (single prompt, no batching)
+# Generation helpers
 # =============================================================================
 
 def _generate_one(
@@ -154,96 +140,150 @@ def _generate_one(
     repetition_penalty: float = 1.10,
     no_repeat_ngram_size: int = 12,
 ) -> str:
-    """Run the model on ONE prompt and return the raw response text.
-
-    Most generator wrappers in this project expose ``_generate_batch_raw``
-    as the lowest-level call.  We pass a single-element batch and unpack.
-    """
+    """Run the model on ONE prompt and return the raw response text."""
     if not full_prompt:
         return ""
+    results = _generate_batch(
+        model, [full_prompt],
+        max_new_tokens=max_new_tokens,
+        do_sample=do_sample,
+        temperature=temperature,
+        top_p=top_p,
+        repetition_penalty=repetition_penalty,
+        no_repeat_ngram_size=no_repeat_ngram_size,
+    )
+    return results[0] if results else ""
+
+
+def _generate_batch(
+    model,
+    prompts: List[str],
+    max_new_tokens: int,
+    do_sample: bool,
+    temperature: float = 0.7,
+    top_p: float = 0.95,
+    repetition_penalty: float = 1.10,
+    no_repeat_ngram_size: int = 12,
+) -> List[str]:
+    """Batch-generate for a list of prompts, respecting model.batch_size.
+
+    Prompts are chunked into model.batch_size groups and sent in separate
+    _generate_batch_raw calls so GPU memory is not exhausted.  Within each
+    chunk the model processes all sequences in parallel.
+    """
+    if not prompts:
+        return []
+
     kwargs: Dict[str, Any] = dict(max_new_tokens=max_new_tokens)
     if do_sample:
-        kwargs.update(
-            do_sample=True, temperature=temperature, top_p=top_p,
-        )
+        kwargs.update(do_sample=True, temperature=temperature, top_p=top_p)
     else:
         kwargs.update(do_sample=False)
-    kwargs["repetition_penalty"]  = repetition_penalty
+    kwargs["repetition_penalty"]   = repetition_penalty
     kwargs["no_repeat_ngram_size"] = no_repeat_ngram_size
 
-    try:
-        out = model._generate_batch_raw([full_prompt], **kwargs)
-    except TypeError:
-        # Wrapper rejected one of our kwargs — strip the niche knobs
-        # and retry.
-        kwargs.pop("repetition_penalty", None)
-        kwargs.pop("no_repeat_ngram_size", None)
+    bs = getattr(model, "batch_size", len(prompts)) or len(prompts)
+    results: List[str] = []
+
+    for start in range(0, len(prompts), bs):
+        chunk = prompts[start : start + bs]
         try:
-            out = model._generate_batch_raw([full_prompt], **kwargs)
+            out = model._generate_batch_raw(chunk, **kwargs)
+            results.extend(out or [""] * len(chunk))
+        except TypeError:
+            kw2 = {
+                k: v for k, v in kwargs.items()
+                if k not in ("repetition_penalty", "no_repeat_ngram_size")
+            }
+            try:
+                out = model._generate_batch_raw(chunk, **kw2)
+                results.extend(out or [""] * len(chunk))
+            except Exception as e:
+                logger.error(f"[CIMR] batch generation failed: {e}")
+                results.extend([""] * len(chunk))
         except Exception as e:
-            logger.error(f"[CIMR] generation failed: {e}")
-            return ""
-    except Exception as e:
-        logger.error(f"[CIMR] generation failed: {e}")
-        return ""
-    if not out:
-        return ""
-    return out[0] or ""
+            logger.error(f"[CIMR] batch generation failed: {e}")
+            results.extend([""] * len(chunk))
+
+    return results
 
 
 # =============================================================================
-# PRM scoring helper for a single trace
+# PRM scoring helpers
 # =============================================================================
 
 def score_one_trace(
     verifier,
-    question: str,
-    trace:    str,
+    question:    str,
+    trace:       str,
     gold_answer: Optional[str] = None,
 ) -> float:
-    """PRM-score a single trace.  Returns 0.0 on any failure or when the
-    verifier is unavailable."""
-    if verifier is None or not trace or not trace.strip():
-        return 0.0
+    """PRM-score a single trace.  Returns 0.0 on failure."""
+    scores = score_traces_batch(verifier, question, [trace], gold_answer)
+    return scores[0] if scores else 0.0
+
+
+def score_traces_batch(
+    verifier,
+    question:    str,
+    traces:      List[str],
+    gold_answer: Optional[str] = None,
+) -> List[float]:
+    """PRM-score a batch of traces in one verifier call.
+
+    Empty/whitespace traces receive 0.0 without hitting the verifier.
+    """
+    if not traces:
+        return []
+    if verifier is None:
+        return [0.0] * len(traces)
+
+    valid_idxs   = [i for i, t in enumerate(traces) if t and t.strip()]
+    valid_traces = [traces[i] for i in valid_idxs]
+
+    scores = [0.0] * len(traces)
+    if not valid_traces:
+        return scores
+
     try:
         from verifier import score_candidates  # type: ignore
-        scored = score_candidates(
-            [trace], verifier, gold_answer, question=question,
-        )
-        return float(np.asarray(scored, dtype=float).reshape(-1)[0])
+        raw = score_candidates(valid_traces, verifier, gold_answer, question=question)
+        flat = np.asarray(raw, dtype=float).reshape(-1).tolist()
+        for out_i, in_i in enumerate(valid_idxs):
+            scores[in_i] = float(flat[out_i]) if out_i < len(flat) else 0.0
     except Exception as e:
-        logger.warning(f"[CIMR] PRM scoring failed: {e}")
-        return 0.0
+        logger.warning(f"[CIMR] batch PRM scoring failed: {e}")
+
+    return scores
 
 
 # =============================================================================
-# Step config / result containers
+# Step config
 # =============================================================================
 
 @dataclass
 class CIMRStepConfig:
-    """Step-level knobs.  Created once per rollout and reused across
-    all d steps."""
-    # Generation
-    reasoning_max_new_tokens:  int = 2048
-    reasoning_temperature:     float = 0.7
-    reasoning_top_p:           float = 0.95
-    reasoning_do_sample:       bool = True   # step 1 samples; later steps usually greedy
+    """Step-level knobs, shared across all d steps of a rollout."""
+    # Reasoning generation
+    reasoning_max_new_tokens:      int   = 2048
+    reasoning_temperature:         float = 0.7
+    reasoning_top_p:               float = 0.95
+    reasoning_do_sample:           bool  = True   # True for step 1; greedy for later
     # Critique
-    critique_max_tokens:       int = 384
-    critique_max_trace_chars:  int = 4000
+    critique_max_tokens:           int   = 512
+    critique_max_trace_chars:      int   = 4000
     # Correction
-    correction_max_tokens:     int = 1024
-    correction_max_trace_chars:    int = 4000
-    correction_max_critique_chars: int = 1500
-    # Generation continuation prompt
-    continuation_max_prior_chars: int = 4000
-    # Other-answer-aware critique/correction (sibling rollouts)
-    other_answer_aware:        bool = False
+    correction_max_tokens:         int   = 1536
+    correction_max_trace_chars:    int   = 4000
+    correction_max_critique_chars: int   = 1500
+    # Continuation prompt truncation
+    continuation_max_prior_chars:  int   = 4000
+    # Sibling-answer-aware critique/correction
+    other_answer_aware:            bool  = False
 
 
 # =============================================================================
-# THE STEP
+# Single-rollout step (kept for resume / compatibility)
 # =============================================================================
 
 def run_one_step(
@@ -251,31 +291,68 @@ def run_one_step(
     model,
     verifier,
     ev,
-    data_name:        str,
-    question:         str,
-    gold_answer:      Optional[str],
-    step_idx:         int,                 # 1-indexed
-    total_steps:      int,                 # d
-    prior_corrected:  Optional[str],       # corrected trace from step k-1
-    config:           CIMRStepConfig,
-    sibling_answers:  Optional[List[str]] = None,
-    rollout_idx:      int = 0,
+    data_name:       str,
+    question:        str,
+    gold_answer:     Optional[str],
+    step_idx:        int,
+    total_steps:     int,
+    prior_corrected: Optional[str],
+    config:          CIMRStepConfig,
+    sibling_answers: Optional[List[str]] = None,
+    rollout_idx:     int = 0,
 ) -> Dict[str, Any]:
-    """Execute one CIMR step.
+    """Execute one CIMR step for a single rollout."""
+    records = run_step_batch(
+        model                 = model,
+        verifier              = verifier,
+        ev                    = ev,
+        data_name             = data_name,
+        question              = question,
+        gold_answer           = gold_answer,
+        step_idx              = step_idx,
+        total_steps           = total_steps,
+        prior_corrected_list  = [prior_corrected],
+        config                = config,
+        rollout_idxs          = [rollout_idx],
+        sibling_answers_list  = [sibling_answers] if sibling_answers else None,
+    )
+    return records[0]
 
-    Returns a dict with every artifact from this step:
-        reasoning_response          (raw LLM gen)
-        reasoning_answer            (extracted answer from the gen)
-        reasoning_prm_score         (PRM on the raw gen — diagnostic)
-        critique_response           (raw critique agent text)
-        critique_parsed             (parse_self_critique output)
-        correction_response         (raw correction text, trimmed)
-        correction_parsed           (parse_self_correction output)
-        corrected_trace             (= correction_response — what gets
-                                     passed forward to step k+1)
-        corrected_answer            (extracted from the correction)
-        corrected_prm_score         (PRM on the corrected trace)
-        step_idx, total_steps, elapsed_sec
+
+# =============================================================================
+# Batched N-rollout step — main path
+# =============================================================================
+
+def run_step_batch(
+    *,
+    model,
+    verifier,
+    ev,
+    data_name:            str,
+    question:             str,
+    gold_answer:          Optional[str],
+    step_idx:             int,
+    total_steps:          int,
+    prior_corrected_list: List[Optional[str]],
+    config:               CIMRStepConfig,
+    rollout_idxs:         List[int],
+    sibling_answers_list: Optional[List[Optional[List[str]]]] = None,
+) -> List[Dict[str, Any]]:
+    """Execute one depth level for N rollouts simultaneously.
+
+    Parameters
+    ----------
+    prior_corrected_list : one entry per rollout — corrected trace from
+                           the previous depth (None for depth 1).
+    rollout_idxs         : 0-indexed rollout ids, one per entry in
+                           prior_corrected_list.
+    sibling_answers_list : optional per-rollout list of sibling answers for
+                           other-answer-aware critique.
+
+    Returns
+    -------
+    List of step-record dicts, one per rollout, in the same order as
+    rollout_idxs.
     """
     from cimr_prompts import (  # type: ignore
         REASONING_SYSTEM_PROMPT,
@@ -291,148 +368,157 @@ def run_one_step(
         parse_self_correction,
     )
 
-    t0 = time.time()
+    n = len(rollout_idxs)
     is_first = (step_idx == 1)
+    t0 = time.time()
 
-    # ── Phase A: generate the reasoning trace for this step ────────────
+    # ── Phase A: reasoning generation ────────────────────────────────────
     if is_first:
-        user_msg = build_initial_reasoning_prompt(question)
+        user_msgs = [build_initial_reasoning_prompt(question)] * n
     else:
-        user_msg = build_continuation_reasoning_prompt(
-            question        = question,
-            prior_corrected = prior_corrected or "",
-            step_idx        = step_idx,
-            total_steps     = total_steps,
-            max_prior_chars = config.continuation_max_prior_chars,
-        )
-    reasoning_prompt = build_chat_prompt(
-        model, REASONING_SYSTEM_PROMPT, user_msg,
-    )
-    reasoning_raw = _generate_one(
-        model, reasoning_prompt,
-        max_new_tokens=config.reasoning_max_new_tokens,
-        do_sample=(config.reasoning_do_sample and is_first),
-        temperature=config.reasoning_temperature,
-        top_p=config.reasoning_top_p,
-    )
-    # Trim post-\boxed rambling so the critique sees clean text.
-    reasoning_clean = truncate_at_first_boxed(reasoning_raw or "")
-    reasoning_answer = extract_answer(reasoning_clean, ev, data_name)
-    reasoning_prm = score_one_trace(
-        verifier, question, reasoning_clean, gold_answer,
+        user_msgs = [
+            build_continuation_reasoning_prompt(
+                question        = question,
+                prior_corrected = prior_corrected_list[k] or "",
+                step_idx        = step_idx,
+                total_steps     = total_steps,
+                max_prior_chars = config.continuation_max_prior_chars,
+            )
+            for k in range(n)
+        ]
+
+    reasoning_prompts = [
+        build_chat_prompt(model, REASONING_SYSTEM_PROMPT, u)
+        for u in user_msgs
+    ]
+
+    reasoning_raws = _generate_batch(
+        model, reasoning_prompts,
+        max_new_tokens = config.reasoning_max_new_tokens,
+        do_sample      = (config.reasoning_do_sample and is_first),
+        temperature    = config.reasoning_temperature,
+        top_p          = config.reasoning_top_p,
     )
 
-    # ── Phase B: self-critique ─────────────────────────────────────────
-    sibling = (
-        sibling_answers
-        if (config.other_answer_aware and sibling_answers is not None)
-        else None
-    )
-    try:
-        critique_user = build_self_critique_prompt(
+    reasoning_cleans  = [truncate_at_first_boxed(r or "") for r in reasoning_raws]
+    reasoning_answers = [extract_answer(r, ev, data_name) for r in reasoning_cleans]
+    reasoning_prms    = score_traces_batch(verifier, question, reasoning_cleans, gold_answer)
+
+    # ── Phase B: self-critique ────────────────────────────────────────────
+    critique_user_msgs = []
+    for k in range(n):
+        siblings = (
+            sibling_answers_list[k]
+            if (config.other_answer_aware and sibling_answers_list is not None)
+            else None
+        )
+        critique_user_msgs.append(build_self_critique_prompt(
             question        = question,
-            trace_text      = reasoning_clean,
-            trace_answer    = reasoning_answer,
+            trace_text      = reasoning_cleans[k],
+            trace_answer    = reasoning_answers[k],
             max_trace_chars = config.critique_max_trace_chars,
-            other_answers   = sibling,
-        )
-        critique_prompt = build_chat_prompt(
-            model, SELF_CRITIQUE_SYSTEM_PROMPT, critique_user,
-        )
-    except Exception as e:
-        logger.error(f"[CIMR step {step_idx}] critique prompt build failed: {e}")
-        critique_prompt = ""
-    critique_raw = _generate_one(
-        model, critique_prompt,
-        max_new_tokens=config.critique_max_tokens,
-        do_sample=False,
-    )
-    critique_parsed = parse_self_critique(critique_raw)
+            other_answers   = siblings,
+        ))
 
-    # ── Phase C: self-correction ───────────────────────────────────────
-    crit_text_for_corr = (
-        critique_parsed.get("raw") or critique_raw or ""
+    critique_prompts = [
+        build_chat_prompt(model, SELF_CRITIQUE_SYSTEM_PROMPT, u)
+        for u in critique_user_msgs
+    ]
+
+    critique_raws    = _generate_batch(
+        model, critique_prompts,
+        max_new_tokens = config.critique_max_tokens,
+        do_sample      = False,
     )
-    try:
-        correction_user = build_self_correction_prompt(
+    critique_parseds = [parse_self_critique(r) for r in critique_raws]
+
+    # ── Phase C: self-correction ──────────────────────────────────────────
+    correction_user_msgs = []
+    for k in range(n):
+        crit_text = (critique_parseds[k].get("raw") or critique_raws[k] or "")
+        siblings = (
+            sibling_answers_list[k]
+            if (config.other_answer_aware and sibling_answers_list is not None)
+            else None
+        )
+        correction_user_msgs.append(build_self_correction_prompt(
             question        = question,
-            trace_text      = reasoning_clean,
-            critique_text   = crit_text_for_corr,
-            trace_answer    = reasoning_answer,
+            trace_text      = reasoning_cleans[k],
+            critique_text   = crit_text,
+            trace_answer    = reasoning_answers[k],
             max_trace_chars = config.correction_max_trace_chars,
             max_crit_chars  = config.correction_max_critique_chars,
-            other_answers   = sibling,
+            other_answers   = siblings,
+        ))
+
+    correction_prompts = [
+        build_chat_prompt(model, SELF_CORRECTION_SYSTEM_PROMPT, u)
+        for u in correction_user_msgs
+    ]
+
+    correction_raws    = _generate_batch(
+        model, correction_prompts,
+        max_new_tokens = config.correction_max_tokens,
+        do_sample      = False,
+    )
+    correction_cleans  = [truncate_at_first_boxed(r or "") for r in correction_raws]
+    correction_parseds = [parse_self_correction(r) for r in correction_cleans]
+
+    # ── Phase D: pick corrected trace and answer ──────────────────────────
+    corrected_traces  = []
+    corrected_answers = []
+    for k in range(n):
+        corrected_trace = (
+            correction_cleans[k]
+            if correction_cleans[k].strip()
+            else reasoning_cleans[k]
         )
-        correction_prompt = build_chat_prompt(
-            model, SELF_CORRECTION_SYSTEM_PROMPT, correction_user,
+        corrected_traces.append(corrected_trace)
+
+        cor_ans  = (correction_parseds[k].get("corrected_answer") or "").strip()
+        conf_ans = (critique_parseds[k].get("confirmed_answer")   or "").strip()
+        corrected_answers.append(cor_ans or conf_ans or reasoning_answers[k])
+
+    # ── Phase E: PRM-score corrected traces ───────────────────────────────
+    corrected_prms = score_traces_batch(verifier, question, corrected_traces, gold_answer)
+
+    elapsed          = time.time() - t0
+    per_rollout_time = round(elapsed / max(n, 1), 3)
+
+    return [
+        dict(
+            rollout_idx          = int(rollout_idxs[k]),
+            step_idx             = int(step_idx),
+            total_steps          = int(total_steps),
+            # Reasoning
+            reasoning_response   = reasoning_cleans[k],
+            reasoning_answer     = reasoning_answers[k],
+            reasoning_prm_score  = float(reasoning_prms[k]),
+            # Critique
+            critique_response    = critique_raws[k],
+            critique_parsed      = critique_parseds[k],
+            # Correction
+            correction_response  = correction_cleans[k],
+            correction_parsed    = correction_parseds[k],
+            # Forward-passed artifacts
+            corrected_trace      = corrected_traces[k],
+            corrected_answer     = corrected_answers[k],
+            corrected_prm_score  = float(corrected_prms[k]),
+            elapsed_sec          = per_rollout_time,
         )
-    except Exception as e:
-        logger.error(f"[CIMR step {step_idx}] correction prompt build failed: {e}")
-        correction_prompt = ""
-    correction_raw = _generate_one(
-        model, correction_prompt,
-        max_new_tokens=config.correction_max_tokens,
-        do_sample=False,
-    )
-    correction_clean = truncate_at_first_boxed(correction_raw or "")
-    correction_parsed = parse_self_correction(correction_clean)
-
-    # ── Phase D: pick the corrected trace + corrected answer ───────────
-    # The corrected trace is what gets passed forward to step k+1.  We
-    # keep it as the cleaned correction text (when non-empty), and fall
-    # back to the reasoning trace itself when correction is empty (so
-    # the next step has SOMETHING to extend).  The corrected answer
-    # prefers the correction agent's \boxed{}, then the critique's
-    # confirmed \boxed{}, then the reasoning's \boxed{}.
-    if correction_clean.strip():
-        corrected_trace = correction_clean
-    else:
-        corrected_trace = reasoning_clean
-
-    cor_ans  = (correction_parsed.get("corrected_answer") or "").strip()
-    conf_ans = (critique_parsed.get("confirmed_answer") or "").strip()
-    if cor_ans:
-        corrected_answer = cor_ans
-    elif conf_ans:
-        corrected_answer = conf_ans
-    else:
-        corrected_answer = reasoning_answer
-
-    # ── Phase E: PRM-score the corrected trace ─────────────────────────
-    corrected_prm = score_one_trace(
-        verifier, question, corrected_trace, gold_answer,
-    )
-
-    elapsed = time.time() - t0
-
-    return dict(
-        rollout_idx          = int(rollout_idx),
-        step_idx             = int(step_idx),
-        total_steps          = int(total_steps),
-        # Reasoning generation
-        reasoning_response   = reasoning_clean,
-        reasoning_answer     = reasoning_answer,
-        reasoning_prm_score  = float(reasoning_prm),
-        # Self-critique
-        critique_response    = critique_raw,
-        critique_parsed      = critique_parsed,
-        # Self-correction
-        correction_response  = correction_clean,
-        correction_parsed    = correction_parsed,
-        # Forward-passed artifacts (used by step k+1)
-        corrected_trace      = corrected_trace,
-        corrected_answer     = corrected_answer,
-        corrected_prm_score  = float(corrected_prm),
-        elapsed_sec          = round(elapsed, 3),
-    )
+        for k in range(n)
+    ]
 
 
 __all__ = [
     "CIMRStepConfig",
     "run_one_step",
+    "run_step_batch",
     "extract_answer",
     "extract_boxed",
     "truncate_at_first_boxed",
     "build_chat_prompt",
     "score_one_trace",
+    "score_traces_batch",
+    "_generate_batch",
 ]
