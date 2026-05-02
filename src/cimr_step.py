@@ -259,7 +259,11 @@ def score_traces_batch(
         return scores
 
     try:
-        from verifier import score_candidates  # type: ignore
+        try:
+            from src.verifier import score_candidates  # type: ignore
+        except Exception:
+            # Fallback for environments where src is on PYTHONPATH.
+            from verifier import score_candidates  # type: ignore
         raw = score_candidates(valid_traces, verifier, gold_answer, question=question)
         flat = np.asarray(raw, dtype=float).reshape(-1).tolist()
         for out_i, in_i in enumerate(valid_idxs):
