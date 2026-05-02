@@ -159,6 +159,8 @@ def parse_args():
                    help="Path to existing sample-cache JSONL; skips generation")
     g.add_argument("--save_traces", action="store_true", default=True)
     g.add_argument("--no_save_traces", dest="save_traces", action="store_false")
+    g.add_argument("--skip_baselines", action="store_true",
+                   help="Skip cache-driven baseline pass and run CIMR-only")
 
     # Output
     g = p.add_argument_group("Output")

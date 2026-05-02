@@ -97,6 +97,9 @@ ENABLE_CIMR=1
 CIMR_N_ROLLOUTS=8                  # ⇐ N — independent rollouts per question
 CIMR_DEPTH=4                       # ⇐ d — refinement steps per rollout
 
+# Skip baseline Pass 1 and run CIMR-only when set to 1
+SKIP_BASELINES=1
+
 # Reasoning generation knobs (per step)
 CIMR_REASONING_MAX_NEW_TOKENS=2048
 CIMR_REASONING_TEMPERATURE=0.7
@@ -183,6 +186,11 @@ COMMON_ARGS=(
     ${GPU_FLAG}
     ${CIMR_FLAGS}
 )
+
+# Optionally add skip-baselines flag to python args
+if [[ "${SKIP_BASELINES}" == "1" ]]; then
+    COMMON_ARGS+=(--skip_baselines)
+fi
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Runner functions
