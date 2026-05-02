@@ -15,7 +15,8 @@ HF_DATASET_MAP = {
     'gsmic':            ('openai/gsm8k',                    'main',             'test'),   # GSM-IC variant
     'gsmp':             ('openai/gsm8k',                    'main',             'test'),   # GSM-Plus variant
     'math':             ('HuggingFaceH4/MATH-500',           'default',              'test'),
-    'aime24':           ('math-ai/aime24',           None,               'test'),
+    'aime24':           ('HuggingFaceH4/aime_2024',           None,               'train'),
+    'aime24':           ('math-ai/aime25',           'default',               'test'),
     'aqua':             ('aqua_rat',                        'raw',              'validation'),
     'olympiadbench':    ('GAIR/OlympiadBench',              'OE_TO_maths_en_COMP', 'test'),
     's1k':              ('simplescaling/s1K',               None,               'train'),
@@ -81,7 +82,7 @@ def _load_from_huggingface(dataset: str, nsamples: int, mode: str) -> list:
     print(f"[load_data] Local file not found. Downloading '{dataset}' "
           f"from HuggingFace: {repo} (subset={subset}, split={split}) …")
 
-    load_kwargs = dict(path=repo, split=split, trust_remote_code=True)
+    load_kwargs = dict(path=repo, split=split, trust_remote_code=False)
     if subset:
         load_kwargs['name'] = subset
 
@@ -212,9 +213,11 @@ def load_dataset(dataset, nsamples, mode='dev'):
             item['answer']   = remove_boxed(last_boxed_only_string(item['solution']))
         
         elif dataset == 'aime24':
+            # print(item.keys())
             item['question'] = item['problem']
-            item['answer']   = remove_boxed(last_boxed_only_string(item['solution']))
-
+            item['answer'] = item['answer']
+            # item['answer']   = remove_boxed(last_boxed_only_string(item['answer']))
+            # print(item)
         elif dataset == 'olympiadbench':
             item['reason'] = item['solution'][0]
             item['answer'] = item['final_answer'][0]

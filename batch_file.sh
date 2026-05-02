@@ -1,9 +1,9 @@
 #!/bin/bash
 #SBATCH -p sooner_gpu_test_h100
 #SBATCH --gres=gpu:1
-#SBATCH --job-name=cimr_paired_llama8_exp
-#SBATCH --output=logs/out_cimr_paired_llama8.log
-#SBATCH --error=logs/err_cimr_paired_llama8.log
+#SBATCH --job-name=cimr_crtic_corre_exp
+#SBATCH --output=logs/out_cimr_crtic_corre.log
+#SBATCH --error=logs/err_cimr_crtic_corre.log
 #SBATCH --time=2-00:00:00
 
 set -e
@@ -68,4 +68,7 @@ nvidia-smi
 # bash run_experiments.sh run math500 dn_bon_updated
 
 # uv run -- bash run_paired_ablation.sh
-uv run -- bash run_paired_ablation_llama8.sh aime24 aime25 amc23 math500
+# uv run -- bash run_paired_ablation_llama3.sh aime24 aime25 amc23 math500
+# uv run -- bash run_paired_ablation_llama8.sh aime24 aime25 amc23 math500
+# uv run -- bash run_paired_ablation_qwen2.sh aime24 aime25 amc23 math500
+uv run -- bash run_paired_ablation.sh aime24 aime25 amc23 math500

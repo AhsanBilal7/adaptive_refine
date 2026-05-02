@@ -8,7 +8,7 @@ from .io_utils import prepare_input, prepare_batch_input_for_model, derive_step_
 from .prm_model import PRM_MODEL
 import random 
 import numpy as np
-from utils.load_data import extract_answer
+from crisp_original_files.utils.load_data import extract_answer
 from vllm import LLM, SamplingParams
 import math
 import re
@@ -433,12 +433,11 @@ class ShepherdReward(Reward):
 class QwenMathReward(Reward):
     def _initialize(self):
         # os.environ['HF_HOME'] = '/mnt/userdata/ljc/code/ref_code'
-        self.tokenizer = AutoTokenizer.from_pretrained(self.model_path, trust_remote_code=True)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
         self.model = AutoModel.from_pretrained(
             self.model_path,
             device_map='auto',
             torch_dtype=torch.bfloat16,
-            trust_remote_code=True
         ).eval()
         self.model.config.use_cache = False
 
@@ -496,8 +495,7 @@ class ArmormReward(Reward):
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_path)
         self.model = AutoModelForSequenceClassification.from_pretrained(
             self.model_path,
-            device_map='auto',
-            trust_remote_code=True
+            device_map='auto'
             )
     
     def score(self, question, responses, **kwargs):
@@ -521,7 +519,6 @@ class GRMReward(Reward):
         self.model = AutoModelForSequenceClassification.from_pretrained(
             self.model_path,
             device_map='auto',
-            trust_remote_code=True,
             torch_dtype=torch.float16, 
             )
     

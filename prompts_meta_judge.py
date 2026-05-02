@@ -530,101 +530,94 @@ def build_judge_prompt(
 # trace content is now controlled entirely by the variant.
 
 PER_CLUSTER_SYSTEM_PROMPT = (
-    "You are a careful math answer checker. "
-    "You will be shown a problem, a candidate final answer, and reasoning that supports it. "
-    "Decide what the correct final answer to the problem is, then output it once.\n\n"
+    "You are a verifier. You are NOT solving the problem from scratch.\n"
+    "Your only task is to check whether the candidate reasoning supports "
+    "the candidate final answer.\n\n"
+    "You must return EXACTLY one of these two formats, and nothing else:\n"
+    "  VALID\n"
+    "  INVALID: <one short sentence describing the concrete error>\n\n"
     "Hard rules:\n"
-    "- Be brief. At most a short paragraph of analysis.\n"
-    "- Do not repeat sentences or phrases. Never restart the analysis mid-response.\n"
-    "- Do not output reasoning past the final answer.\n"
-    "- The very last line must be exactly: \\boxed{<answer>}"
+    "- Do NOT propose a new answer.\n"
+    "- Do NOT compare with other answers.\n"
+    "- Do NOT re-solve the problem.\n"
+    "- Do NOT output \\boxed{}.\n"
+    "- Do NOT output anything except the verdict line.\n"
+    "- If the reasoning has no clear mathematical error and arrives at the "
+    "candidate answer, output VALID.\n"
+    "- If the reasoning contains a concrete mistake, invalid step, or "
+    "contradiction, output INVALID followed by a short reason."
 )
 
 
 PER_CLUSTER_SYSTEM_PROMPT_ANSWER_ONLY = (
-    "You are a careful math answer checker. "
-    "You will be shown a problem, a candidate final answer, and a few alternative answers. "
-    "No reasoning is provided. "
-    "Decide what the correct final answer is and output it once.\n\n"
+    "You are a verifier. You are NOT solving the problem from scratch.\n"
+    "You will see only the candidate final answer (no reasoning is shown). "
+    "Your only task is to judge whether the candidate answer is plausibly "
+    "correct for the given problem.\n\n"
+    "You must return EXACTLY one of these two formats, and nothing else:\n"
+    "  VALID\n"
+    "  INVALID: <one short sentence describing why it is wrong>\n\n"
     "Hard rules:\n"
-    "- Be brief. At most a few short sentences.\n"
-    "- Do not repeat sentences or phrases. Never restart the analysis mid-response.\n"
-    "- Do not output reasoning past the final answer.\n"
-    "- The very last line must be exactly: \\boxed{<answer>}"
+    "- Do NOT propose a new answer.\n"
+    "- Do NOT compare with other answers.\n"
+    "- Do NOT re-solve the problem.\n"
+    "- Do NOT output \\boxed{}.\n"
+    "- Do NOT output anything except the verdict line."
 )
 
 
 # =============================================================================
-# Few-shot examples
+# Few-shot examples — VALID / INVALID veto format
 # =============================================================================
-# These are appended near the end of every per-cluster prompt so the judge
-# sees concrete demonstrations of the expected output shape: a short analysis
-# followed by a single final \boxed{...} line.  No PRM scores, no rankings,
-# and no mention of "cluster" — just answer-checking shape.
-#
-# Three small examples cover:
-#   (1) candidate is correct  → confirm
-#   (2) candidate is wrong, an alternative is right  → switch to alternative
-#   (3) no alternative shown   → confirm or correct on its own merits
+# Demonstrate the exact verdict format the judge must produce.  Examples
+# carry no PRM scores, no rankings, and never propose alternatives.
 
 _FEW_SHOT_EXAMPLES_FULL_CONCISE = """\
-Here are short examples that show the exact output shape required.
+Here are short examples of the exact output format required.
 
 #EXAMPLE 1
 Problem: What is 7 + 5?
 Candidate final answer: 12
-Reasoning (excerpt): "7 + 5 equals 12."
-Other answers proposed: 11
-Response:
-The arithmetic 7 + 5 = 12 is correct.
-\\boxed{12}
+Reasoning (excerpt): "7 + 5 = 12."
+Verdict:
+VALID
 
 #EXAMPLE 2
 Problem: What is the smallest prime greater than 20?
 Candidate final answer: 21
-Reasoning (excerpt): "21 comes right after 20, so 21."
-Other answers proposed: 23
-Response:
-21 = 3 x 7 is composite, so the candidate is wrong. The smallest prime above 20 is 23.
-\\boxed{23}
+Reasoning (excerpt): "21 comes right after 20, so 21 is prime."
+Verdict:
+INVALID: 21 = 3 x 7 is composite, not prime.
 
 #EXAMPLE 3
 Problem: Compute 6!.
 Candidate final answer: 720
 Reasoning (excerpt): "6! = 6*5*4*3*2*1 = 720."
-Other answers proposed: (none)
-Response:
-6! = 720 is correct.
-\\boxed{720}
+Verdict:
+VALID
 """
 
 
 _FEW_SHOT_EXAMPLES_ANSWER_ONLY = """\
-Here are short examples that show the exact output shape required.
+Here are short examples of the exact output format required.
 
 #EXAMPLE 1
 Problem: What is 7 + 5?
 Candidate final answer: 12
-Other answers proposed: 11
-Response:
-7 + 5 = 12, so the candidate is correct.
-\\boxed{12}
+Verdict:
+VALID
 
 #EXAMPLE 2
 Problem: What is the smallest prime greater than 20?
 Candidate final answer: 21
-Other answers proposed: 23
-Response:
-21 is composite (3 x 7), so 23 is correct.
-\\boxed{23}
+Verdict:
+INVALID: 21 = 3 x 7 is composite.
 
 #EXAMPLE 3
 Problem: Compute 6!.
 Candidate final answer: 720
-Other answers proposed: (none)
-Response:
-6! = 720.
-\\boxed{720}
+Verdict:
+VALID
 """
 
 
@@ -637,24 +630,24 @@ def build_per_cluster_judge_prompt(
     cluster_prm_scores:    List[float] = None,
 ) -> str:
     """
-    Build a judge prompt for ONE answer-cluster.
+    Build a VETO judge prompt for ONE answer-cluster.
+
+    The judge's job is binary:  VALID  or  INVALID: <reason>.
+    It does NOT propose answers and does NOT compare with other clusters.
 
     The `variant` parameter controls *what reasoning content* the judge sees:
 
       "full"        : every trace in the cluster, in full (no truncation).
-      "concise"     : only the single trace with the highest PRM score in
-                      the cluster, in full.
-      "answer_only" : no traces — the judge sees only the candidate answer
-                      and the answers proposed by other clusters.
+      "concise"     : only the single trace with the highest PRM score.
+      "answer_only" : no traces — only the candidate answer is shown.
 
-    The prompt deliberately does NOT include any PRM scores, ranking
-    information, mean/max statistics, or cluster sizes.  The judge sees only
-    the problem, the candidate answer, the supporting reasoning (when
-    applicable), and the alternative answers, framed by simple `#HEADING`
-    sections and three short worked examples.
+    The prompt does NOT include any PRM scores, ranking information, mean/max
+    statistics, or cluster sizes.  The `other_cluster_answers` argument is
+    accepted for API compatibility but DELIBERATELY NOT shown to the judge,
+    because the judge is no longer comparing clusters.
 
-    cluster_prm_scores is used internally to pick the top trace under the
-    "concise" variant; it is NOT shown to the judge.
+    cluster_prm_scores is used ONLY to pick the top trace under the
+    "concise" variant; it is never shown to the judge.
     """
     if variant not in ("full", "concise", "answer_only"):
         raise ValueError(
@@ -662,17 +655,17 @@ def build_per_cluster_judge_prompt(
             f"Choose: 'full' | 'concise' | 'answer_only'"
         )
 
-    # Deduplicate and tidy the alternatives
-    others = [str(a).strip() for a in other_cluster_answers if str(a).strip()]
-    others = list(dict.fromkeys(others))
-    others_display = ", ".join(others) if others else "(none)"
-    cand_display   = cluster_answer.strip() if cluster_answer else "(none)"
+    # other_cluster_answers is intentionally unused (parked for API compat)
+    _ = other_cluster_answers
 
-    # ── answer_only ──────────────────────────────────────────────────────
+    cand_display = cluster_answer.strip() if cluster_answer else "(none)"
+
+    # ── answer_only: no reasoning shown ──────────────────────────────────
     if variant == "answer_only":
         lines = [
-            "Decide what the correct final answer to the problem is. "
-            "End your response with one line: \\boxed{<answer>}.",
+            "Decide whether the candidate final answer is plausibly correct "
+            "for the given problem. Respond ONLY with `VALID` or "
+            "`INVALID: <reason>`. Do not propose a new answer.",
             "",
             "#PROBLEM",
             question.strip(),
@@ -680,14 +673,11 @@ def build_per_cluster_judge_prompt(
             "#CANDIDATE ANSWER",
             cand_display,
             "",
-            "#OTHER ANSWERS PROPOSED",
-            others_display,
-            "",
             _FEW_SHOT_EXAMPLES_ANSWER_ONLY.rstrip(),
             "",
-            "#YOUR TASK",
-            "Now answer the actual problem above. Keep it brief, do not "
-            "repeat yourself, and end with one line: \\boxed{<answer>}.",
+            "#YOUR VERDICT",
+            "Now produce one verdict line for the actual problem above. "
+            "Output ONLY `VALID` or `INVALID: <reason>` and nothing else.",
         ]
         return "\n".join(lines)
 
@@ -708,18 +698,15 @@ def build_per_cluster_judge_prompt(
         selected_traces = list(cluster_traces)
 
     lines = [
-        "Check the candidate answer against the reasoning shown. Decide "
-        "what the correct final answer to the problem is. End your response "
-        "with one line: \\boxed{<answer>}.",
+        "Decide whether the reasoning shown supports the candidate final "
+        "answer. Respond ONLY with `VALID` or `INVALID: <reason>`. Do not "
+        "propose a new answer. Do not re-solve the problem.",
         "",
         "#PROBLEM",
         question.strip(),
         "",
         "#CANDIDATE ANSWER",
         cand_display,
-        "",
-        "#OTHER ANSWERS PROPOSED",
-        others_display,
         "",
         "#REASONING",
     ]
@@ -739,9 +726,448 @@ def build_per_cluster_judge_prompt(
         "",
         _FEW_SHOT_EXAMPLES_FULL_CONCISE.rstrip(),
         "",
-        "#YOUR TASK",
-        "Now answer the actual problem above. Keep it brief, do not repeat "
-        "yourself, and end with one line: \\boxed{<answer>}.",
+        "#YOUR VERDICT",
+        "Now produce one verdict line for the actual problem above. "
+        "Output ONLY `VALID` or `INVALID: <reason>` and nothing else.",
     ]
 
+    return "\n".join(lines)
+
+
+# =============================================================================
+# PER-TRACE veto + verify prompts  (NEW)
+# =============================================================================
+#
+# The judge is shown ONE candidate trace at a time and must produce a strict
+# two-line verdict:
+#
+#     VERIFY: YES   (or NO)
+#     VALID         (or INVALID: <one-sentence reason>)
+#
+#   VERIFY  : does the trace's final boxed answer satisfy the problem
+#             constraints?  This is a fast end-to-end check.
+#   VALID   : is the reasoning that arrived at that answer free of
+#             concrete mathematical errors?
+#
+# Both must be (YES, VALID) for a trace to be considered fully validated.
+# Wrong-but-popular answers cannot get credit from frequency: every trace is
+# judged on its own merits.
+#
+# Variant semantics at the trace level:
+#   "full"        : show the trace text in full
+#   "concise"     : show the trace text head/tail truncated to ~1500 chars
+#   "answer_only" : show only the trace's extracted final answer
+# =============================================================================
+
+
+PER_TRACE_SYSTEM_PROMPT = (
+    "You are a strict verifier for a single mathematical reasoning trace. "
+    "You are NOT solving the problem from scratch.\n\n"
+    "Your output MUST be exactly two lines, in this order, and nothing else:\n"
+    "  Line 1: VERIFY: YES   or   VERIFY: NO\n"
+    "  Line 2: VALID          or   INVALID: <one short sentence>\n\n"
+    "Definitions:\n"
+    "- VERIFY asks: does the trace's final boxed answer satisfy the "
+    "problem's constraints? Reason briefly in your head, then answer YES/NO.\n"
+    "- VALID asks: does the reasoning leading to that answer have any "
+    "concrete mathematical mistake, invalid step, or contradiction?\n\n"
+    "Hard rules:\n"
+    "- Do NOT propose a new answer.\n"
+    "- Do NOT compare with other traces.\n"
+    "- Do NOT re-solve the problem.\n"
+    "- Output ONLY the two verdict lines, nothing else.\n"
+    "- Do NOT output \\boxed{}."
+)
+
+
+PER_TRACE_SYSTEM_PROMPT_ANSWER_ONLY = (
+    "You are a strict verifier for a single mathematical answer. "
+    "No reasoning is shown. You are NOT solving the problem from scratch.\n\n"
+    "Your output MUST be exactly two lines, in this order, and nothing else:\n"
+    "  Line 1: VERIFY: YES   or   VERIFY: NO\n"
+    "  Line 2: VALID          or   INVALID: <one short sentence>\n\n"
+    "Definitions:\n"
+    "- VERIFY asks: does the candidate answer satisfy the problem's "
+    "constraints? Reason briefly in your head, then answer YES/NO.\n"
+    "- VALID asks: is the candidate answer plausibly correct? "
+    "(Without reasoning, this is essentially the same check as VERIFY; "
+    "still output both lines.)\n\n"
+    "Hard rules:\n"
+    "- Do NOT propose a new answer.\n"
+    "- Do NOT compare with other answers.\n"
+    "- Output ONLY the two verdict lines, nothing else.\n"
+    "- Do NOT output \\boxed{}."
+)
+
+
+_PER_TRACE_FEW_SHOT_FULL_CONCISE = """\
+Here are short examples of the exact two-line format required.
+
+#EXAMPLE 1
+Problem: What is 7 + 5?
+Candidate trace (excerpt): "7 + 5 = 12"
+Candidate answer: 12
+Verdict:
+VERIFY: YES
+VALID
+
+#EXAMPLE 2
+Problem: What is the smallest prime greater than 20?
+Candidate trace (excerpt): "21 comes right after 20, so 21."
+Candidate answer: 21
+Verdict:
+VERIFY: NO
+INVALID: 21 = 3 x 7 is composite, not prime.
+
+#EXAMPLE 3
+Problem: Compute 6!.
+Candidate trace (excerpt): "6! = 6*5*4*3*2 = 360, so 360."
+Candidate answer: 360
+Verdict:
+VERIFY: NO
+INVALID: 6! includes the factor 1 only trivially, but the product was missing a 1; correct value is 720, not 360.
+"""
+
+
+_PER_TRACE_FEW_SHOT_ANSWER_ONLY = """\
+Here are short examples of the exact two-line format required.
+
+#EXAMPLE 1
+Problem: What is 7 + 5?
+Candidate answer: 12
+Verdict:
+VERIFY: YES
+VALID
+
+#EXAMPLE 2
+Problem: What is the smallest prime greater than 20?
+Candidate answer: 21
+Verdict:
+VERIFY: NO
+INVALID: 21 = 3 x 7 is composite, not prime.
+
+#EXAMPLE 3
+Problem: Compute 6!.
+Candidate answer: 720
+Verdict:
+VERIFY: YES
+VALID
+"""
+
+
+def _truncate_trace_concise(trace: str, max_chars: int = 1500) -> str:
+    """Head + tail truncation. Used for the `concise` variant at trace level."""
+    text = str(trace).strip()
+    if len(text) <= max_chars:
+        return text
+    keep = max_chars // 2
+    head = text[:keep].rstrip()
+    tail = text[-keep:].lstrip()
+    omit = len(text) - max_chars
+    return f"{head}\n\n[... {omit:,} chars omitted ...]\n\n{tail}"
+
+
+def build_per_trace_judge_prompt(
+    question:       str,
+    trace_answer:   str,
+    trace_text:     str,
+    variant:        str = "full",
+) -> str:
+    """
+    Build the user-message body for a per-trace VERIFY+VETO judge call.
+
+    Variant semantics (NEW — trace level):
+      "full"        : full trace text
+      "concise"     : trace text head/tail truncated to ~1500 chars
+      "answer_only" : no trace text — only the candidate answer
+
+    The judge must respond with exactly two lines:
+      Line 1: VERIFY: YES   or   VERIFY: NO
+      Line 2: VALID          or   INVALID: <reason>
+    """
+    if variant not in ("full", "concise", "answer_only"):
+        raise ValueError(
+            f"Unknown variant '{variant}'. "
+            f"Choose: 'full' | 'concise' | 'answer_only'"
+        )
+
+    cand_display = trace_answer.strip() if trace_answer else "(none)"
+
+    # ── answer_only ──────────────────────────────────────────────────────
+    if variant == "answer_only":
+        lines = [
+            "Verify the candidate answer for the problem below. Respond ONLY "
+            "with the two-line verdict.",
+            "",
+            "#PROBLEM",
+            question.strip(),
+            "",
+            "#CANDIDATE ANSWER",
+            cand_display,
+            "",
+            _PER_TRACE_FEW_SHOT_ANSWER_ONLY.rstrip(),
+            "",
+            "#YOUR VERDICT",
+            "Now output exactly two lines for the problem above:",
+            "  Line 1: VERIFY: YES   or   VERIFY: NO",
+            "  Line 2: VALID          or   INVALID: <one short sentence>",
+        ]
+        return "\n".join(lines)
+
+    # ── full / concise ───────────────────────────────────────────────────
+    if variant == "concise":
+        trace_body = _truncate_trace_concise(trace_text)
+    else:
+        trace_body = str(trace_text).strip() or "(empty)"
+
+    lines = [
+        "Verify whether the reasoning trace below is correct and supports "
+        "its candidate answer. Respond ONLY with the two-line verdict.",
+        "",
+        "#PROBLEM",
+        question.strip(),
+        "",
+        "#CANDIDATE ANSWER",
+        cand_display,
+        "",
+        "#REASONING TRACE",
+        trace_body,
+        "",
+        _PER_TRACE_FEW_SHOT_FULL_CONCISE.rstrip(),
+        "",
+        "#YOUR VERDICT",
+        "Now output exactly two lines for the problem above:",
+        "  Line 1: VERIFY: YES   or   VERIFY: NO",
+        "  Line 2: VALID          or   INVALID: <one short sentence>",
+    ]
+    return "\n".join(lines)
+
+
+# =============================================================================
+# RESOLVE-FROM-VALID prompt  (NEW selection method)
+# =============================================================================
+#
+# After per-trace verification, gather every trace whose verdict was
+# (VERIFY=YES, VALID).  Pass the curated set to the judge as a SINGLE prompt
+# and ask it to produce one final answer to the problem.
+#
+# This selection rule is called `resolve_from_valid` and produces one new
+# answer per question.  If no trace passed the strict validity gate, the
+# caller should fall back to the best original-PRM trace's answer.
+
+RESOLVE_FROM_VALID_SYSTEM_PROMPT = (
+    "You are a math problem solver. You will be shown a problem and several "
+    "reasoning traces that have all been verified to be correct.\n\n"
+    "Your task is to produce ONE final answer to the problem.  You may "
+    "borrow steps from any of the verified traces.\n\n"
+    "Hard rules:\n"
+    "- Be concise. A short paragraph of analysis is plenty.\n"
+    "- Do not repeat sentences or phrases.\n"
+    "- The very last line must be exactly: \\boxed{<answer>}"
+)
+
+
+_RESOLVE_FEW_SHOT = """\
+Here is an example of the exact output shape required.
+
+#EXAMPLE
+Problem: What is 7 + 5?
+Verified trace 1: "7 + 5 = 12"
+Verified trace 2: "Counting up from 7 by 5 gives 12."
+Response:
+Both verified traces agree that 7 + 5 = 12.
+\\boxed{12}
+"""
+
+
+def build_resolve_from_valid_prompt(
+    question:       str,
+    valid_traces:   List[str],
+) -> str:
+    """
+    Build the user-message body for a resolve-from-valid generative call.
+
+    `valid_traces` is the (curated, possibly empty) list of trace texts that
+    passed the strict verify-and-validate gate. The prompt asks the model to
+    produce one consolidated final answer.
+    """
+    lines = [
+        "Below is a math problem and a list of verified reasoning traces. "
+        "Produce ONE final answer to the problem. End your response with "
+        "one line: \\boxed{<answer>}.",
+        "",
+        "#PROBLEM",
+        question.strip(),
+        "",
+        "#VERIFIED TRACES",
+    ]
+    if not valid_traces:
+        lines.append("(no verified traces were available)")
+    else:
+        for k, t in enumerate(valid_traces, start=1):
+            body = str(t).strip() or "(empty)"
+            lines += [
+                f"##VERIFIED TRACE {k}",
+                body,
+                "",
+            ]
+
+    lines += [
+        "",
+        _RESOLVE_FEW_SHOT.rstrip(),
+        "",
+        "#YOUR FINAL ANSWER",
+        "Now produce the final answer for the actual problem above. "
+        "End with one line: \\boxed{<answer>}.",
+    ]
+    return "\n".join(lines)
+
+
+# =============================================================================
+# CROSS-EXAMINATION prompt  (NEW — per cluster)
+# =============================================================================
+#
+# After per-trace VERIFY+VALID veto, every cluster has a mix of VALID and
+# INVALID traces.  The cross-examination judge takes ALL of them and produces
+# the cluster's final answer.
+#
+# CRITICAL bias-mitigation requirement: do NOT defer to the per-trace labels.
+# The previous judge call can be wrong in BOTH directions:
+#   - a VALID-labeled trace may actually be wrong
+#   - an INVALID-labeled trace may actually be correct
+# The cross-examiner must verify the mathematics independently.
+#
+# Prompt design choices to enforce this:
+#   1. Labels are described as "preliminary checks", not as ground truth.
+#   2. The prompt explicitly says both kinds of label errors are common.
+#   3. Three balanced few-shot examples cover (a) labels right, (b) VALID
+#      label was wrong, (c) INVALID label was wrong.
+#   4. The judge is told to verify the math, not to count labels.
+#
+# Output format: short analysis followed by \boxed{<answer>} on the last line.
+# =============================================================================
+
+
+CROSS_EXAMINE_SYSTEM_PROMPT = (
+    "You are a careful mathematical answer checker. You will be shown a "
+    "problem and several reasoning traces, each carrying a preliminary "
+    "label of VALID or INVALID from a separate, fast verifier.\n\n"
+    "Important: those preliminary labels are NOT ground truth and are wrong "
+    "often enough that you must verify the mathematics independently. "
+    "BOTH of these failure modes are common:\n"
+    "  - a trace labeled VALID can still arrive at a WRONG answer\n"
+    "  - a trace labeled INVALID can be CORRECT (the verifier was mistaken)\n\n"
+    "Your task is to determine the correct answer to the problem by checking "
+    "the math yourself, not by counting labels or by trusting any single "
+    "trace. You may borrow steps from any trace (VALID or INVALID), and you "
+    "may also reach a different answer than any of them if your own check "
+    "shows they are all wrong.\n\n"
+    "Hard rules:\n"
+    "- Be brief. A short paragraph of analysis is plenty.\n"
+    "- Do not repeat sentences or phrases.\n"
+    "- Do not output reasoning past the final answer.\n"
+    "- The very last line must be exactly: \\boxed{<answer>}"
+)
+
+
+_CROSS_EXAMINE_FEW_SHOT = """\
+Here are short examples that show how to weigh traces independently of
+their preliminary labels.
+
+#EXAMPLE 1  (labels right; both VALID, both correct)
+Problem: What is 7 + 5?
+[Label: VALID]    Trace 1: "7 + 5 = 12"
+[Label: VALID]    Trace 2: "Counting up from 7 by 5 gives 12"
+Response:
+Both traces compute 7+5=12 and the arithmetic checks out.
+\\boxed{12}
+
+#EXAMPLE 2  (a VALID label was WRONG)
+Problem: What is the smallest prime greater than 20?
+[Label: VALID]    Trace 1: "21 is right after 20, so 21."
+[Label: INVALID]  Trace 2: "21 is composite; the next prime is 23."
+Response:
+Trace 1 was labeled VALID but 21 = 3 x 7 is composite, so its answer 21 is wrong. Trace 2's reasoning is correct: the smallest prime above 20 is 23.
+\\boxed{23}
+
+#EXAMPLE 3  (an INVALID label was WRONG)
+Problem: Compute 6!.
+[Label: INVALID]  Trace 1: "6 x 5 x 4 x 3 x 2 x 1 = 720."
+[Label: VALID]    Trace 2: "6! = 6 x 5 x 4 x 3 x 2 = 360."
+Response:
+Trace 1 is actually correct: 6! = 6 x 5 x 4 x 3 x 2 x 1 = 720. The INVALID label was wrong. Trace 2 dropped the factor 1 (effectively miscomputed); its 360 is incorrect.
+\\boxed{720}
+"""
+
+
+def build_cross_examine_prompt(
+    question:         str,
+    cluster_answer:   str,
+    judged_traces:    List[Dict[str, Any]],
+) -> str:
+    """
+    Build a cross-examination prompt for ONE cluster.
+
+    `judged_traces` is the list of (top-k) traces in this cluster that were
+    veto-judged in Phase A.  Each entry must contain:
+        trace_text      : the reasoning text
+        verdict_label   : "VALID" | "INVALID" | "UNCLEAR"
+        verify_label    : "YES"   | "NO"      | "UNCLEAR"
+        error_message   : the INVALID reason, if any
+        is_valid_strict : bool
+
+    The prompt frames each trace with a "[Label: VALID]" or "[Label: INVALID:
+    <reason>]" tag, but the surrounding instructions and few-shot examples
+    make clear that the cross-examiner must verify the math independently.
+
+    Note: `cluster_answer` is shown for context only.  The cross-examiner is
+    NOT instructed to confirm it; its job is to find the correct answer for
+    the problem, regardless of which answer the cluster carries.
+    """
+    cand_display = (cluster_answer or "").strip() or "(none)"
+    lines = [
+        "Determine the correct final answer to the problem below by "
+        "cross-examining the reasoning traces. Do NOT defer to the labels — "
+        "verify the math yourself. End with one line: \\boxed{<answer>}.",
+        "",
+        "#PROBLEM",
+        question.strip(),
+        "",
+        "#CLUSTER CANDIDATE ANSWER (the answer the traces below all reach)",
+        cand_display,
+        "",
+        "#TRACES UNDER REVIEW",
+    ]
+
+    if not judged_traces:
+        lines.append("(no judged traces in this cluster)")
+    else:
+        for k, jt in enumerate(judged_traces, start=1):
+            v_label = str(jt.get("verdict_label", "UNCLEAR")).upper()
+            verify_label = str(jt.get("verify_label", "UNCLEAR")).upper()
+            err     = str(jt.get("error_message", "") or "").strip()
+            body    = str(jt.get("trace_text", "") or "").strip() or "(empty)"
+            if v_label == "INVALID":
+                tag_inner = f"INVALID: {err}" if err else "INVALID"
+            else:
+                tag_inner = v_label
+            label_tag = (
+                f"[Preliminary label: {tag_inner};  "
+                f"verify-answer-check: {verify_label}]"
+            )
+            lines += [
+                f"##TRACE {k}  {label_tag}",
+                body,
+                "",
+            ]
+
+    lines += [
+        "",
+        _CROSS_EXAMINE_FEW_SHOT.rstrip(),
+        "",
+        "#YOUR FINAL ANSWER",
+        "Now produce the final answer for the actual problem above. Verify "
+        "the math yourself; do not just count labels. End with one line: "
+        "\\boxed{<answer>}.",
+    ]
     return "\n".join(lines)

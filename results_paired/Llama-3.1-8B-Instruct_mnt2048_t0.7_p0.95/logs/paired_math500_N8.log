@@ -1,153 +1,0 @@
-05:12:02 | INFO | paired_ablation | GPUs available: 1
-05:12:02 | INFO | paired_ablation | Loading dataset: math500
-05:12:07 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
-05:12:07 | INFO | paired_ablation | Loaded 500 examples.
-05:12:07 | INFO | paired_ablation | Loading generator: meta-llama/Llama-3.1-8B-Instruct
-/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-05:12:16 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-05:12:16 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-05:12:16 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-05:12:16 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.1-8B-Instruct
-05:12:18 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.1-8B-Instruct
-05:12:19 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:04,  1.59s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:03,  1.58s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:04<00:01,  1.56s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:05<00:00,  1.09s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:05<00:00,  1.27s/it]
-05:12:24 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=32
-05:12:24 | INFO | model_wrapper |   GPU 0 memory: allocated=14.96 GB  reserved=16.05 GB
-05:12:24 | INFO | paired_ablation | Loading verifier: Qwen/Qwen2.5-Math-PRM-7B
-05:12:24 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-05:12:25 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-05:12:25 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-A new version of the following files was downloaded from https://huggingface.co/Qwen/Qwen2.5-Math-PRM-7B:
-- configuration_qwen2_rm.py
-. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
-`torch_dtype` is deprecated! Use `dtype` instead!
-A new version of the following files was downloaded from https://huggingface.co/Qwen/Qwen2.5-Math-PRM-7B:
-- modeling_qwen2_rm.py
-. Make sure to double-check they do not contain any added malicious code. To avoid downloading new versions of the code file, you can pin a revision.
-05:12:31 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.27s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.26s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.25s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.07s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.14s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-05:12:36 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=min  batch_size=32
-05:12:37 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
-05:12:37 | INFO | paired_ablation | Loading ClusterManager: all-MiniLM-L6-v2
-05:12:37 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
-05:12:37 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
-05:12:37 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
-05:12:39 | INFO | clustering | ClusterManager: SentenceTransformer ready.
-05:12:39 | INFO | paired_ablation | No sample cache found. Generating 8 traces × 500 questions...
-05:16:13 | INFO | paired_ablation |   Generated 5/500  oracle_any=80.0%  elapsed=213s
-05:21:15 | INFO | paired_ablation |   Generated 10/500  oracle_any=70.0%  elapsed=515s
-05:26:34 | INFO | paired_ablation |   Generated 15/500  oracle_any=73.3%  elapsed=835s
-05:31:32 | INFO | paired_ablation |   Generated 20/500  oracle_any=80.0%  elapsed=1133s
-05:36:52 | INFO | paired_ablation |   Generated 25/500  oracle_any=80.0%  elapsed=1453s
-05:40:43 | INFO | paired_ablation |   Generated 30/500  oracle_any=76.7%  elapsed=1684s
-05:44:36 | INFO | paired_ablation |   Generated 35/500  oracle_any=77.1%  elapsed=1917s
-05:48:36 | INFO | paired_ablation |   Generated 40/500  oracle_any=80.0%  elapsed=2157s
-05:52:34 | INFO | paired_ablation |   Generated 45/500  oracle_any=80.0%  elapsed=2395s
-05:55:48 | INFO | paired_ablation |   Generated 50/500  oracle_any=80.0%  elapsed=2589s
-05:59:37 | INFO | paired_ablation |   Generated 55/500  oracle_any=80.0%  elapsed=2818s
-06:03:30 | INFO | paired_ablation |   Generated 60/500  oracle_any=81.7%  elapsed=3051s
-06:11:22 | INFO | paired_ablation |   Generated 65/500  oracle_any=81.5%  elapsed=3523s
-06:16:18 | INFO | paired_ablation |   Generated 70/500  oracle_any=80.0%  elapsed=3819s
-06:18:31 | INFO | paired_ablation |   Generated 75/500  oracle_any=80.0%  elapsed=3952s
-06:23:30 | INFO | paired_ablation |   Generated 80/500  oracle_any=80.0%  elapsed=4251s
-06:31:05 | INFO | paired_ablation |   Generated 85/500  oracle_any=80.0%  elapsed=4706s
-06:34:10 | INFO | paired_ablation |   Generated 90/500  oracle_any=81.1%  elapsed=4891s
-06:37:53 | INFO | paired_ablation |   Generated 95/500  oracle_any=80.0%  elapsed=5114s
-06:42:16 | INFO | paired_ablation |   Generated 100/500  oracle_any=79.0%  elapsed=5377s
-06:49:27 | INFO | paired_ablation |   Generated 105/500  oracle_any=79.0%  elapsed=5808s
-06:55:42 | INFO | paired_ablation |   Generated 110/500  oracle_any=78.2%  elapsed=6183s
-07:00:22 | INFO | paired_ablation |   Generated 115/500  oracle_any=78.3%  elapsed=6463s
-07:04:03 | INFO | paired_ablation |   Generated 120/500  oracle_any=78.3%  elapsed=6684s
-07:07:36 | INFO | paired_ablation |   Generated 125/500  oracle_any=79.2%  elapsed=6897s
-07:11:34 | INFO | paired_ablation |   Generated 130/500  oracle_any=77.7%  elapsed=7135s
-07:14:02 | INFO | paired_ablation |   Generated 135/500  oracle_any=77.8%  elapsed=7283s
-07:21:15 | INFO | paired_ablation |   Generated 140/500  oracle_any=77.9%  elapsed=7716s
-07:25:26 | INFO | paired_ablation |   Generated 145/500  oracle_any=78.6%  elapsed=7967s
-07:31:07 | INFO | paired_ablation |   Generated 150/500  oracle_any=78.0%  elapsed=8308s
-07:38:17 | INFO | paired_ablation |   Generated 155/500  oracle_any=78.1%  elapsed=8738s
-07:43:21 | INFO | paired_ablation |   Generated 160/500  oracle_any=77.5%  elapsed=9042s
-07:47:46 | INFO | paired_ablation |   Generated 165/500  oracle_any=77.6%  elapsed=9307s
-07:51:42 | INFO | paired_ablation |   Generated 170/500  oracle_any=77.1%  elapsed=9543s
-07:56:37 | INFO | paired_ablation |   Generated 175/500  oracle_any=77.1%  elapsed=9838s
-08:01:15 | INFO | paired_ablation |   Generated 180/500  oracle_any=77.2%  elapsed=10116s
-08:05:09 | INFO | paired_ablation |   Generated 185/500  oracle_any=77.8%  elapsed=10350s
-08:09:14 | INFO | paired_ablation |   Generated 190/500  oracle_any=77.9%  elapsed=10595s
-08:12:47 | INFO | paired_ablation |   Generated 195/500  oracle_any=77.4%  elapsed=10808s
-08:15:51 | INFO | paired_ablation |   Generated 200/500  oracle_any=77.0%  elapsed=10992s
-08:23:56 | INFO | paired_ablation |   Generated 205/500  oracle_any=77.1%  elapsed=11477s
-08:29:08 | INFO | paired_ablation |   Generated 210/500  oracle_any=77.6%  elapsed=11789s
-08:35:36 | INFO | paired_ablation |   Generated 215/500  oracle_any=78.1%  elapsed=12177s
-08:42:15 | INFO | paired_ablation |   Generated 220/500  oracle_any=77.7%  elapsed=12576s
-08:47:48 | INFO | paired_ablation |   Generated 225/500  oracle_any=77.3%  elapsed=12909s
-08:51:09 | INFO | paired_ablation |   Generated 230/500  oracle_any=77.4%  elapsed=13110s
-08:57:39 | INFO | paired_ablation |   Generated 235/500  oracle_any=77.9%  elapsed=13500s
-09:04:03 | INFO | paired_ablation |   Generated 240/500  oracle_any=77.1%  elapsed=13884s
-09:09:51 | INFO | paired_ablation |   Generated 245/500  oracle_any=76.7%  elapsed=14232s
-09:17:13 | INFO | paired_ablation |   Generated 250/500  oracle_any=76.0%  elapsed=14674s
-09:22:25 | INFO | paired_ablation |   Generated 255/500  oracle_any=75.3%  elapsed=14986s
-09:25:40 | INFO | paired_ablation |   Generated 260/500  oracle_any=75.8%  elapsed=15180s
-09:27:50 | INFO | paired_ablation |   Generated 265/500  oracle_any=75.8%  elapsed=15310s
-09:29:52 | INFO | paired_ablation |   Generated 270/500  oracle_any=76.3%  elapsed=15433s
-09:32:33 | INFO | paired_ablation |   Generated 275/500  oracle_any=76.4%  elapsed=15594s
-09:36:42 | INFO | paired_ablation |   Generated 280/500  oracle_any=76.8%  elapsed=15843s
-09:42:11 | INFO | paired_ablation |   Generated 285/500  oracle_any=76.8%  elapsed=16172s
-09:50:55 | INFO | paired_ablation |   Generated 290/500  oracle_any=75.9%  elapsed=16696s
-09:57:57 | INFO | paired_ablation |   Generated 295/500  oracle_any=75.6%  elapsed=17118s
-10:04:26 | INFO | paired_ablation |   Generated 300/500  oracle_any=75.7%  elapsed=17507s
-10:11:32 | INFO | paired_ablation |   Generated 305/500  oracle_any=75.4%  elapsed=17933s
-10:16:57 | INFO | paired_ablation |   Generated 310/500  oracle_any=74.8%  elapsed=18258s
-10:19:10 | INFO | paired_ablation |   Generated 315/500  oracle_any=74.9%  elapsed=18391s
-10:24:57 | INFO | paired_ablation |   Generated 320/500  oracle_any=75.0%  elapsed=18738s
-10:27:57 | INFO | paired_ablation |   Generated 325/500  oracle_any=75.4%  elapsed=18918s
-10:32:30 | INFO | paired_ablation |   Generated 330/500  oracle_any=75.2%  elapsed=19191s
-10:38:56 | INFO | paired_ablation |   Generated 335/500  oracle_any=74.9%  elapsed=19577s
-10:42:34 | INFO | paired_ablation |   Generated 340/500  oracle_any=75.3%  elapsed=19794s
-10:47:45 | INFO | paired_ablation |   Generated 345/500  oracle_any=75.4%  elapsed=20106s
-10:49:53 | INFO | paired_ablation |   Generated 350/500  oracle_any=75.7%  elapsed=20234s
-10:55:22 | INFO | paired_ablation |   Generated 355/500  oracle_any=75.8%  elapsed=20563s
-11:01:31 | INFO | paired_ablation |   Generated 360/500  oracle_any=75.6%  elapsed=20932s
-11:06:25 | INFO | paired_ablation |   Generated 365/500  oracle_any=75.3%  elapsed=21226s
-11:11:33 | INFO | paired_ablation |   Generated 370/500  oracle_any=75.1%  elapsed=21534s
-11:15:04 | INFO | paired_ablation |   Generated 375/500  oracle_any=74.9%  elapsed=21745s
-11:19:41 | INFO | paired_ablation |   Generated 380/500  oracle_any=75.3%  elapsed=22022s
-11:23:18 | INFO | paired_ablation |   Generated 385/500  oracle_any=74.8%  elapsed=22239s
-11:25:28 | INFO | paired_ablation |   Generated 390/500  oracle_any=75.1%  elapsed=22369s
-11:32:23 | INFO | paired_ablation |   Generated 395/500  oracle_any=74.4%  elapsed=22784s
-11:34:17 | INFO | paired_ablation |   Generated 400/500  oracle_any=74.5%  elapsed=22898s
-11:40:19 | INFO | paired_ablation |   Generated 405/500  oracle_any=74.6%  elapsed=23260s
-11:46:42 | INFO | paired_ablation |   Generated 410/500  oracle_any=74.6%  elapsed=23643s
-11:50:26 | INFO | paired_ablation |   Generated 415/500  oracle_any=74.7%  elapsed=23867s
-11:56:24 | INFO | paired_ablation |   Generated 420/500  oracle_any=74.8%  elapsed=24225s
-12:03:28 | INFO | paired_ablation |   Generated 425/500  oracle_any=74.4%  elapsed=24648s
-12:07:58 | INFO | paired_ablation |   Generated 430/500  oracle_any=74.4%  elapsed=24919s
-12:12:37 | INFO | paired_ablation |   Generated 435/500  oracle_any=74.3%  elapsed=25198s
-12:19:29 | INFO | paired_ablation |   Generated 440/500  oracle_any=74.3%  elapsed=25610s
-12:21:54 | INFO | paired_ablation |   Generated 445/500  oracle_any=74.6%  elapsed=25755s
-12:27:23 | INFO | paired_ablation |   Generated 450/500  oracle_any=74.4%  elapsed=26084s
-12:32:21 | INFO | paired_ablation |   Generated 455/500  oracle_any=74.1%  elapsed=26382s
-12:36:44 | INFO | paired_ablation |   Generated 460/500  oracle_any=74.3%  elapsed=26645s
-12:39:48 | INFO | paired_ablation |   Generated 465/500  oracle_any=74.4%  elapsed=26829s
-12:42:04 | INFO | paired_ablation |   Generated 470/500  oracle_any=74.7%  elapsed=26965s
-12:47:55 | INFO | paired_ablation |   Generated 475/500  oracle_any=74.7%  elapsed=27316s
-12:54:51 | INFO | paired_ablation |   Generated 480/500  oracle_any=74.6%  elapsed=27732s
-13:04:00 | INFO | paired_ablation |   Generated 485/500  oracle_any=74.2%  elapsed=28281s
-13:08:55 | INFO | paired_ablation |   Generated 490/500  oracle_any=74.5%  elapsed=28576s
-13:15:00 | INFO | paired_ablation |   Generated 495/500  oracle_any=74.3%  elapsed=28941s
-13:21:35 | INFO | paired_ablation |   Generated 500/500  oracle_any=74.2%  elapsed=29336s
-13:21:35 | INFO | paired_ablation | Sample cache written → ./results_paired/Llama-3.1-8B-Instruct_mnt2048_t0.7_p0.95/sample_cache_math500_N8.jsonl
-13:21:35 | INFO | paired_ablation | Applying all methods on cached traces (α: [0.0, 0.25, 0.5, 0.75, 1.0], τ: [0.7, 0.75, 0.8, 0.85, 0.9, 0.95])...
-13:21:35 | INFO | paired_ablation |   Pass 1: numerical methods  (500 questions)
-13:31:11 | INFO | paired_ablation |   Pass 2: CIMR batched judge  Q_valid=500  variants=['full', 'concise', 'answer_only']  judge_batch_size=32
-13:31:11 | INFO | cimr_inference | [CIMR] Building 500 judge prompts  variant=full  max_chars=6000
-13:31:12 | INFO | cimr_inference | [CIMR] Running judge inference  Q=500  judge_batch_size=32  n_chunks=16  max_new_tokens=4096
-[CIMR-judge full]:   0%|[36m          [0m| 0/16 [00:00<?, ?batch/s]The following generation flags are not valid and may be ignored: ['temperature', 'top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-[CIMR-judge full]:   6%|[36m▋         [0m| 1/16 [09:21<2:20:15, 561.06s/batch, done=32/500][CIMR-judge full]:  12%|[36m█▎        [0m| 2/16 [18:40<2:10:45, 560.37s/batch, done=64/500][CIMR-judge full]:  19%|[36m█▉        [0m| 3/16 [28:01<2:01:26, 560.48s/batch, done=96/500][CIMR-judge full]:  25%|[36m██▌       [0m| 4/16 [31:45<1:25:30, 427.52s/batch, done=128/500][CIMR-judge full]:  31%|[36m███▏      [0m| 5/16 [35:28<1:04:51, 353.75s/batch, done=160/500][CIMR-judge full]:  38%|[36m███▊      [0m| 6/16 [39:11<51:34, 309.42s/batch, done=192/500]  [CIMR-judge full]:  44%|[36m████▍     [0m| 7/16 [42:55<42:11, 281.31s/batch, done=224/500][CIMR-judge full]:  50%|[36m█████     [0m| 8/16 [46:38<35:03, 262.89s/batch, done=256/500][CIMR-judge full]:  56%|[36m█████▋    [0m| 9/16 [50:21<29:14, 250.57s/batch, done=288/500][CIMR-judge full]:  62%|[36m██████▎   [0m| 10/16 [54:05<24:12, 242.15s/batch, done=320/500][CIMR-judge full]:  69%|[36m██████▉   [0m| 11/16 [57:48<19:42, 236.47s/batch, done=352/500][CIMR-judge full]:  75%|[36m███████▌  [0m| 12/16 [1:01:32<15:30, 232.53s/batch, done=384/500][CIMR-judge full]:  81%|[36m████████▏ [0m| 13/16 [1:10:52<16:35, 331.68s/batch, done=416/500][CIMR-judge full]:  88%|[36m████████▊ [0m| 14/16 [1:20:12<13:21, 400.87s/batch, done=448/500][CIMR-judge full]:  94%|[36m█████████▍[0m| 15/16 [1:29:33<07:29, 449.07s/batch, done=480/500][CIMR-judge full]: 100%|[36m██████████[0m| 16/16 [1:33:17<00:00, 381.21s/batch, done=500/500][CIMR-judge full]: 100%|[36m██████████[0m| 16/16 [1:33:17<00:00, 349.83s/batch, done=500/500]
-15:04:57 | INFO | cimr_inference | [CIMR] Done  Q=500  elapsed=5626.0s  accuracy=190/500  fallbacks=2/500
-15:04:57 | INFO | cimr_inference | [CIMR] Building 500 judge prompts  variant=concise  max_chars=6000
-15:04:58 | INFO | cimr_inference | [CIMR] Running judge inference  Q=500  judge_batch_size=32  n_chunks=16  max_new_tokens=4096
-[CIMR-judge concise]:   0%|[36m          [0m| 0/16 [00:00<?, ?batch/s]A decoder-only architecture is being used, but right-padding was detected! For correct generation results, please set `padding_side='left'` when initializing the tokenizer.
-[CIMR-judge concise]:   6%|[36m▋         [0m| 1/16 [09:19<2:19:54, 559.65s/batch, done=32/500][CIMR-judge concise]:  12%|[36m█▎        [0m| 2/16 [18:39<2:10:40, 560.03s/batch, done=64/500]
