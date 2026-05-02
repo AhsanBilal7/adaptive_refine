@@ -1,43 +1,0 @@
-07:50:39 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
-07:50:39 | INFO | run_eval | Loading dataset: math500
-07:50:43 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
-07:50:43 | INFO | run_eval | Loaded 500 examples.
-07:50:43 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=32
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-07:50:51 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-07:50:51 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-07:50:51 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-07:50:51 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
-07:50:52 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
-07:50:54 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.24s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.22s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.21s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.17s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.19s/it]
-07:50:59 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=32
-07:50:59 | INFO | model_wrapper |   GPU 0 memory: allocated=14.19 GB  reserved=14.31 GB
-07:50:59 | INFO | run_eval | Building verifier: prm
-07:50:59 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-07:51:00 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-07:51:00 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-07:51:05 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.23s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.21s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.21s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.03s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.10s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-07:51:10 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=32
-07:51:10 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
-07:51:10 | INFO | run_eval | 
-================================================================
-07:51:10 | INFO | run_eval |  Running : bon_majority
-07:51:10 | INFO | run_eval |  Dataset : math500  N=16  batch_size=32
-07:51:10 | INFO | run_eval | ================================================================
-07:51:10 | INFO | evaluator | Resuming: 500 questions already done  (acc so far: 424/500)
-07:51:10 | INFO | evaluator | Evaluating 0/500 pending questions  (method=BestOfNMajority)
-07:51:10 | INFO | evaluator | All questions already completed — nothing to do.
-07:51:10 | INFO | run_eval | Redundancy/vote stats: {'avg_num_clusters': 2.546, 'avg_selected_cluster_size': 13.846, 'avg_max_cluster_size': 13.846, 'frac_selected_from_top_cluster': 1.0}
-07:51:10 | INFO | evaluator | Summary saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/bon_majority_math500_N16_summary.json
-07:51:10 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-bon_majority             0.8480        424      500      0.00s         0.0s
-07:51:10 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/comparison_math500_N16.txt

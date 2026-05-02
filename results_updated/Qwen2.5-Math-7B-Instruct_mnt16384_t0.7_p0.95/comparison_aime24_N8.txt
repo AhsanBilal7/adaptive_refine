@@ -1,4 +1,0 @@
-
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-bon_majority             0.1667          5       30      0.00s     21388.3s

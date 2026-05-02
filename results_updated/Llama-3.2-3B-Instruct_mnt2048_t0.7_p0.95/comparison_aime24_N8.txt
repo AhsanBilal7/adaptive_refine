@@ -1,4 +1,0 @@
-
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-dn_bon                   0.1000          3       30      0.00s         0.0s

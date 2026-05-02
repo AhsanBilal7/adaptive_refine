@@ -1,46 +1,0 @@
-23:57:51 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
-23:57:51 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
-23:57:51 | INFO | run_eval | Loading dataset: olympiadbench
-23:57:55 | INFO | dataset_loader | Loaded 200 examples from 'olympiadbench' (train split).  Sample answers: ['2', '\\frac{1}{2 n+2}', '2^{1009}']
-23:57:55 | INFO | run_eval | Loaded 200 examples.
-23:57:55 | INFO | run_eval | Loading model: meta-llama/Llama-3.2-1B-Instruct  batch_size=64
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-23:58:03 | INFO | model_wrapper | CUDA available: 4 GPU(s)
-23:58:03 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-23:58:03 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
-23:58:03 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
-23:58:03 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
-23:58:03 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
-23:58:03 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.2-1B-Instruct
-23:58:04 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.2-1B-Instruct
-23:58:10 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
-23:58:10 | INFO | model_wrapper |   GPU 0 memory: allocated=0.60 GB  reserved=0.62 GB
-23:58:10 | INFO | model_wrapper |   GPU 1 memory: allocated=0.68 GB  reserved=0.68 GB
-23:58:10 | INFO | model_wrapper |   GPU 2 memory: allocated=0.68 GB  reserved=0.68 GB
-23:58:10 | INFO | model_wrapper |   GPU 3 memory: allocated=0.34 GB  reserved=0.34 GB
-23:58:10 | INFO | run_eval | Building verifier: prm
-23:58:10 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-23:58:11 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-23:58:11 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:04,  1.35s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.30s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.29s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.10s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.17s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-23:58:22 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=64
-23:58:22 | INFO | run_eval | Building ClusterManager  embedding=all-MiniLM-L6-v2
-23:58:23 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
-23:58:23 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
-23:58:23 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
-23:58:25 | INFO | clustering | ClusterManager: SentenceTransformer ready.
-23:58:25 | INFO | inference_methods | Evaluator: OlympiadEvaluator for dataset='olympiadbench'
-23:58:25 | INFO | run_eval | 
-================================================================
-23:58:25 | INFO | run_eval |  Running : dn_bon_updated
-23:58:25 | INFO | run_eval |  Dataset : olympiadbench  N=8  batch_size=64
-23:58:25 | INFO | run_eval | ================================================================
-23:58:25 | INFO | evaluator | Evaluating 200/200 pending questions  (method=DNBonUpdated)
-23:58:25 | INFO | evaluator |   Flat-batch generation: Q=200  N=8  batch_size=64  →  1600 total seqs  →  25 generate() calls  →  saving every 8 questions
-[DN-BoN-Updated N=8 T_b=1.0 T_s=0.1]:   0%|[36m          [0m| 0/200 [00:00<?, ?q/s]
-[generate] flat  bs=64  Q=200  N=8:   0%|[34m          [0m| 0/25 [00:00<?, ?chunk/s][A

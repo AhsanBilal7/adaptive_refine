@@ -1,41 +1,0 @@
-01:28:28 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
-01:28:28 | INFO | run_eval | Loading dataset: amc23
-01:28:31 | INFO | dataset_loader | Loaded 40 examples from 'amc23' (test split).  Sample answers: ['27', '36', '45']
-01:28:31 | INFO | run_eval | Loaded 40 examples.
-01:28:31 | INFO | run_eval | Loading model: meta-llama/Llama-3.1-8B-Instruct  batch_size=32
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-01:28:39 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-01:28:39 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-01:28:39 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-01:28:39 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.1-8B-Instruct
-01:28:40 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.1-8B-Instruct
-01:28:42 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:04,  1.57s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:03,  1.56s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:04<00:01,  1.55s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:05<00:00,  1.08s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:05<00:00,  1.26s/it]
-01:28:47 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=32
-01:28:47 | INFO | model_wrapper |   GPU 0 memory: allocated=14.96 GB  reserved=16.05 GB
-01:28:47 | INFO | run_eval | Building verifier: prm
-01:28:47 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-01:28:48 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-01:28:48 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-01:28:54 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.24s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.22s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.22s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.04s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.11s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-01:28:58 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=32
-01:28:58 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='amc23'
-01:28:58 | INFO | run_eval | 
-================================================================
-01:28:58 | INFO | run_eval |  Running : bon
-01:28:58 | INFO | run_eval |  Dataset : amc23  N=8  batch_size=32
-01:28:58 | INFO | run_eval | ================================================================
-01:28:58 | INFO | evaluator | Resuming: 40 questions already done  (acc so far: 12/40)
-01:28:58 | INFO | evaluator | Evaluating 0/40 pending questions  (method=BestOfN)
-01:28:58 | INFO | evaluator | All questions already completed — nothing to do.
-01:28:58 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-bon                      0.3000         12       40      0.00s         0.0s
-01:28:58 | INFO | run_eval | Comparison table saved to ./results_updated/Llama-3.1-8B-Instruct_mnt2048_t0.7_p0.95/comparison_amc23_N8.txt

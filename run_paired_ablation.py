@@ -240,7 +240,7 @@ def apply_baseline_methods(
     answers: List[str] = []
     for t in traces:
         try:
-            from inference_methods import _extract_pred  # type: ignore
+            from src.inference_methods import _extract_pred  # type: ignore
             ans = _extract_pred(t, ev, data_name)
         except Exception:
             ans = ""
@@ -379,7 +379,7 @@ def generate_and_score(
     cache_path: Optional[str],
     log_every: int = 10,
 ) -> List[Dict[str, Any]]:
-    from verifier import score_candidates  # type: ignore
+    from src.verifier import score_candidates  # type: ignore
     records = []
     t_total = time.time()
     cache_f = open(cache_path, "w", encoding="utf-8") if cache_path else None
@@ -398,7 +398,7 @@ def generate_and_score(
                 score_candidates(traces, verifier, gold, question=q).tolist()
                 if traces else []
             )
-            from inference_methods import _extract_pred, _check_correct  # type: ignore
+            from src.inference_methods import _extract_pred, _check_correct  # type: ignore
             answers = [_extract_pred(t, ev, data_name) for t in traces]
             all_correct = (
                 [bool(_check_correct(a, gold, ev, data_name)) for a in answers]
@@ -520,11 +520,11 @@ def main():
     tag = f"{args.dataset}_N{args.N}"
 
     if args.enable_cimr:
-        from cimr_inference import (  # type: ignore
+        from src.cimr_inference import (  # type: ignore
             SELECTION_RULE_NAMES, CIMRConfig, CIMRInferencer,
             run_cimr_for_question,
         )
-        from cimr_step import CIMRStepConfig  # type: ignore
+        from src.cimr_step import CIMRStepConfig  # type: ignore
     else:
         SELECTION_RULE_NAMES = []
 
@@ -538,7 +538,7 @@ def main():
 
     # ── 1. Load dataset ────────────────────────────────────────────────────
     logger.info(f"Loading dataset: {args.dataset}")
-    from dataset_loader import load_dataset_split  # type: ignore
+    from src.dataset_loader import load_dataset_split  # type: ignore
     examples = load_dataset_split(
         data_name=args.dataset, split=args.split,
         max_samples=args.max_samples, custom_path=args.custom_path,
@@ -549,7 +549,7 @@ def main():
 
     # ── 2. Load model ──────────────────────────────────────────────────────
     logger.info(f"Loading generator: {args.model}")
-    from model_wrapper import HFModelWrapper  # type: ignore
+    from src.model_wrapper import HFModelWrapper  # type: ignore
     model = HFModelWrapper(
         model_name_or_path=args.model,
         batch_size=args.batch_size,
@@ -563,7 +563,7 @@ def main():
 
     # ── 3. Load verifier ───────────────────────────────────────────────────
     logger.info(f"Loading verifier: {args.verifier_model}")
-    from verifier import build_verifier  # type: ignore
+    from src.verifier import build_verifier  # type: ignore
     verifier = build_verifier(
         verifier_type="prm", data_name=data_name,
         prm_model=args.verifier_model,
@@ -573,12 +573,12 @@ def main():
     )
 
     # ── 4. Build evaluator ─────────────────────────────────────────────────
-    from inference_methods import _build_evaluator  # type: ignore
+    from src.inference_methods import _build_evaluator  # type: ignore
     ev = _build_evaluator(data_name)
 
     # ── 5. ClusterManager (shared, tau updated per call) ───────────────────
     logger.info(f"Loading ClusterManager: {args.embedding_model}")
-    from clustering import ClusterManager  # type: ignore
+    from src.clustering import ClusterManager  # type: ignore
     cluster_manager = ClusterManager(
         embedding_model=args.embedding_model,
         similarity_threshold=args.tau_values[0],

@@ -1,287 +1,0 @@
-07:51:18 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
-07:51:18 | INFO | run_eval | Loading dataset: math500
-07:51:21 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
-07:51:21 | INFO | run_eval | Loaded 500 examples.
-07:51:21 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=32
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-07:51:29 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-07:51:29 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-07:51:29 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-07:51:29 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
-07:51:30 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
-07:51:31 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.31s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.28s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.27s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.22s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.25s/it]
-07:51:37 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=32
-07:51:37 | INFO | model_wrapper |   GPU 0 memory: allocated=14.19 GB  reserved=14.31 GB
-07:51:37 | INFO | run_eval | Building verifier: prm
-07:51:37 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-07:51:37 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-07:51:37 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-07:51:43 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.26s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.24s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.24s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.06s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.13s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-07:51:48 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=32
-07:51:48 | INFO | run_eval | Building ClusterManager  embedding=all-MiniLM-L6-v2
-07:51:49 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
-07:51:49 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
-07:51:49 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
-07:51:50 | INFO | clustering | ClusterManager: SentenceTransformer ready.
-07:51:50 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
-07:51:50 | INFO | run_eval | 
-================================================================
-07:51:50 | INFO | run_eval |  Running : dn_bon
-07:51:50 | INFO | run_eval |  Dataset : math500  N=32  batch_size=32
-07:51:50 | INFO | run_eval | ================================================================
-07:51:50 | INFO | evaluator | Resuming: 306 questions already done  (acc so far: 259/306)
-07:51:50 | INFO | evaluator | Evaluating 194/500 pending questions  (method=DNBestOfN)
-07:51:50 | INFO | evaluator |   Flat-batch generation: Q=194  N=32  batch_size=32  →  6208 total seqs  →  194 generate() calls  →  saving every 1 questions
-[DN-BoN N=32 α=0.5]:   0%|[35m          [0m| 0/194 [00:00<?, ?q/s]
-[generate] flat  bs=32  Q=194  N=32:   0%|[34m          [0m| 0/194 [00:00<?, ?chunk/s][A[DN-BoN N=32 α=0.5]:   1%|[35m          [0m| 1/194 [01:55<6:12:47, 115.89s/q, acc=0.000, correct=0/1]
-[generate] flat  bs=32  Q=194  N=32:   1%|[34m          [0m| 1/194 [01:55<6:13:02, 115.97s/chunk, saved=1/194, seqs=32/6208][A[DN-BoN N=32 α=0.5]:   1%|[35m          [0m| 2/194 [02:39<3:54:48, 73.38s/q, acc=0.500, correct=1/2] 
-[generate] flat  bs=32  Q=194  N=32:   1%|[34m          [0m| 2/194 [02:39<3:54:55, 73.41s/chunk, saved=2/194, seqs=64/6208] [A[DN-BoN N=32 α=0.5]:   2%|[35m▏         [0m| 3/194 [04:39<5:01:42, 94.78s/q, acc=0.333, correct=1/3]
-[generate] flat  bs=32  Q=194  N=32:   2%|[34m▏         [0m| 3/194 [04:39<5:01:45, 94.80s/chunk, saved=3/194, seqs=96/6208][A[DN-BoN N=32 α=0.5]:   2%|[35m▏         [0m| 4/194 [05:42<4:20:06, 82.14s/q, acc=0.500, correct=2/4]07:57:33 | INFO | evaluator |   [310/500] acc=0.842 (261/310)
-
-[generate] flat  bs=32  Q=194  N=32:   2%|[34m▏         [0m| 4/194 [05:42<4:20:08, 82.15s/chunk, saved=4/194, seqs=128/6208][A[DN-BoN N=32 α=0.5]:   3%|[35m▎         [0m| 5/194 [06:13<3:21:04, 63.83s/q, acc=0.600, correct=3/5]
-[generate] flat  bs=32  Q=194  N=32:   3%|[34m▎         [0m| 5/194 [06:13<3:21:06, 63.84s/chunk, saved=5/194, seqs=160/6208][A[DN-BoN N=32 α=0.5]:   3%|[35m▎         [0m| 6/194 [07:03<3:05:00, 59.04s/q, acc=0.667, correct=4/6]
-[generate] flat  bs=32  Q=194  N=32:   3%|[34m▎         [0m| 6/194 [07:03<3:05:01, 59.05s/chunk, saved=6/194, seqs=192/6208][A[DN-BoN N=32 α=0.5]:   4%|[35m▎         [0m| 7/194 [07:37<2:38:05, 50.72s/q, acc=0.714, correct=5/7]
-[generate] flat  bs=32  Q=194  N=32:   4%|[34m▎         [0m| 7/194 [07:37<2:38:05, 50.73s/chunk, saved=7/194, seqs=224/6208][A[DN-BoN N=32 α=0.5]:   4%|[35m▍         [0m| 8/194 [08:08<2:18:25, 44.65s/q, acc=0.750, correct=6/8]
-[generate] flat  bs=32  Q=194  N=32:   4%|[34m▍         [0m| 8/194 [08:08<2:18:26, 44.66s/chunk, saved=8/194, seqs=256/6208][A[DN-BoN N=32 α=0.5]:   5%|[35m▍         [0m| 9/194 [08:43<2:07:51, 41.47s/q, acc=0.778, correct=7/9]
-[generate] flat  bs=32  Q=194  N=32:   5%|[34m▍         [0m| 9/194 [08:43<2:07:52, 41.47s/chunk, saved=9/194, seqs=288/6208][A[DN-BoN N=32 α=0.5]:   5%|[35m▌         [0m| 10/194 [10:38<3:16:50, 64.19s/q, acc=0.800, correct=8/10]
-[generate] flat  bs=32  Q=194  N=32:   5%|[34m▌         [0m| 10/194 [10:38<3:16:50, 64.19s/chunk, saved=10/194, seqs=320/6208][A[DN-BoN N=32 α=0.5]:   6%|[35m▌         [0m| 11/194 [11:47<3:20:48, 65.84s/q, acc=0.818, correct=9/11]
-[generate] flat  bs=32  Q=194  N=32:   6%|[34m▌         [0m| 11/194 [11:48<3:20:48, 65.84s/chunk, saved=11/194, seqs=352/6208][A[DN-BoN N=32 α=0.5]:   6%|[35m▌         [0m| 12/194 [12:50<3:16:40, 64.84s/q, acc=0.833, correct=10/12]
-[generate] flat  bs=32  Q=194  N=32:   6%|[34m▌         [0m| 12/194 [12:50<3:16:40, 64.84s/chunk, saved=12/194, seqs=384/6208][A[DN-BoN N=32 α=0.5]:   7%|[35m▋         [0m| 13/194 [13:17<2:41:11, 53.44s/q, acc=0.846, correct=11/13]
-[generate] flat  bs=32  Q=194  N=32:   7%|[34m▋         [0m| 13/194 [13:17<2:41:12, 53.44s/chunk, saved=13/194, seqs=416/6208][A[DN-BoN N=32 α=0.5]:   7%|[35m▋         [0m| 14/194 [13:43<2:15:05, 45.03s/q, acc=0.857, correct=12/14]08:05:34 | INFO | evaluator |   [320/500] acc=0.847 (271/320)
-
-[generate] flat  bs=32  Q=194  N=32:   7%|[34m▋         [0m| 14/194 [13:43<2:15:05, 45.03s/chunk, saved=14/194, seqs=448/6208][A[DN-BoN N=32 α=0.5]:   8%|[35m▊         [0m| 15/194 [15:40<3:19:23, 66.83s/q, acc=0.867, correct=13/15]
-[generate] flat  bs=32  Q=194  N=32:   8%|[34m▊         [0m| 15/194 [15:40<3:19:23, 66.83s/chunk, saved=15/194, seqs=480/6208][A[DN-BoN N=32 α=0.5]:   8%|[35m▊         [0m| 16/194 [16:04<2:40:07, 53.97s/q, acc=0.875, correct=14/16]
-[generate] flat  bs=32  Q=194  N=32:   8%|[34m▊         [0m| 16/194 [16:04<2:40:07, 53.97s/chunk, saved=16/194, seqs=512/6208][A[DN-BoN N=32 α=0.5]:   9%|[35m▉         [0m| 17/194 [16:30<2:14:04, 45.45s/q, acc=0.882, correct=15/17]
-[generate] flat  bs=32  Q=194  N=32:   9%|[34m▉         [0m| 17/194 [16:30<2:14:04, 45.45s/chunk, saved=17/194, seqs=544/6208][A[DN-BoN N=32 α=0.5]:   9%|[35m▉         [0m| 18/194 [17:06<2:04:56, 42.59s/q, acc=0.889, correct=16/18]
-[generate] flat  bs=32  Q=194  N=32:   9%|[34m▉         [0m| 18/194 [17:06<2:04:56, 42.59s/chunk, saved=18/194, seqs=576/6208][A[DN-BoN N=32 α=0.5]:  10%|[35m▉         [0m| 19/194 [19:03<3:09:24, 64.94s/q, acc=0.895, correct=17/19]
-[generate] flat  bs=32  Q=194  N=32:  10%|[34m▉         [0m| 19/194 [19:03<3:09:24, 64.94s/chunk, saved=19/194, seqs=608/6208][A[DN-BoN N=32 α=0.5]:  10%|[35m█         [0m| 20/194 [19:37<2:41:22, 55.64s/q, acc=0.900, correct=18/20]
-[generate] flat  bs=32  Q=194  N=32:  10%|[34m█         [0m| 20/194 [19:37<2:41:22, 55.65s/chunk, saved=20/194, seqs=640/6208][A[DN-BoN N=32 α=0.5]:  11%|[35m█         [0m| 21/194 [20:57<3:01:44, 63.03s/q, acc=0.857, correct=18/21]
-[generate] flat  bs=32  Q=194  N=32:  11%|[34m█         [0m| 21/194 [20:57<3:01:44, 63.03s/chunk, saved=21/194, seqs=672/6208][A[DN-BoN N=32 α=0.5]:  11%|[35m█▏        [0m| 22/194 [22:54<3:47:24, 79.33s/q, acc=0.864, correct=19/22]
-[generate] flat  bs=32  Q=194  N=32:  11%|[34m█▏        [0m| 22/194 [22:55<3:47:24, 79.33s/chunk, saved=22/194, seqs=704/6208][A[DN-BoN N=32 α=0.5]:  12%|[35m█▏        [0m| 23/194 [24:15<3:47:19, 79.77s/q, acc=0.870, correct=20/23]
-[generate] flat  bs=32  Q=194  N=32:  12%|[34m█▏        [0m| 23/194 [24:15<3:47:20, 79.77s/chunk, saved=23/194, seqs=736/6208][A[DN-BoN N=32 α=0.5]:  12%|[35m█▏        [0m| 24/194 [24:32<2:52:49, 61.00s/q, acc=0.875, correct=21/24]08:16:24 | INFO | evaluator |   [330/500] acc=0.848 (280/330)
-
-[generate] flat  bs=32  Q=194  N=32:  12%|[34m█▏        [0m| 24/194 [24:33<2:52:49, 61.00s/chunk, saved=24/194, seqs=768/6208][A[DN-BoN N=32 α=0.5]:  13%|[35m█▎        [0m| 25/194 [25:33<2:51:00, 60.71s/q, acc=0.880, correct=22/25]
-[generate] flat  bs=32  Q=194  N=32:  13%|[34m█▎        [0m| 25/194 [25:33<2:51:00, 60.71s/chunk, saved=25/194, seqs=800/6208][A[DN-BoN N=32 α=0.5]:  13%|[35m█▎        [0m| 26/194 [26:30<2:47:26, 59.80s/q, acc=0.885, correct=23/26]
-[generate] flat  bs=32  Q=194  N=32:  13%|[34m█▎        [0m| 26/194 [26:30<2:47:25, 59.80s/chunk, saved=26/194, seqs=832/6208][A[DN-BoN N=32 α=0.5]:  14%|[35m█▍        [0m| 27/194 [28:27<3:33:44, 76.80s/q, acc=0.889, correct=24/27]
-[generate] flat  bs=32  Q=194  N=32:  14%|[34m█▍        [0m| 27/194 [28:27<3:33:45, 76.80s/chunk, saved=27/194, seqs=864/6208][A[DN-BoN N=32 α=0.5]:  14%|[35m█▍        [0m| 28/194 [29:35<3:25:27, 74.26s/q, acc=0.893, correct=25/28]
-[generate] flat  bs=32  Q=194  N=32:  14%|[34m█▍        [0m| 28/194 [29:35<3:25:27, 74.26s/chunk, saved=28/194, seqs=896/6208][A[DN-BoN N=32 α=0.5]:  15%|[35m█▍        [0m| 29/194 [30:10<2:52:09, 62.61s/q, acc=0.897, correct=26/29]
-[generate] flat  bs=32  Q=194  N=32:  15%|[34m█▍        [0m| 29/194 [30:10<2:52:10, 62.61s/chunk, saved=29/194, seqs=928/6208][A[DN-BoN N=32 α=0.5]:  15%|[35m█▌        [0m| 30/194 [30:55<2:36:03, 57.10s/q, acc=0.900, correct=27/30]
-[generate] flat  bs=32  Q=194  N=32:  15%|[34m█▌        [0m| 30/194 [30:55<2:36:03, 57.09s/chunk, saved=30/194, seqs=960/6208][A[DN-BoN N=32 α=0.5]:  16%|[35m█▌        [0m| 31/194 [31:14<2:04:32, 45.85s/q, acc=0.903, correct=28/31]
-[generate] flat  bs=32  Q=194  N=32:  16%|[34m█▌        [0m| 31/194 [31:14<2:04:33, 45.85s/chunk, saved=31/194, seqs=992/6208][A[DN-BoN N=32 α=0.5]:  16%|[35m█▋        [0m| 32/194 [31:50<1:55:36, 42.82s/q, acc=0.906, correct=29/32]
-[generate] flat  bs=32  Q=194  N=32:  16%|[34m█▋        [0m| 32/194 [31:50<1:55:36, 42.82s/chunk, saved=32/194, seqs=1024/6208][A[DN-BoN N=32 α=0.5]:  17%|[35m█▋        [0m| 33/194 [32:16<1:41:14, 37.73s/q, acc=0.909, correct=30/33]
-[generate] flat  bs=32  Q=194  N=32:  17%|[34m█▋        [0m| 33/194 [32:16<1:41:14, 37.73s/chunk, saved=33/194, seqs=1056/6208][A[DN-BoN N=32 α=0.5]:  18%|[35m█▊        [0m| 34/194 [34:12<2:43:26, 61.29s/q, acc=0.912, correct=31/34]08:26:03 | INFO | evaluator |   [340/500] acc=0.853 (290/340)
-
-[generate] flat  bs=32  Q=194  N=32:  18%|[34m█▊        [0m| 34/194 [34:12<2:43:26, 61.29s/chunk, saved=34/194, seqs=1088/6208][A[DN-BoN N=32 α=0.5]:  18%|[35m█▊        [0m| 35/194 [36:10<3:27:21, 78.25s/q, acc=0.886, correct=31/35]
-[generate] flat  bs=32  Q=194  N=32:  18%|[34m█▊        [0m| 35/194 [36:10<3:27:21, 78.25s/chunk, saved=35/194, seqs=1120/6208][A[DN-BoN N=32 α=0.5]:  19%|[35m█▊        [0m| 36/194 [36:38<2:46:43, 63.31s/q, acc=0.889, correct=32/36]
-[generate] flat  bs=32  Q=194  N=32:  19%|[34m█▊        [0m| 36/194 [36:38<2:46:43, 63.31s/chunk, saved=36/194, seqs=1152/6208][A[DN-BoN N=32 α=0.5]:  19%|[35m█▉        [0m| 37/194 [37:08<2:19:18, 53.24s/q, acc=0.892, correct=33/37]
-[generate] flat  bs=32  Q=194  N=32:  19%|[34m█▉        [0m| 37/194 [37:08<2:19:18, 53.24s/chunk, saved=37/194, seqs=1184/6208][A[DN-BoN N=32 α=0.5]:  20%|[35m█▉        [0m| 38/194 [37:34<1:57:21, 45.14s/q, acc=0.895, correct=34/38]
-[generate] flat  bs=32  Q=194  N=32:  20%|[34m█▉        [0m| 38/194 [37:34<1:57:21, 45.14s/chunk, saved=38/194, seqs=1216/6208][A[DN-BoN N=32 α=0.5]:  20%|[35m██        [0m| 39/194 [38:03<1:43:30, 40.07s/q, acc=0.897, correct=35/39]
-[generate] flat  bs=32  Q=194  N=32:  20%|[34m██        [0m| 39/194 [38:03<1:43:30, 40.07s/chunk, saved=39/194, seqs=1248/6208][A[DN-BoN N=32 α=0.5]:  21%|[35m██        [0m| 40/194 [38:22<1:27:16, 34.01s/q, acc=0.900, correct=36/40]
-[generate] flat  bs=32  Q=194  N=32:  21%|[34m██        [0m| 40/194 [38:23<1:27:16, 34.01s/chunk, saved=40/194, seqs=1280/6208][A[DN-BoN N=32 α=0.5]:  21%|[35m██        [0m| 41/194 [38:57<1:26:54, 34.08s/q, acc=0.902, correct=37/41]
-[generate] flat  bs=32  Q=194  N=32:  21%|[34m██        [0m| 41/194 [38:57<1:26:54, 34.08s/chunk, saved=41/194, seqs=1312/6208][A[DN-BoN N=32 α=0.5]:  22%|[35m██▏       [0m| 42/194 [39:22<1:19:50, 31.52s/q, acc=0.905, correct=38/42]
-[generate] flat  bs=32  Q=194  N=32:  22%|[34m██▏       [0m| 42/194 [39:22<1:19:50, 31.52s/chunk, saved=42/194, seqs=1344/6208][A[DN-BoN N=32 α=0.5]:  22%|[35m██▏       [0m| 43/194 [40:04<1:27:19, 34.70s/q, acc=0.907, correct=39/43]
-[generate] flat  bs=32  Q=194  N=32:  22%|[34m██▏       [0m| 43/194 [40:04<1:27:19, 34.70s/chunk, saved=43/194, seqs=1376/6208][A[DN-BoN N=32 α=0.5]:  23%|[35m██▎       [0m| 44/194 [40:55<1:38:25, 39.37s/q, acc=0.886, correct=39/44]08:32:46 | INFO | evaluator |   [350/500] acc=0.851 (298/350)
-
-[generate] flat  bs=32  Q=194  N=32:  23%|[34m██▎       [0m| 44/194 [40:55<1:38:25, 39.37s/chunk, saved=44/194, seqs=1408/6208][A[DN-BoN N=32 α=0.5]:  23%|[35m██▎       [0m| 45/194 [41:17<1:24:58, 34.22s/q, acc=0.889, correct=40/45]
-[generate] flat  bs=32  Q=194  N=32:  23%|[34m██▎       [0m| 45/194 [41:17<1:24:58, 34.22s/chunk, saved=45/194, seqs=1440/6208][A[DN-BoN N=32 α=0.5]:  24%|[35m██▎       [0m| 46/194 [43:11<2:23:14, 58.07s/q, acc=0.870, correct=40/46]
-[generate] flat  bs=32  Q=194  N=32:  24%|[34m██▎       [0m| 46/194 [43:11<2:23:14, 58.07s/chunk, saved=46/194, seqs=1472/6208][A[DN-BoN N=32 α=0.5]:  24%|[35m██▍       [0m| 47/194 [45:11<3:07:50, 76.67s/q, acc=0.851, correct=40/47]
-[generate] flat  bs=32  Q=194  N=32:  24%|[34m██▍       [0m| 47/194 [45:11<3:07:50, 76.67s/chunk, saved=47/194, seqs=1504/6208][A[DN-BoN N=32 α=0.5]:  25%|[35m██▍       [0m| 48/194 [45:38<2:30:14, 61.75s/q, acc=0.854, correct=41/48]
-[generate] flat  bs=32  Q=194  N=32:  25%|[34m██▍       [0m| 48/194 [45:38<2:30:15, 61.75s/chunk, saved=48/194, seqs=1536/6208][A[DN-BoN N=32 α=0.5]:  25%|[35m██▌       [0m| 49/194 [46:22<2:16:53, 56.64s/q, acc=0.857, correct=42/49]
-[generate] flat  bs=32  Q=194  N=32:  25%|[34m██▌       [0m| 49/194 [46:22<2:16:53, 56.65s/chunk, saved=49/194, seqs=1568/6208][A[DN-BoN N=32 α=0.5]:  26%|[35m██▌       [0m| 50/194 [48:19<2:59:16, 74.70s/q, acc=0.840, correct=42/50]
-[generate] flat  bs=32  Q=194  N=32:  26%|[34m██▌       [0m| 50/194 [48:19<2:59:16, 74.70s/chunk, saved=50/194, seqs=1600/6208][A[DN-BoN N=32 α=0.5]:  26%|[35m██▋       [0m| 51/194 [49:11<2:41:28, 67.75s/q, acc=0.843, correct=43/51]
-[generate] flat  bs=32  Q=194  N=32:  26%|[34m██▋       [0m| 51/194 [49:11<2:41:28, 67.75s/chunk, saved=51/194, seqs=1632/6208][A[DN-BoN N=32 α=0.5]:  27%|[35m██▋       [0m| 52/194 [49:54<2:23:01, 60.44s/q, acc=0.846, correct=44/52]
-[generate] flat  bs=32  Q=194  N=32:  27%|[34m██▋       [0m| 52/194 [49:54<2:23:01, 60.44s/chunk, saved=52/194, seqs=1664/6208][A[DN-BoN N=32 α=0.5]:  27%|[35m██▋       [0m| 53/194 [51:51<3:01:46, 77.35s/q, acc=0.830, correct=44/53]
-[generate] flat  bs=32  Q=194  N=32:  27%|[34m██▋       [0m| 53/194 [51:51<3:01:46, 77.35s/chunk, saved=53/194, seqs=1696/6208][A[DN-BoN N=32 α=0.5]:  28%|[35m██▊       [0m| 54/194 [53:46<3:26:37, 88.55s/q, acc=0.833, correct=45/54]08:45:37 | INFO | evaluator |   [360/500] acc=0.844 (304/360)
-
-[generate] flat  bs=32  Q=194  N=32:  28%|[34m██▊       [0m| 54/194 [53:46<3:26:37, 88.55s/chunk, saved=54/194, seqs=1728/6208][A[DN-BoN N=32 α=0.5]:  28%|[35m██▊       [0m| 55/194 [54:14<2:43:32, 70.60s/q, acc=0.836, correct=46/55]
-[generate] flat  bs=32  Q=194  N=32:  28%|[34m██▊       [0m| 55/194 [54:14<2:43:32, 70.60s/chunk, saved=55/194, seqs=1760/6208][A[DN-BoN N=32 α=0.5]:  29%|[35m██▉       [0m| 56/194 [54:59<2:24:35, 62.87s/q, acc=0.839, correct=47/56]
-[generate] flat  bs=32  Q=194  N=32:  29%|[34m██▉       [0m| 56/194 [54:59<2:24:35, 62.87s/chunk, saved=56/194, seqs=1792/6208][A[DN-BoN N=32 α=0.5]:  29%|[35m██▉       [0m| 57/194 [55:20<1:54:46, 50.27s/q, acc=0.825, correct=47/57]
-[generate] flat  bs=32  Q=194  N=32:  29%|[34m██▉       [0m| 57/194 [55:20<1:54:46, 50.27s/chunk, saved=57/194, seqs=1824/6208][A[DN-BoN N=32 α=0.5]:  30%|[35m██▉       [0m| 58/194 [55:39<1:32:57, 41.01s/q, acc=0.828, correct=48/58]
-[generate] flat  bs=32  Q=194  N=32:  30%|[34m██▉       [0m| 58/194 [55:39<1:32:57, 41.01s/chunk, saved=58/194, seqs=1856/6208][A[DN-BoN N=32 α=0.5]:  30%|[35m███       [0m| 59/194 [56:20<1:32:00, 40.89s/q, acc=0.831, correct=49/59]
-[generate] flat  bs=32  Q=194  N=32:  30%|[34m███       [0m| 59/194 [56:20<1:32:00, 40.89s/chunk, saved=59/194, seqs=1888/6208][A[DN-BoN N=32 α=0.5]:  31%|[35m███       [0m| 60/194 [57:20<1:44:14, 46.67s/q, acc=0.833, correct=50/60]
-[generate] flat  bs=32  Q=194  N=32:  31%|[34m███       [0m| 60/194 [57:20<1:44:14, 46.67s/chunk, saved=60/194, seqs=1920/6208][A[DN-BoN N=32 α=0.5]:  31%|[35m███▏      [0m| 61/194 [58:03<1:40:47, 45.47s/q, acc=0.836, correct=51/61]
-[generate] flat  bs=32  Q=194  N=32:  31%|[34m███▏      [0m| 61/194 [58:03<1:40:48, 45.48s/chunk, saved=61/194, seqs=1952/6208][A[DN-BoN N=32 α=0.5]:  32%|[35m███▏      [0m| 62/194 [58:23<1:23:13, 37.83s/q, acc=0.839, correct=52/62]
-[generate] flat  bs=32  Q=194  N=32:  32%|[34m███▏      [0m| 62/194 [58:23<1:23:13, 37.83s/chunk, saved=62/194, seqs=1984/6208][A[DN-BoN N=32 α=0.5]:  32%|[35m███▏      [0m| 63/194 [58:43<1:11:15, 32.64s/q, acc=0.841, correct=53/63]
-[generate] flat  bs=32  Q=194  N=32:  32%|[34m███▏      [0m| 63/194 [58:43<1:11:15, 32.64s/chunk, saved=63/194, seqs=2016/6208][A[DN-BoN N=32 α=0.5]:  33%|[35m███▎      [0m| 64/194 [59:05<1:03:24, 29.26s/q, acc=0.828, correct=53/64]08:50:56 | INFO | evaluator |   [370/500] acc=0.843 (312/370)
-
-[generate] flat  bs=32  Q=194  N=32:  33%|[34m███▎      [0m| 64/194 [59:05<1:03:24, 29.26s/chunk, saved=64/194, seqs=2048/6208][A[DN-BoN N=32 α=0.5]:  34%|[35m███▎      [0m| 65/194 [59:34<1:03:14, 29.42s/q, acc=0.831, correct=54/65]
-[generate] flat  bs=32  Q=194  N=32:  34%|[34m███▎      [0m| 65/194 [59:35<1:03:14, 29.42s/chunk, saved=65/194, seqs=2080/6208][A[DN-BoN N=32 α=0.5]:  34%|[35m███▍      [0m| 66/194 [1:01:29<1:57:03, 54.87s/q, acc=0.833, correct=55/66]
-[generate] flat  bs=32  Q=194  N=32:  34%|[34m███▍      [0m| 66/194 [1:01:29<1:57:03, 54.87s/chunk, saved=66/194, seqs=2112/6208][A[DN-BoN N=32 α=0.5]:  35%|[35m███▍      [0m| 67/194 [1:03:26<2:35:52, 73.64s/q, acc=0.821, correct=55/67]
-[generate] flat  bs=32  Q=194  N=32:  35%|[34m███▍      [0m| 67/194 [1:03:26<2:35:52, 73.64s/chunk, saved=67/194, seqs=2144/6208][A[DN-BoN N=32 α=0.5]:  35%|[35m███▌      [0m| 68/194 [1:03:57<2:07:56, 60.92s/q, acc=0.824, correct=56/68]
-[generate] flat  bs=32  Q=194  N=32:  35%|[34m███▌      [0m| 68/194 [1:03:58<2:07:56, 60.92s/chunk, saved=68/194, seqs=2176/6208][A[DN-BoN N=32 α=0.5]:  36%|[35m███▌      [0m| 69/194 [1:04:16<1:40:17, 48.14s/q, acc=0.826, correct=57/69]
-[generate] flat  bs=32  Q=194  N=32:  36%|[34m███▌      [0m| 69/194 [1:04:16<1:40:17, 48.14s/chunk, saved=69/194, seqs=2208/6208][A[DN-BoN N=32 α=0.5]:  36%|[35m███▌      [0m| 70/194 [1:06:09<2:19:43, 67.61s/q, acc=0.829, correct=58/70]
-[generate] flat  bs=32  Q=194  N=32:  36%|[34m███▌      [0m| 70/194 [1:06:09<2:19:43, 67.61s/chunk, saved=70/194, seqs=2240/6208][A[DN-BoN N=32 α=0.5]:  37%|[35m███▋      [0m| 71/194 [1:07:02<2:09:58, 63.40s/q, acc=0.831, correct=59/71]
-[generate] flat  bs=32  Q=194  N=32:  37%|[34m███▋      [0m| 71/194 [1:07:02<2:09:58, 63.40s/chunk, saved=71/194, seqs=2272/6208][A[DN-BoN N=32 α=0.5]:  37%|[35m███▋      [0m| 72/194 [1:07:39<1:52:30, 55.33s/q, acc=0.833, correct=60/72]
-[generate] flat  bs=32  Q=194  N=32:  37%|[34m███▋      [0m| 72/194 [1:07:39<1:52:30, 55.33s/chunk, saved=72/194, seqs=2304/6208][A[DN-BoN N=32 α=0.5]:  38%|[35m███▊      [0m| 73/194 [1:08:26<1:46:35, 52.86s/q, acc=0.836, correct=61/73]
-[generate] flat  bs=32  Q=194  N=32:  38%|[34m███▊      [0m| 73/194 [1:08:26<1:46:35, 52.86s/chunk, saved=73/194, seqs=2336/6208][A[DN-BoN N=32 α=0.5]:  38%|[35m███▊      [0m| 74/194 [1:09:19<1:45:51, 52.93s/q, acc=0.838, correct=62/74]09:01:10 | INFO | evaluator |   [380/500] acc=0.845 (321/380)
-
-[generate] flat  bs=32  Q=194  N=32:  38%|[34m███▊      [0m| 74/194 [1:09:19<1:45:51, 52.93s/chunk, saved=74/194, seqs=2368/6208][A[DN-BoN N=32 α=0.5]:  39%|[35m███▊      [0m| 75/194 [1:10:48<2:06:29, 63.78s/q, acc=0.827, correct=62/75]
-[generate] flat  bs=32  Q=194  N=32:  39%|[34m███▊      [0m| 75/194 [1:10:48<2:06:29, 63.78s/chunk, saved=75/194, seqs=2400/6208][A[DN-BoN N=32 α=0.5]:  39%|[35m███▉      [0m| 76/194 [1:12:45<2:36:52, 79.76s/q, acc=0.816, correct=62/76]
-[generate] flat  bs=32  Q=194  N=32:  39%|[34m███▉      [0m| 76/194 [1:12:45<2:36:52, 79.76s/chunk, saved=76/194, seqs=2432/6208][A[DN-BoN N=32 α=0.5]:  40%|[35m███▉      [0m| 77/194 [1:13:37<2:19:17, 71.43s/q, acc=0.818, correct=63/77]
-[generate] flat  bs=32  Q=194  N=32:  40%|[34m███▉      [0m| 77/194 [1:13:37<2:19:17, 71.44s/chunk, saved=77/194, seqs=2464/6208][A[DN-BoN N=32 α=0.5]:  40%|[35m████      [0m| 78/194 [1:14:28<2:05:55, 65.13s/q, acc=0.808, correct=63/78]
-[generate] flat  bs=32  Q=194  N=32:  40%|[34m████      [0m| 78/194 [1:14:28<2:05:55, 65.13s/chunk, saved=78/194, seqs=2496/6208][A[DN-BoN N=32 α=0.5]:  41%|[35m████      [0m| 79/194 [1:14:45<1:37:05, 50.66s/q, acc=0.810, correct=64/79]
-[generate] flat  bs=32  Q=194  N=32:  41%|[34m████      [0m| 79/194 [1:14:45<1:37:05, 50.66s/chunk, saved=79/194, seqs=2528/6208][A[DN-BoN N=32 α=0.5]:  41%|[35m████      [0m| 80/194 [1:16:40<2:13:26, 70.23s/q, acc=0.800, correct=64/80]
-[generate] flat  bs=32  Q=194  N=32:  41%|[34m████      [0m| 80/194 [1:16:41<2:13:26, 70.23s/chunk, saved=80/194, seqs=2560/6208][A[DN-BoN N=32 α=0.5]:  42%|[35m████▏     [0m| 81/194 [1:17:11<1:49:55, 58.37s/q, acc=0.802, correct=65/81]
-[generate] flat  bs=32  Q=194  N=32:  42%|[34m████▏     [0m| 81/194 [1:17:11<1:49:55, 58.37s/chunk, saved=81/194, seqs=2592/6208][A[DN-BoN N=32 α=0.5]:  42%|[35m████▏     [0m| 82/194 [1:17:36<1:30:16, 48.36s/q, acc=0.805, correct=66/82]
-[generate] flat  bs=32  Q=194  N=32:  42%|[34m████▏     [0m| 82/194 [1:17:36<1:30:16, 48.36s/chunk, saved=82/194, seqs=2624/6208][A[DN-BoN N=32 α=0.5]:  43%|[35m████▎     [0m| 83/194 [1:18:06<1:19:12, 42.82s/q, acc=0.807, correct=67/83]
-[generate] flat  bs=32  Q=194  N=32:  43%|[34m████▎     [0m| 83/194 [1:18:06<1:19:12, 42.82s/chunk, saved=83/194, seqs=2656/6208][A[DN-BoN N=32 α=0.5]:  43%|[35m████▎     [0m| 84/194 [1:20:00<1:57:47, 64.25s/q, acc=0.810, correct=68/84]09:11:51 | INFO | evaluator |   [390/500] acc=0.838 (327/390)
-
-[generate] flat  bs=32  Q=194  N=32:  43%|[34m████▎     [0m| 84/194 [1:20:00<1:57:47, 64.25s/chunk, saved=84/194, seqs=2688/6208][A[DN-BoN N=32 α=0.5]:  44%|[35m████▍     [0m| 85/194 [1:21:13<2:01:25, 66.84s/q, acc=0.812, correct=69/85]
-[generate] flat  bs=32  Q=194  N=32:  44%|[34m████▍     [0m| 85/194 [1:21:13<2:01:25, 66.84s/chunk, saved=85/194, seqs=2720/6208][A[DN-BoN N=32 α=0.5]:  44%|[35m████▍     [0m| 86/194 [1:23:07<2:25:42, 80.95s/q, acc=0.814, correct=70/86]
-[generate] flat  bs=32  Q=194  N=32:  44%|[34m████▍     [0m| 86/194 [1:23:07<2:25:42, 80.95s/chunk, saved=86/194, seqs=2752/6208][A[DN-BoN N=32 α=0.5]:  45%|[35m████▍     [0m| 87/194 [1:25:02<2:42:44, 91.25s/q, acc=0.805, correct=70/87]
-[generate] flat  bs=32  Q=194  N=32:  45%|[34m████▍     [0m| 87/194 [1:25:02<2:42:44, 91.25s/chunk, saved=87/194, seqs=2784/6208][A[DN-BoN N=32 α=0.5]:  45%|[35m████▌     [0m| 88/194 [1:25:42<2:14:07, 75.92s/q, acc=0.795, correct=70/88]
-[generate] flat  bs=32  Q=194  N=32:  45%|[34m████▌     [0m| 88/194 [1:25:43<2:14:07, 75.92s/chunk, saved=88/194, seqs=2816/6208][A[DN-BoN N=32 α=0.5]:  46%|[35m████▌     [0m| 89/194 [1:26:46<2:06:28, 72.27s/q, acc=0.798, correct=71/89]
-[generate] flat  bs=32  Q=194  N=32:  46%|[34m████▌     [0m| 89/194 [1:26:46<2:06:28, 72.27s/chunk, saved=89/194, seqs=2848/6208][A[DN-BoN N=32 α=0.5]:  46%|[35m████▋     [0m| 90/194 [1:27:13<1:41:35, 58.61s/q, acc=0.800, correct=72/90]
-[generate] flat  bs=32  Q=194  N=32:  46%|[34m████▋     [0m| 90/194 [1:27:13<1:41:35, 58.61s/chunk, saved=90/194, seqs=2880/6208][A[DN-BoN N=32 α=0.5]:  47%|[35m████▋     [0m| 91/194 [1:29:08<2:09:28, 75.42s/q, acc=0.791, correct=72/91]
-[generate] flat  bs=32  Q=194  N=32:  47%|[34m████▋     [0m| 91/194 [1:29:08<2:09:28, 75.42s/chunk, saved=91/194, seqs=2912/6208][A[DN-BoN N=32 α=0.5]:  47%|[35m████▋     [0m| 92/194 [1:29:35<1:43:46, 61.04s/q, acc=0.793, correct=73/92]
-[generate] flat  bs=32  Q=194  N=32:  47%|[34m████▋     [0m| 92/194 [1:29:35<1:43:46, 61.05s/chunk, saved=92/194, seqs=2944/6208][A[DN-BoN N=32 α=0.5]:  48%|[35m████▊     [0m| 93/194 [1:30:14<1:31:37, 54.43s/q, acc=0.796, correct=74/93]
-[generate] flat  bs=32  Q=194  N=32:  48%|[34m████▊     [0m| 93/194 [1:30:14<1:31:37, 54.43s/chunk, saved=93/194, seqs=2976/6208][A[DN-BoN N=32 α=0.5]:  48%|[35m████▊     [0m| 94/194 [1:30:41<1:17:12, 46.32s/q, acc=0.798, correct=75/94]09:22:33 | INFO | evaluator |   [400/500] acc=0.835 (334/400)
-
-[generate] flat  bs=32  Q=194  N=32:  48%|[34m████▊     [0m| 94/194 [1:30:42<1:17:12, 46.32s/chunk, saved=94/194, seqs=3008/6208][A[DN-BoN N=32 α=0.5]:  49%|[35m████▉     [0m| 95/194 [1:32:36<1:50:16, 66.83s/q, acc=0.789, correct=75/95]
-[generate] flat  bs=32  Q=194  N=32:  49%|[34m████▉     [0m| 95/194 [1:32:36<1:50:16, 66.83s/chunk, saved=95/194, seqs=3040/6208][A[DN-BoN N=32 α=0.5]:  49%|[35m████▉     [0m| 96/194 [1:34:32<2:12:58, 81.42s/q, acc=0.781, correct=75/96]
-[generate] flat  bs=32  Q=194  N=32:  49%|[34m████▉     [0m| 96/194 [1:34:32<2:12:58, 81.42s/chunk, saved=96/194, seqs=3072/6208][A[DN-BoN N=32 α=0.5]:  50%|[35m█████     [0m| 97/194 [1:34:58<1:45:07, 65.03s/q, acc=0.784, correct=76/97]
-[generate] flat  bs=32  Q=194  N=32:  50%|[34m█████     [0m| 97/194 [1:34:59<1:45:07, 65.03s/chunk, saved=97/194, seqs=3104/6208][A[DN-BoN N=32 α=0.5]:  51%|[35m█████     [0m| 98/194 [1:35:38<1:31:57, 57.47s/q, acc=0.786, correct=77/98]
-[generate] flat  bs=32  Q=194  N=32:  51%|[34m█████     [0m| 98/194 [1:35:38<1:31:57, 57.47s/chunk, saved=98/194, seqs=3136/6208][A[DN-BoN N=32 α=0.5]:  51%|[35m█████     [0m| 99/194 [1:36:00<1:14:06, 46.80s/q, acc=0.788, correct=78/99]
-[generate] flat  bs=32  Q=194  N=32:  51%|[34m█████     [0m| 99/194 [1:36:00<1:14:06, 46.80s/chunk, saved=99/194, seqs=3168/6208][A[DN-BoN N=32 α=0.5]:  52%|[35m█████▏    [0m| 100/194 [1:36:20<1:00:28, 38.60s/q, acc=0.780, correct=78/100]
-[generate] flat  bs=32  Q=194  N=32:  52%|[34m█████▏    [0m| 100/194 [1:36:20<1:00:28, 38.60s/chunk, saved=100/194, seqs=3200/6208][A[DN-BoN N=32 α=0.5]:  52%|[35m█████▏    [0m| 101/194 [1:36:54<57:49, 37.30s/q, acc=0.782, correct=79/101]  
-[generate] flat  bs=32  Q=194  N=32:  52%|[34m█████▏    [0m| 101/194 [1:36:54<57:49, 37.30s/chunk, saved=101/194, seqs=3232/6208]  [A[DN-BoN N=32 α=0.5]:  53%|[35m█████▎    [0m| 102/194 [1:37:11<47:56, 31.26s/q, acc=0.784, correct=80/102]
-[generate] flat  bs=32  Q=194  N=32:  53%|[34m█████▎    [0m| 102/194 [1:37:11<47:56, 31.26s/chunk, saved=102/194, seqs=3264/6208][A[DN-BoN N=32 α=0.5]:  53%|[35m█████▎    [0m| 103/194 [1:39:08<1:26:24, 56.97s/q, acc=0.777, correct=80/103]
-[generate] flat  bs=32  Q=194  N=32:  53%|[34m█████▎    [0m| 103/194 [1:39:08<1:26:24, 56.97s/chunk, saved=103/194, seqs=3296/6208][A[DN-BoN N=32 α=0.5]:  54%|[35m█████▎    [0m| 104/194 [1:41:00<1:50:11, 73.46s/q, acc=0.779, correct=81/104]09:32:51 | INFO | evaluator |   [410/500] acc=0.829 (340/410)
-
-[generate] flat  bs=32  Q=194  N=32:  54%|[34m█████▎    [0m| 104/194 [1:41:00<1:50:11, 73.46s/chunk, saved=104/194, seqs=3328/6208][A[DN-BoN N=32 α=0.5]:  54%|[35m█████▍    [0m| 105/194 [1:41:28<1:28:54, 59.94s/q, acc=0.781, correct=82/105]
-[generate] flat  bs=32  Q=194  N=32:  54%|[34m█████▍    [0m| 105/194 [1:41:28<1:28:54, 59.94s/chunk, saved=105/194, seqs=3360/6208][A[DN-BoN N=32 α=0.5]:  55%|[35m█████▍    [0m| 106/194 [1:41:54<1:12:59, 49.77s/q, acc=0.783, correct=83/106]
-[generate] flat  bs=32  Q=194  N=32:  55%|[34m█████▍    [0m| 106/194 [1:41:55<1:13:00, 49.77s/chunk, saved=106/194, seqs=3392/6208][A[DN-BoN N=32 α=0.5]:  55%|[35m█████▌    [0m| 107/194 [1:43:48<1:40:06, 69.04s/q, acc=0.785, correct=84/107]
-[generate] flat  bs=32  Q=194  N=32:  55%|[34m█████▌    [0m| 107/194 [1:43:48<1:40:06, 69.04s/chunk, saved=107/194, seqs=3424/6208][A[DN-BoN N=32 α=0.5]:  56%|[35m█████▌    [0m| 108/194 [1:44:15<1:20:32, 56.20s/q, acc=0.787, correct=85/108]
-[generate] flat  bs=32  Q=194  N=32:  56%|[34m█████▌    [0m| 108/194 [1:44:15<1:20:33, 56.20s/chunk, saved=108/194, seqs=3456/6208][A[DN-BoN N=32 α=0.5]:  56%|[35m█████▌    [0m| 109/194 [1:44:59<1:14:26, 52.54s/q, acc=0.789, correct=86/109]
-[generate] flat  bs=32  Q=194  N=32:  56%|[34m█████▌    [0m| 109/194 [1:44:59<1:14:26, 52.55s/chunk, saved=109/194, seqs=3488/6208][A[DN-BoN N=32 α=0.5]:  57%|[35m█████▋    [0m| 110/194 [1:45:58<1:16:21, 54.55s/q, acc=0.791, correct=87/110]
-[generate] flat  bs=32  Q=194  N=32:  57%|[34m█████▋    [0m| 110/194 [1:45:58<1:16:21, 54.55s/chunk, saved=110/194, seqs=3520/6208][A[DN-BoN N=32 α=0.5]:  57%|[35m█████▋    [0m| 111/194 [1:46:59<1:18:08, 56.48s/q, acc=0.793, correct=88/111]
-[generate] flat  bs=32  Q=194  N=32:  57%|[34m█████▋    [0m| 111/194 [1:46:59<1:18:08, 56.48s/chunk, saved=111/194, seqs=3552/6208][A[DN-BoN N=32 α=0.5]:  58%|[35m█████▊    [0m| 112/194 [1:47:42<1:11:48, 52.54s/q, acc=0.795, correct=89/112]
-[generate] flat  bs=32  Q=194  N=32:  58%|[34m█████▊    [0m| 112/194 [1:47:42<1:11:48, 52.54s/chunk, saved=112/194, seqs=3584/6208][A[DN-BoN N=32 α=0.5]:  58%|[35m█████▊    [0m| 113/194 [1:48:17<1:03:34, 47.09s/q, acc=0.796, correct=90/113]
-[generate] flat  bs=32  Q=194  N=32:  58%|[34m█████▊    [0m| 113/194 [1:48:17<1:03:34, 47.09s/chunk, saved=113/194, seqs=3616/6208][A[DN-BoN N=32 α=0.5]:  59%|[35m█████▉    [0m| 114/194 [1:50:10<1:29:20, 67.01s/q, acc=0.789, correct=90/114]09:42:01 | INFO | evaluator |   [420/500] acc=0.831 (349/420)
-
-[generate] flat  bs=32  Q=194  N=32:  59%|[34m█████▉    [0m| 114/194 [1:50:10<1:29:20, 67.01s/chunk, saved=114/194, seqs=3648/6208][A[DN-BoN N=32 α=0.5]:  59%|[35m█████▉    [0m| 115/194 [1:50:47<1:16:28, 58.08s/q, acc=0.783, correct=90/115]
-[generate] flat  bs=32  Q=194  N=32:  59%|[34m█████▉    [0m| 115/194 [1:50:47<1:16:28, 58.08s/chunk, saved=115/194, seqs=3680/6208][A[DN-BoN N=32 α=0.5]:  60%|[35m█████▉    [0m| 116/194 [1:52:40<1:36:53, 74.53s/q, acc=0.784, correct=91/116]
-[generate] flat  bs=32  Q=194  N=32:  60%|[34m█████▉    [0m| 116/194 [1:52:40<1:36:53, 74.53s/chunk, saved=116/194, seqs=3712/6208][A[DN-BoN N=32 α=0.5]:  60%|[35m██████    [0m| 117/194 [1:54:35<1:51:07, 86.60s/q, acc=0.778, correct=91/117]
-[generate] flat  bs=32  Q=194  N=32:  60%|[34m██████    [0m| 117/194 [1:54:35<1:51:07, 86.59s/chunk, saved=117/194, seqs=3744/6208][A[DN-BoN N=32 α=0.5]:  61%|[35m██████    [0m| 118/194 [1:55:42<1:42:21, 80.80s/q, acc=0.780, correct=92/118]
-[generate] flat  bs=32  Q=194  N=32:  61%|[34m██████    [0m| 118/194 [1:55:42<1:42:21, 80.80s/chunk, saved=118/194, seqs=3776/6208][A[DN-BoN N=32 α=0.5]:  61%|[35m██████▏   [0m| 119/194 [1:56:16<1:23:20, 66.68s/q, acc=0.782, correct=93/119]
-[generate] flat  bs=32  Q=194  N=32:  61%|[34m██████▏   [0m| 119/194 [1:56:16<1:23:20, 66.68s/chunk, saved=119/194, seqs=3808/6208][A[DN-BoN N=32 α=0.5]:  62%|[35m██████▏   [0m| 120/194 [1:58:07<1:38:45, 80.08s/q, acc=0.775, correct=93/120]
-[generate] flat  bs=32  Q=194  N=32:  62%|[34m██████▏   [0m| 120/194 [1:58:07<1:38:45, 80.08s/chunk, saved=120/194, seqs=3840/6208][A[DN-BoN N=32 α=0.5]:  62%|[35m██████▏   [0m| 121/194 [1:58:43<1:21:11, 66.73s/q, acc=0.777, correct=94/121]
-[generate] flat  bs=32  Q=194  N=32:  62%|[34m██████▏   [0m| 121/194 [1:58:43<1:21:11, 66.74s/chunk, saved=121/194, seqs=3872/6208][A[DN-BoN N=32 α=0.5]:  63%|[35m██████▎   [0m| 122/194 [1:59:04<1:03:45, 53.14s/q, acc=0.779, correct=95/122]
-[generate] flat  bs=32  Q=194  N=32:  63%|[34m██████▎   [0m| 122/194 [1:59:04<1:03:45, 53.14s/chunk, saved=122/194, seqs=3904/6208][A[DN-BoN N=32 α=0.5]:  63%|[35m██████▎   [0m| 123/194 [2:00:57<1:24:09, 71.13s/q, acc=0.772, correct=95/123]
-[generate] flat  bs=32  Q=194  N=32:  63%|[34m██████▎   [0m| 123/194 [2:00:58<1:24:10, 71.13s/chunk, saved=123/194, seqs=3936/6208][A<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-<string>:1: SyntaxWarning: 'set' object is not callable; perhaps you missed a comma?
-[DN-BoN N=32 α=0.5]:  64%|[35m██████▍   [0m| 124/194 [2:02:50<1:37:37, 83.68s/q, acc=0.774, correct=96/124]09:54:42 | INFO | evaluator |   [430/500] acc=0.826 (355/430)
-
-[generate] flat  bs=32  Q=194  N=32:  64%|[34m██████▍   [0m| 124/194 [2:02:51<1:37:37, 83.68s/chunk, saved=124/194, seqs=3968/6208][A[DN-BoN N=32 α=0.5]:  64%|[35m██████▍   [0m| 125/194 [2:03:10<1:13:59, 64.34s/q, acc=0.776, correct=97/125]
-[generate] flat  bs=32  Q=194  N=32:  64%|[34m██████▍   [0m| 125/194 [2:03:10<1:13:59, 64.34s/chunk, saved=125/194, seqs=4000/6208][A[DN-BoN N=32 α=0.5]:  65%|[35m██████▍   [0m| 126/194 [2:05:03<1:29:30, 78.98s/q, acc=0.778, correct=98/126]
-[generate] flat  bs=32  Q=194  N=32:  65%|[34m██████▍   [0m| 126/194 [2:05:03<1:29:30, 78.98s/chunk, saved=126/194, seqs=4032/6208][A[DN-BoN N=32 α=0.5]:  65%|[35m██████▌   [0m| 127/194 [2:06:57<1:40:04, 89.62s/q, acc=0.772, correct=98/127]
-[generate] flat  bs=32  Q=194  N=32:  65%|[34m██████▌   [0m| 127/194 [2:06:57<1:40:04, 89.62s/chunk, saved=127/194, seqs=4064/6208][A[DN-BoN N=32 α=0.5]:  66%|[35m██████▌   [0m| 128/194 [2:07:39<1:22:39, 75.15s/q, acc=0.773, correct=99/128]
-[generate] flat  bs=32  Q=194  N=32:  66%|[34m██████▌   [0m| 128/194 [2:07:39<1:22:39, 75.15s/chunk, saved=128/194, seqs=4096/6208][A[DN-BoN N=32 α=0.5]:  66%|[35m██████▋   [0m| 129/194 [2:09:30<1:33:10, 86.00s/q, acc=0.775, correct=100/129]
-[generate] flat  bs=32  Q=194  N=32:  66%|[34m██████▋   [0m| 129/194 [2:09:30<1:33:10, 86.00s/chunk, saved=129/194, seqs=4128/6208][A[DN-BoN N=32 α=0.5]:  67%|[35m██████▋   [0m| 130/194 [2:10:17<1:19:20, 74.38s/q, acc=0.777, correct=101/130]
-[generate] flat  bs=32  Q=194  N=32:  67%|[34m██████▋   [0m| 130/194 [2:10:17<1:19:20, 74.38s/chunk, saved=130/194, seqs=4160/6208][A[DN-BoN N=32 α=0.5]:  68%|[35m██████▊   [0m| 131/194 [2:12:10<1:30:05, 85.80s/q, acc=0.779, correct=102/131]
-[generate] flat  bs=32  Q=194  N=32:  68%|[34m██████▊   [0m| 131/194 [2:12:10<1:30:05, 85.80s/chunk, saved=131/194, seqs=4192/6208][A[DN-BoN N=32 α=0.5]:  68%|[35m██████▊   [0m| 132/194 [2:14:02<1:36:54, 93.79s/q, acc=0.780, correct=103/132]
-[generate] flat  bs=32  Q=194  N=32:  68%|[34m██████▊   [0m| 132/194 [2:14:02<1:36:54, 93.79s/chunk, saved=132/194, seqs=4224/6208][A[DN-BoN N=32 α=0.5]:  69%|[35m██████▊   [0m| 133/194 [2:14:40<1:18:13, 76.95s/q, acc=0.782, correct=104/133]
-[generate] flat  bs=32  Q=194  N=32:  69%|[34m██████▊   [0m| 133/194 [2:14:40<1:18:13, 76.95s/chunk, saved=133/194, seqs=4256/6208][A[DN-BoN N=32 α=0.5]:  69%|[35m██████▉   [0m| 134/194 [2:15:55<1:16:36, 76.60s/q, acc=0.784, correct=105/134]10:07:47 | INFO | evaluator |   [440/500] acc=0.827 (364/440)
-
-[generate] flat  bs=32  Q=194  N=32:  69%|[34m██████▉   [0m| 134/194 [2:15:56<1:16:36, 76.60s/chunk, saved=134/194, seqs=4288/6208][A[DN-BoN N=32 α=0.5]:  70%|[35m██████▉   [0m| 135/194 [2:16:28<1:02:21, 63.41s/q, acc=0.785, correct=106/135]
-[generate] flat  bs=32  Q=194  N=32:  70%|[34m██████▉   [0m| 135/194 [2:16:28<1:02:21, 63.41s/chunk, saved=135/194, seqs=4320/6208][A[DN-BoN N=32 α=0.5]:  70%|[35m███████   [0m| 136/194 [2:16:56<51:01, 52.79s/q, acc=0.787, correct=107/136]  
-[generate] flat  bs=32  Q=194  N=32:  70%|[34m███████   [0m| 136/194 [2:16:56<51:01, 52.79s/chunk, saved=136/194, seqs=4352/6208]  [A[DN-BoN N=32 α=0.5]:  71%|[35m███████   [0m| 137/194 [2:17:16<40:47, 42.94s/q, acc=0.788, correct=108/137]
-[generate] flat  bs=32  Q=194  N=32:  71%|[34m███████   [0m| 137/194 [2:17:16<40:47, 42.94s/chunk, saved=137/194, seqs=4384/6208][A[DN-BoN N=32 α=0.5]:  71%|[35m███████   [0m| 138/194 [2:17:39<34:24, 36.87s/q, acc=0.790, correct=109/138]
-[generate] flat  bs=32  Q=194  N=32:  71%|[34m███████   [0m| 138/194 [2:17:39<34:24, 36.87s/chunk, saved=138/194, seqs=4416/6208][A[DN-BoN N=32 α=0.5]:  72%|[35m███████▏  [0m| 139/194 [2:19:31<54:34, 59.54s/q, acc=0.784, correct=109/139]
-[generate] flat  bs=32  Q=194  N=32:  72%|[34m███████▏  [0m| 139/194 [2:19:31<54:34, 59.54s/chunk, saved=139/194, seqs=4448/6208][A[DN-BoN N=32 α=0.5]:  72%|[35m███████▏  [0m| 140/194 [2:21:26<1:08:30, 76.12s/q, acc=0.786, correct=110/140]
-[generate] flat  bs=32  Q=194  N=32:  72%|[34m███████▏  [0m| 140/194 [2:21:26<1:08:30, 76.12s/chunk, saved=140/194, seqs=4480/6208][A[DN-BoN N=32 α=0.5]:  73%|[35m███████▎  [0m| 141/194 [2:22:12<59:14, 67.06s/q, acc=0.787, correct=111/141]  
-[generate] flat  bs=32  Q=194  N=32:  73%|[34m███████▎  [0m| 141/194 [2:22:12<59:14, 67.06s/chunk, saved=141/194, seqs=4512/6208]  [A[DN-BoN N=32 α=0.5]:  73%|[35m███████▎  [0m| 142/194 [2:22:42<48:32, 56.01s/q, acc=0.789, correct=112/142]
-[generate] flat  bs=32  Q=194  N=32:  73%|[34m███████▎  [0m| 142/194 [2:22:42<48:32, 56.01s/chunk, saved=142/194, seqs=4544/6208][A[DN-BoN N=32 α=0.5]:  74%|[35m███████▎  [0m| 143/194 [2:23:45<49:21, 58.08s/q, acc=0.790, correct=113/143]
-[generate] flat  bs=32  Q=194  N=32:  74%|[34m███████▎  [0m| 143/194 [2:23:45<49:21, 58.08s/chunk, saved=143/194, seqs=4576/6208][A[DN-BoN N=32 α=0.5]:  74%|[35m███████▍  [0m| 144/194 [2:24:06<38:59, 46.80s/q, acc=0.792, correct=114/144]10:15:57 | INFO | evaluator |   [450/500] acc=0.829 (373/450)
-
-[generate] flat  bs=32  Q=194  N=32:  74%|[34m███████▍  [0m| 144/194 [2:24:06<38:59, 46.80s/chunk, saved=144/194, seqs=4608/6208][A[DN-BoN N=32 α=0.5]:  75%|[35m███████▍  [0m| 145/194 [2:24:48<37:03, 45.39s/q, acc=0.793, correct=115/145]
-[generate] flat  bs=32  Q=194  N=32:  75%|[34m███████▍  [0m| 145/194 [2:24:48<37:03, 45.39s/chunk, saved=145/194, seqs=4640/6208][A[DN-BoN N=32 α=0.5]:  75%|[35m███████▌  [0m| 146/194 [2:25:20<33:06, 41.38s/q, acc=0.795, correct=116/146]
-[generate] flat  bs=32  Q=194  N=32:  75%|[34m███████▌  [0m| 146/194 [2:25:20<33:06, 41.38s/chunk, saved=146/194, seqs=4672/6208][A[DN-BoN N=32 α=0.5]:  76%|[35m███████▌  [0m| 147/194 [2:25:44<28:29, 36.36s/q, acc=0.796, correct=117/147]
-[generate] flat  bs=32  Q=194  N=32:  76%|[34m███████▌  [0m| 147/194 [2:25:44<28:29, 36.37s/chunk, saved=147/194, seqs=4704/6208][A[DN-BoN N=32 α=0.5]:  76%|[35m███████▋  [0m| 148/194 [2:26:20<27:39, 36.08s/q, acc=0.797, correct=118/148]
-[generate] flat  bs=32  Q=194  N=32:  76%|[34m███████▋  [0m| 148/194 [2:26:20<27:39, 36.08s/chunk, saved=148/194, seqs=4736/6208][A[DN-BoN N=32 α=0.5]:  77%|[35m███████▋  [0m| 149/194 [2:28:14<44:37, 59.50s/q, acc=0.799, correct=119/149]
-[generate] flat  bs=32  Q=194  N=32:  77%|[34m███████▋  [0m| 149/194 [2:28:14<44:37, 59.50s/chunk, saved=149/194, seqs=4768/6208][A[DN-BoN N=32 α=0.5]:  77%|[35m███████▋  [0m| 150/194 [2:28:37<35:39, 48.62s/q, acc=0.800, correct=120/150]
-[generate] flat  bs=32  Q=194  N=32:  77%|[34m███████▋  [0m| 150/194 [2:28:37<35:39, 48.62s/chunk, saved=150/194, seqs=4800/6208][A[DN-BoN N=32 α=0.5]:  78%|[35m███████▊  [0m| 151/194 [2:29:48<39:39, 55.33s/q, acc=0.795, correct=120/151]
-[generate] flat  bs=32  Q=194  N=32:  78%|[34m███████▊  [0m| 151/194 [2:29:48<39:39, 55.33s/chunk, saved=151/194, seqs=4832/6208][A[DN-BoN N=32 α=0.5]:  78%|[35m███████▊  [0m| 152/194 [2:30:03<30:20, 43.34s/q, acc=0.796, correct=121/152]
-[generate] flat  bs=32  Q=194  N=32:  78%|[34m███████▊  [0m| 152/194 [2:30:04<30:20, 43.34s/chunk, saved=152/194, seqs=4864/6208][A[DN-BoN N=32 α=0.5]:  79%|[35m███████▉  [0m| 153/194 [2:30:31<26:27, 38.73s/q, acc=0.797, correct=122/153]
-[generate] flat  bs=32  Q=194  N=32:  79%|[34m███████▉  [0m| 153/194 [2:30:32<26:27, 38.73s/chunk, saved=153/194, seqs=4896/6208][A[DN-BoN N=32 α=0.5]:  79%|[35m███████▉  [0m| 154/194 [2:31:24<28:40, 43.02s/q, acc=0.799, correct=123/154]10:23:16 | INFO | evaluator |   [460/500] acc=0.830 (382/460)
-
-[generate] flat  bs=32  Q=194  N=32:  79%|[34m███████▉  [0m| 154/194 [2:31:25<28:40, 43.02s/chunk, saved=154/194, seqs=4928/6208][A[DN-BoN N=32 α=0.5]:  80%|[35m███████▉  [0m| 155/194 [2:33:20<42:01, 64.65s/q, acc=0.794, correct=123/155]
-[generate] flat  bs=32  Q=194  N=32:  80%|[34m███████▉  [0m| 155/194 [2:33:20<42:01, 64.65s/chunk, saved=155/194, seqs=4960/6208][A[DN-BoN N=32 α=0.5]:  80%|[35m████████  [0m| 156/194 [2:34:06<37:26, 59.12s/q, acc=0.795, correct=124/156]
-[generate] flat  bs=32  Q=194  N=32:  80%|[34m████████  [0m| 156/194 [2:34:06<37:26, 59.12s/chunk, saved=156/194, seqs=4992/6208][A[DN-BoN N=32 α=0.5]:  81%|[35m████████  [0m| 157/194 [2:34:43<32:21, 52.48s/q, acc=0.796, correct=125/157]
-[generate] flat  bs=32  Q=194  N=32:  81%|[34m████████  [0m| 157/194 [2:34:43<32:21, 52.48s/chunk, saved=157/194, seqs=5024/6208][A[DN-BoN N=32 α=0.5]:  81%|[35m████████▏ [0m| 158/194 [2:35:08<26:37, 44.37s/q, acc=0.797, correct=126/158]
-[generate] flat  bs=32  Q=194  N=32:  81%|[34m████████▏ [0m| 158/194 [2:35:08<26:37, 44.37s/chunk, saved=158/194, seqs=5056/6208][A[DN-BoN N=32 α=0.5]:  82%|[35m████████▏ [0m| 159/194 [2:36:17<30:05, 51.60s/q, acc=0.799, correct=127/159]
-[generate] flat  bs=32  Q=194  N=32:  82%|[34m████████▏ [0m| 159/194 [2:36:17<30:06, 51.60s/chunk, saved=159/194, seqs=5088/6208][A[DN-BoN N=32 α=0.5]:  82%|[35m████████▏ [0m| 160/194 [2:36:36<23:43, 41.86s/q, acc=0.800, correct=128/160]
-[generate] flat  bs=32  Q=194  N=32:  82%|[34m████████▏ [0m| 160/194 [2:36:36<23:43, 41.86s/chunk, saved=160/194, seqs=5120/6208][A[DN-BoN N=32 α=0.5]:  83%|[35m████████▎ [0m| 161/194 [2:37:26<24:22, 44.30s/q, acc=0.801, correct=129/161]
-[generate] flat  bs=32  Q=194  N=32:  83%|[34m████████▎ [0m| 161/194 [2:37:26<24:22, 44.30s/chunk, saved=161/194, seqs=5152/6208][A[DN-BoN N=32 α=0.5]:  84%|[35m████████▎ [0m| 162/194 [2:37:55<21:14, 39.84s/q, acc=0.802, correct=130/162]
-[generate] flat  bs=32  Q=194  N=32:  84%|[34m████████▎ [0m| 162/194 [2:37:55<21:14, 39.84s/chunk, saved=162/194, seqs=5184/6208][A[DN-BoN N=32 α=0.5]:  84%|[35m████████▍ [0m| 163/194 [2:38:13<17:12, 33.30s/q, acc=0.804, correct=131/163]
-[generate] flat  bs=32  Q=194  N=32:  84%|[34m████████▍ [0m| 163/194 [2:38:13<17:12, 33.30s/chunk, saved=163/194, seqs=5216/6208][A[DN-BoN N=32 α=0.5]:  85%|[35m████████▍ [0m| 164/194 [2:38:35<14:49, 29.66s/q, acc=0.805, correct=132/164]10:30:26 | INFO | evaluator |   [470/500] acc=0.832 (391/470)
-
-[generate] flat  bs=32  Q=194  N=32:  85%|[34m████████▍ [0m| 164/194 [2:38:35<14:49, 29.67s/chunk, saved=164/194, seqs=5248/6208][A[DN-BoN N=32 α=0.5]:  85%|[35m████████▌ [0m| 165/194 [2:40:27<26:16, 54.37s/q, acc=0.806, correct=133/165]
-[generate] flat  bs=32  Q=194  N=32:  85%|[34m████████▌ [0m| 165/194 [2:40:27<26:16, 54.37s/chunk, saved=165/194, seqs=5280/6208][A[DN-BoN N=32 α=0.5]:  86%|[35m████████▌ [0m| 166/194 [2:40:47<20:39, 44.27s/q, acc=0.807, correct=134/166]
-[generate] flat  bs=32  Q=194  N=32:  86%|[34m████████▌ [0m| 166/194 [2:40:47<20:39, 44.27s/chunk, saved=166/194, seqs=5312/6208][A[DN-BoN N=32 α=0.5]:  86%|[35m████████▌ [0m| 167/194 [2:41:19<18:10, 40.38s/q, acc=0.808, correct=135/167]
-[generate] flat  bs=32  Q=194  N=32:  86%|[34m████████▌ [0m| 167/194 [2:41:19<18:10, 40.38s/chunk, saved=167/194, seqs=5344/6208][A[DN-BoN N=32 α=0.5]:  87%|[35m████████▋ [0m| 168/194 [2:41:59<17:27, 40.30s/q, acc=0.810, correct=136/168]
-[generate] flat  bs=32  Q=194  N=32:  87%|[34m████████▋ [0m| 168/194 [2:41:59<17:27, 40.30s/chunk, saved=168/194, seqs=5376/6208][A[DN-BoN N=32 α=0.5]:  87%|[35m████████▋ [0m| 169/194 [2:42:47<17:44, 42.57s/q, acc=0.811, correct=137/169]
-[generate] flat  bs=32  Q=194  N=32:  87%|[34m████████▋ [0m| 169/194 [2:42:47<17:44, 42.57s/chunk, saved=169/194, seqs=5408/6208][A[DN-BoN N=32 α=0.5]:  88%|[35m████████▊ [0m| 170/194 [2:44:40<25:34, 63.95s/q, acc=0.812, correct=138/170]
-[generate] flat  bs=32  Q=194  N=32:  88%|[34m████████▊ [0m| 170/194 [2:44:41<25:34, 63.95s/chunk, saved=170/194, seqs=5440/6208][A[DN-BoN N=32 α=0.5]:  88%|[35m████████▊ [0m| 171/194 [2:45:08<20:18, 52.97s/q, acc=0.813, correct=139/171]
-[generate] flat  bs=32  Q=194  N=32:  88%|[34m████████▊ [0m| 171/194 [2:45:08<20:18, 52.97s/chunk, saved=171/194, seqs=5472/6208][A[DN-BoN N=32 α=0.5]:  89%|[35m████████▊ [0m| 172/194 [2:47:00<25:59, 70.88s/q, acc=0.814, correct=140/172]
-[generate] flat  bs=32  Q=194  N=32:  89%|[34m████████▊ [0m| 172/194 [2:47:01<25:59, 70.88s/chunk, saved=172/194, seqs=5504/6208][A[DN-BoN N=32 α=0.5]:  89%|[35m████████▉ [0m| 173/194 [2:48:24<26:08, 74.70s/q, acc=0.815, correct=141/173]
-[generate] flat  bs=32  Q=194  N=32:  89%|[34m████████▉ [0m| 173/194 [2:48:24<26:08, 74.70s/chunk, saved=173/194, seqs=5536/6208][A[DN-BoN N=32 α=0.5]:  90%|[35m████████▉ [0m| 174/194 [2:48:50<20:02, 60.14s/q, acc=0.816, correct=142/174]10:40:41 | INFO | evaluator |   [480/500] acc=0.835 (401/480)
-
-[generate] flat  bs=32  Q=194  N=32:  90%|[34m████████▉ [0m| 174/194 [2:48:50<20:02, 60.14s/chunk, saved=174/194, seqs=5568/6208][A[DN-BoN N=32 α=0.5]:  90%|[35m█████████ [0m| 175/194 [2:49:27<16:47, 53.04s/q, acc=0.817, correct=143/175]
-[generate] flat  bs=32  Q=194  N=32:  90%|[34m█████████ [0m| 175/194 [2:49:27<16:47, 53.04s/chunk, saved=175/194, seqs=5600/6208][A[DN-BoN N=32 α=0.5]:  91%|[35m█████████ [0m| 176/194 [2:51:26<21:52, 72.92s/q, acc=0.812, correct=143/176]
-[generate] flat  bs=32  Q=194  N=32:  91%|[34m█████████ [0m| 176/194 [2:51:26<21:52, 72.92s/chunk, saved=176/194, seqs=5632/6208][A[DN-BoN N=32 α=0.5]:  91%|[35m█████████ [0m| 177/194 [2:52:06<17:53, 63.15s/q, acc=0.814, correct=144/177]
-[generate] flat  bs=32  Q=194  N=32:  91%|[34m█████████ [0m| 177/194 [2:52:06<17:53, 63.15s/chunk, saved=177/194, seqs=5664/6208][A[DN-BoN N=32 α=0.5]:  92%|[35m█████████▏[0m| 178/194 [2:53:59<20:48, 78.04s/q, acc=0.815, correct=145/178]
-[generate] flat  bs=32  Q=194  N=32:  92%|[34m█████████▏[0m| 178/194 [2:53:59<20:48, 78.04s/chunk, saved=178/194, seqs=5696/6208][A[DN-BoN N=32 α=0.5]:  92%|[35m█████████▏[0m| 179/194 [2:54:56<17:54, 71.62s/q, acc=0.816, correct=146/179]
-[generate] flat  bs=32  Q=194  N=32:  92%|[34m█████████▏[0m| 179/194 [2:54:56<17:54, 71.62s/chunk, saved=179/194, seqs=5728/6208][A[DN-BoN N=32 α=0.5]:  93%|[35m█████████▎[0m| 180/194 [2:56:09<16:50, 72.15s/q, acc=0.817, correct=147/180]
-[generate] flat  bs=32  Q=194  N=32:  93%|[34m█████████▎[0m| 180/194 [2:56:09<16:50, 72.15s/chunk, saved=180/194, seqs=5760/6208][A[DN-BoN N=32 α=0.5]:  93%|[35m█████████▎[0m| 181/194 [2:56:31<12:22, 57.13s/q, acc=0.818, correct=148/181]
-[generate] flat  bs=32  Q=194  N=32:  93%|[34m█████████▎[0m| 181/194 [2:56:31<12:22, 57.13s/chunk, saved=181/194, seqs=5792/6208][A[DN-BoN N=32 α=0.5]:  94%|[35m█████████▍[0m| 182/194 [2:57:06<10:04, 50.39s/q, acc=0.819, correct=149/182]
-[generate] flat  bs=32  Q=194  N=32:  94%|[34m█████████▍[0m| 182/194 [2:57:06<10:04, 50.39s/chunk, saved=182/194, seqs=5824/6208][A[DN-BoN N=32 α=0.5]:  94%|[35m█████████▍[0m| 183/194 [2:57:22<07:22, 40.20s/q, acc=0.820, correct=150/183]
-[generate] flat  bs=32  Q=194  N=32:  94%|[34m█████████▍[0m| 183/194 [2:57:22<07:22, 40.20s/chunk, saved=183/194, seqs=5856/6208][A[DN-BoN N=32 α=0.5]:  95%|[35m█████████▍[0m| 184/194 [2:58:09<07:01, 42.17s/q, acc=0.821, correct=151/184]10:50:00 | INFO | evaluator |   [490/500] acc=0.837 (410/490)
-
-[generate] flat  bs=32  Q=194  N=32:  95%|[34m█████████▍[0m| 184/194 [2:58:09<07:01, 42.17s/chunk, saved=184/194, seqs=5888/6208][A[DN-BoN N=32 α=0.5]:  95%|[35m█████████▌[0m| 185/194 [2:59:48<08:52, 59.16s/q, acc=0.822, correct=152/185]
-[generate] flat  bs=32  Q=194  N=32:  95%|[34m█████████▌[0m| 185/194 [2:59:48<08:52, 59.16s/chunk, saved=185/194, seqs=5920/6208][A[DN-BoN N=32 α=0.5]:  96%|[35m█████████▌[0m| 186/194 [3:00:21<06:50, 51.31s/q, acc=0.823, correct=153/186]
-[generate] flat  bs=32  Q=194  N=32:  96%|[34m█████████▌[0m| 186/194 [3:00:21<06:50, 51.31s/chunk, saved=186/194, seqs=5952/6208][A[DN-BoN N=32 α=0.5]:  96%|[35m█████████▋[0m| 187/194 [3:01:24<06:24, 54.93s/q, acc=0.824, correct=154/187]
-[generate] flat  bs=32  Q=194  N=32:  96%|[34m█████████▋[0m| 187/194 [3:01:24<06:24, 54.93s/chunk, saved=187/194, seqs=5984/6208][A[DN-BoN N=32 α=0.5]:  97%|[35m█████████▋[0m| 188/194 [3:02:08<05:09, 51.61s/q, acc=0.824, correct=155/188]
-[generate] flat  bs=32  Q=194  N=32:  97%|[34m█████████▋[0m| 188/194 [3:02:08<05:09, 51.61s/chunk, saved=188/194, seqs=6016/6208][A[DN-BoN N=32 α=0.5]:  97%|[35m█████████▋[0m| 189/194 [3:04:03<05:53, 70.69s/q, acc=0.825, correct=156/189]
-[generate] flat  bs=32  Q=194  N=32:  97%|[34m█████████▋[0m| 189/194 [3:04:03<05:53, 70.69s/chunk, saved=189/194, seqs=6048/6208][A[DN-BoN N=32 α=0.5]:  98%|[35m█████████▊[0m| 190/194 [3:04:40<04:02, 60.61s/q, acc=0.826, correct=157/190]
-[generate] flat  bs=32  Q=194  N=32:  98%|[34m█████████▊[0m| 190/194 [3:04:41<04:02, 60.61s/chunk, saved=190/194, seqs=6080/6208][A[DN-BoN N=32 α=0.5]:  98%|[35m█████████▊[0m| 191/194 [3:05:46<03:06, 62.01s/q, acc=0.827, correct=158/191]
-[generate] flat  bs=32  Q=194  N=32:  98%|[34m█████████▊[0m| 191/194 [3:05:46<03:06, 62.01s/chunk, saved=191/194, seqs=6112/6208][A[DN-BoN N=32 α=0.5]:  99%|[35m█████████▉[0m| 192/194 [3:06:58<02:10, 65.17s/q, acc=0.823, correct=158/192]
-[generate] flat  bs=32  Q=194  N=32:  99%|[34m█████████▉[0m| 192/194 [3:06:58<02:10, 65.17s/chunk, saved=192/194, seqs=6144/6208][A[DN-BoN N=32 α=0.5]:  99%|[35m█████████▉[0m| 193/194 [3:08:51<01:19, 79.49s/q, acc=0.824, correct=159/193]
-[generate] flat  bs=32  Q=194  N=32:  99%|[34m█████████▉[0m| 193/194 [3:08:51<01:19, 79.49s/chunk, saved=193/194, seqs=6176/6208][A[DN-BoN N=32 α=0.5]: 100%|[35m██████████[0m| 194/194 [3:09:17<00:00, 63.39s/q, acc=0.825, correct=160/194]11:01:08 | INFO | evaluator |   [500/500] acc=0.838 (419/500)
-
-[generate] flat  bs=32  Q=194  N=32: 100%|[34m██████████[0m| 194/194 [3:09:17<00:00, 63.39s/chunk, saved=194/194, seqs=6208/6208][A[generate] flat  bs=32  Q=194  N=32: 100%|[34m██████████[0m| 194/194 [3:09:17<00:00, 58.54s/chunk, saved=194/194, seqs=6208/6208]
-[DN-BoN N=32 α=0.5]: 100%|[35m██████████[0m| 194/194 [3:09:17<00:00, 58.54s/q, acc=0.825, correct=160/194]
-11:01:08 | INFO | evaluator | Summary (final) saved → ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/dn_bon_math500_N32_summary.json
-11:01:08 | INFO | evaluator | Done. acc=0.8380 (419/500)  wall=11357.9s  avg=0.00s/q
-11:01:08 | INFO | run_eval | Redundancy/vote stats: {'avg_num_clusters': 1.476, 'avg_selected_cluster_size': 23.902, 'avg_max_cluster_size': 30.298, 'frac_selected_from_top_cluster': 0.718}
-11:01:09 | INFO | evaluator | Summary saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/dn_bon_math500_N32_summary.json
-11:01:09 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-dn_bon                   0.8380        419      500      0.00s     11357.9s
-11:01:09 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/comparison_math500_N32.txt

@@ -1,42 +1,0 @@
-12:21:13 | INFO | run_eval | GPUs available: 2  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
-12:21:13 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 2 GPUs via device_map='auto' (unless --device is pinned).
-12:21:13 | INFO | run_eval | Loading dataset: olympiadbench
-12:21:17 | INFO | dataset_loader | Loaded 200 examples from 'olympiadbench' (train split).  Sample answers: ['2', '\\frac{1}{2 n+2}', '2^{1009}']
-12:21:17 | INFO | run_eval | Loaded 200 examples.
-12:21:17 | INFO | run_eval | Loading model: meta-llama/Llama-3.1-8B-Instruct  batch_size=64
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-12:21:25 | INFO | model_wrapper | CUDA available: 2 GPU(s)
-12:21:25 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-12:21:25 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
-12:21:25 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=2  dtype=torch.float16  4bit=False  8bit=False
-12:21:25 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.1-8B-Instruct
-12:21:26 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.1-8B-Instruct
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:06,  2.33s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:04<00:05,  2.51s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:07<00:02,  2.53s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.67s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.97s/it]
-12:21:36 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1']  (primary=cuda:0)
-12:21:36 | INFO | model_wrapper |   GPU 0 memory: allocated=6.67 GB  reserved=6.67 GB
-12:21:36 | INFO | model_wrapper |   GPU 1 memory: allocated=8.29 GB  reserved=8.29 GB
-12:21:36 | INFO | run_eval | Building verifier: prm
-12:21:36 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-12:21:37 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-12:21:37 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.28s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.26s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.25s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.07s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.14s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-12:21:48 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=64
-12:21:48 | INFO | inference_methods | Evaluator: OlympiadEvaluator for dataset='olympiadbench'
-12:21:48 | INFO | run_eval | 
-================================================================
-12:21:48 | INFO | run_eval |  Running : greedy
-12:21:48 | INFO | run_eval |  Dataset : olympiadbench  N=8  batch_size=64
-12:21:48 | INFO | run_eval | ================================================================
-12:21:48 | INFO | evaluator | Resuming: 197 questions already done  (acc so far: 26/197)
-12:21:48 | INFO | evaluator | Evaluating 0/200 pending questions  (method=GreedyInference)
-12:21:48 | INFO | evaluator | All questions already completed — nothing to do.
-12:21:48 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-greedy                   0.1320         26      197      5.58s         0.0s
-12:21:48 | INFO | run_eval | Comparison table saved to ./results_updated/Llama-3.1-8B-Instruct_mnt2048_t0.7_p0.95/comparison_olympiadbench_N8.txt

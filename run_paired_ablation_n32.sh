@@ -107,7 +107,7 @@ CIMR_RESOLVE_MAX_TOKENS=4096    # max tokens for resolve_from_valid output
 CIMR_XC_MAX_TOKENS=4096         # max tokens for cross-examination output
 
 # Output root
-BASE_OUT="./results_paired"
+BASE_OUT="./experiments_results/results_paired"
 
 # GPU(s) to use (comma-separated indices, or leave blank for auto)
 GPUS="1"           # e.g. "0" or "0,1"
@@ -365,10 +365,10 @@ echo "  Building consolidated summary across all completed datasets..."
 ${PYTHON} - <<'PYEOF' 2>&1 || echo "  [warn] consolidated summary failed — run manually"
 import json, os, glob, sys
 
-out_dir = os.environ.get("OUT_DIR", "./results_paired")
+out_dir = os.environ.get("OUT_DIR", "./experiments_results/results_paired")
 # Find any OUT dir from this run
 import glob
-dirs = glob.glob("./results_paired/*/") + ["./results_paired/"]
+dirs = glob.glob("./experiments_results/results_paired/*") + ["./experiments_results/results_paired/"]
 out_dir_candidates = [d for d in dirs if os.path.isdir(d)]
 
 summaries = {}

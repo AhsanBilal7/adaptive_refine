@@ -1,46 +1,0 @@
-15:11:46 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
-15:11:46 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
-15:11:46 | INFO | run_eval | Loading dataset: math500
-15:11:50 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
-15:11:50 | INFO | run_eval | Loaded 500 examples.
-15:11:50 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=64
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-15:11:58 | INFO | model_wrapper | CUDA available: 4 GPU(s)
-15:11:58 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-15:11:58 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
-15:11:58 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
-15:11:58 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
-15:11:58 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
-15:11:58 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
-15:11:59 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:05,  1.91s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:03,  1.97s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:05<00:01,  1.99s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.83s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.88s/it]
-15:12:09 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
-15:12:09 | INFO | model_wrapper |   GPU 0 memory: allocated=2.75 GB  reserved=2.77 GB
-15:12:09 | INFO | model_wrapper |   GPU 1 memory: allocated=3.91 GB  reserved=3.93 GB
-15:12:09 | INFO | model_wrapper |   GPU 2 memory: allocated=3.91 GB  reserved=3.93 GB
-15:12:09 | INFO | model_wrapper |   GPU 3 memory: allocated=3.62 GB  reserved=3.64 GB
-15:12:09 | INFO | run_eval | Building verifier: prm
-15:12:09 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-15:12:10 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-15:12:10 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.27s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.25s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.25s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.07s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.14s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-15:12:21 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=min  batch_size=64
-15:12:21 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
-15:12:21 | INFO | run_eval | 
-================================================================
-15:12:21 | INFO | run_eval |  Running : greedy_pass_n
-15:12:21 | INFO | run_eval |  Dataset : math500  N=8  batch_size=64
-15:12:21 | INFO | run_eval | ================================================================
-15:12:21 | INFO | evaluator | Resuming: 500 questions already done  (acc so far: 403/500)
-15:12:21 | INFO | evaluator | Evaluating 0/500 pending questions  (method=GreedyPassN)
-15:12:21 | INFO | evaluator | All questions already completed — nothing to do.
-15:12:21 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-greedy_pass_n            0.8060        403      500      0.00s         0.0s
-15:12:21 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt1024_t0.7_p0.95/comparison_math500_N8.txt

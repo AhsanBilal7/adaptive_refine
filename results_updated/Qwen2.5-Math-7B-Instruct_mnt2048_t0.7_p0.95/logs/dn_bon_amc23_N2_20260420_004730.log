@@ -1,59 +1,0 @@
-00:47:36 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
-00:47:36 | INFO | run_eval | Loading dataset: amc23
-00:47:40 | INFO | dataset_loader | Loaded 40 examples from 'amc23' (test split).  Sample answers: ['27', '36', '45']
-00:47:40 | INFO | run_eval | Loaded 40 examples.
-00:47:40 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=32
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-00:47:49 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-00:47:49 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-00:47:49 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-00:47:49 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
-00:47:55 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
-00:47:56 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:08<00:26,  8.81s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:28<00:30, 15.32s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:44<00:15, 15.56s/it]Loading checkpoint shards: 100%|██████████| 4/4 [01:08<00:00, 18.99s/it]Loading checkpoint shards: 100%|██████████| 4/4 [01:08<00:00, 17.20s/it]
-00:49:05 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=32
-00:49:05 | INFO | model_wrapper |   GPU 0 memory: allocated=14.19 GB  reserved=14.31 GB
-00:49:05 | INFO | run_eval | Building verifier: prm
-00:49:05 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-00:49:07 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-00:49:07 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-00:49:15 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:14<00:42, 14.22s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:29<00:29, 14.86s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:44<00:14, 14.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:53<00:00, 12.69s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:53<00:00, 13.41s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-00:50:09 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=32
-00:50:09 | INFO | run_eval | Building ClusterManager  embedding=all-MiniLM-L6-v2
-00:50:10 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
-00:50:10 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
-00:50:10 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
-00:50:12 | INFO | clustering | ClusterManager: SentenceTransformer ready.
-00:50:12 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='amc23'
-00:50:12 | INFO | run_eval | 
-================================================================
-00:50:12 | INFO | run_eval |  Running : dn_bon
-00:50:12 | INFO | run_eval |  Dataset : amc23  N=2  batch_size=32
-00:50:12 | INFO | run_eval | ================================================================
-00:50:12 | INFO | evaluator | Evaluating 40/40 pending questions  (method=DNBestOfN)
-00:50:12 | INFO | evaluator |   Flat-batch generation: Q=40  N=2  batch_size=32  →  80 total seqs  →  3 generate() calls  →  saving every 16 questions
-[DN-BoN N=2 α=0.5]:   0%|[35m          [0m| 0/40 [00:00<?, ?q/s]
-[generate] flat  bs=32  Q=40  N=2:   0%|[34m          [0m| 0/3 [00:00<?, ?chunk/s][A[DN-BoN N=2 α=0.5]:   2%|[35m▎         [0m| 1/40 [02:28<1:36:12, 148.02s/q, acc=1.000, correct=1/1][DN-BoN N=2 α=0.5]:   5%|[35m▌         [0m| 2/40 [02:28<38:40, 61.05s/q, acc=1.000, correct=2/2]   [DN-BoN N=2 α=0.5]:   8%|[35m▊         [0m| 3/40 [02:28<20:30, 33.25s/q, acc=1.000, correct=3/3][DN-BoN N=2 α=0.5]:  10%|[35m█         [0m| 4/40 [02:28<12:06, 20.19s/q, acc=1.000, correct=4/4][DN-BoN N=2 α=0.5]:  12%|[35m█▎        [0m| 5/40 [02:29<07:42, 13.22s/q, acc=1.000, correct=5/5][DN-BoN N=2 α=0.5]:  15%|[35m█▌        [0m| 6/40 [02:29<04:58,  8.78s/q, acc=1.000, correct=6/6][DN-BoN N=2 α=0.5]:  18%|[35m█▊        [0m| 7/40 [02:30<03:20,  6.07s/q, acc=0.857, correct=6/7][DN-BoN N=2 α=0.5]:  20%|[35m██        [0m| 8/40 [02:30<02:14,  4.19s/q, acc=0.875, correct=7/8][DN-BoN N=2 α=0.5]:  22%|[35m██▎       [0m| 9/40 [02:31<01:38,  3.19s/q, acc=0.778, correct=7/9][DN-BoN N=2 α=0.5]:  25%|[35m██▌       [0m| 10/40 [02:31<01:07,  2.26s/q, acc=0.800, correct=8/10]00:52:43 | INFO | evaluator |   [10/40] acc=0.800 (8/10)
-[DN-BoN N=2 α=0.5]:  28%|[35m██▊       [0m| 11/40 [02:31<00:48,  1.67s/q, acc=0.818, correct=9/11][DN-BoN N=2 α=0.5]:  30%|[35m███       [0m| 12/40 [02:32<00:36,  1.31s/q, acc=0.750, correct=9/12][DN-BoN N=2 α=0.5]:  32%|[35m███▎      [0m| 13/40 [02:32<00:26,  1.03q/s, acc=0.769, correct=10/13][DN-BoN N=2 α=0.5]:  35%|[35m███▌      [0m| 14/40 [02:32<00:21,  1.22q/s, acc=0.714, correct=10/14][DN-BoN N=2 α=0.5]:  38%|[35m███▊      [0m| 15/40 [02:33<00:17,  1.42q/s, acc=0.667, correct=10/15][DN-BoN N=2 α=0.5]:  40%|[35m████      [0m| 16/40 [02:33<00:13,  1.75q/s, acc=0.688, correct=11/16]
-[generate] flat  bs=32  Q=40  N=2:  33%|[34m███▎      [0m| 1/3 [02:33<05:07, 153.54s/chunk, saved=16/40, seqs=32/80][A[DN-BoN N=2 α=0.5]:  42%|[35m████▎     [0m| 17/40 [04:58<16:53, 44.07s/q, acc=0.706, correct=12/17][DN-BoN N=2 α=0.5]:  45%|[35m████▌     [0m| 18/40 [04:58<11:19, 30.88s/q, acc=0.722, correct=13/18][DN-BoN N=2 α=0.5]:  48%|[35m████▊     [0m| 19/40 [04:59<07:36, 21.74s/q, acc=0.684, correct=13/19][DN-BoN N=2 α=0.5]:  50%|[35m█████     [0m| 20/40 [04:59<05:05, 15.26s/q, acc=0.700, correct=14/20]00:55:12 | INFO | evaluator |   [20/40] acc=0.700 (14/20)
-[DN-BoN N=2 α=0.5]:  52%|[35m█████▎    [0m| 21/40 [05:00<03:25, 10.82s/q, acc=0.667, correct=14/21][DN-BoN N=2 α=0.5]:  55%|[35m█████▌    [0m| 22/40 [05:00<02:17,  7.62s/q, acc=0.682, correct=15/22][DN-BoN N=2 α=0.5]:  57%|[35m█████▊    [0m| 23/40 [05:00<01:31,  5.38s/q, acc=0.696, correct=16/23][DN-BoN N=2 α=0.5]:  60%|[35m██████    [0m| 24/40 [05:00<01:01,  3.82s/q, acc=0.708, correct=17/24][DN-BoN N=2 α=0.5]:  62%|[35m██████▎   [0m| 25/40 [05:00<00:40,  2.73s/q, acc=0.720, correct=18/25][DN-BoN N=2 α=0.5]:  65%|[35m██████▌   [0m| 26/40 [05:00<00:27,  1.96s/q, acc=0.731, correct=19/26][DN-BoN N=2 α=0.5]:  68%|[35m██████▊   [0m| 27/40 [05:01<00:18,  1.42s/q, acc=0.741, correct=20/27][DN-BoN N=2 α=0.5]:  70%|[35m███████   [0m| 28/40 [05:01<00:13,  1.14s/q, acc=0.714, correct=20/28][DN-BoN N=2 α=0.5]:  72%|[35m███████▎  [0m| 29/40 [05:01<00:09,  1.14q/s, acc=0.724, correct=21/29][DN-BoN N=2 α=0.5]:  75%|[35m███████▌  [0m| 30/40 [05:01<00:06,  1.50q/s, acc=0.733, correct=22/30]00:55:14 | INFO | evaluator |   [30/40] acc=0.733 (22/30)
-[DN-BoN N=2 α=0.5]:  78%|[35m███████▊  [0m| 31/40 [05:02<00:04,  1.93q/s, acc=0.742, correct=23/31][DN-BoN N=2 α=0.5]:  80%|[35m████████  [0m| 32/40 [05:02<00:04,  1.92q/s, acc=0.719, correct=23/32]
-[generate] flat  bs=32  Q=40  N=2:  67%|[34m██████▋   [0m| 2/3 [05:02<02:30, 150.93s/chunk, saved=32/40, seqs=64/80][A[DN-BoN N=2 α=0.5]:  82%|[35m████████▎ [0m| 33/40 [07:19<04:50, 41.49s/q, acc=0.697, correct=23/33][DN-BoN N=2 α=0.5]:  85%|[35m████████▌ [0m| 34/40 [07:19<02:54, 29.10s/q, acc=0.706, correct=24/34][DN-BoN N=2 α=0.5]:  88%|[35m████████▊ [0m| 35/40 [07:20<01:42, 20.42s/q, acc=0.714, correct=25/35][DN-BoN N=2 α=0.5]:  90%|[35m█████████ [0m| 36/40 [07:20<00:57, 14.43s/q, acc=0.694, correct=25/36][DN-BoN N=2 α=0.5]:  92%|[35m█████████▎[0m| 37/40 [07:20<00:30, 10.21s/q, acc=0.676, correct=25/37][DN-BoN N=2 α=0.5]:  95%|[35m█████████▌[0m| 38/40 [07:21<00:14,  7.27s/q, acc=0.658, correct=25/38][DN-BoN N=2 α=0.5]:  98%|[35m█████████▊[0m| 39/40 [07:21<00:05,  5.17s/q, acc=0.667, correct=26/39][DN-BoN N=2 α=0.5]: 100%|[35m██████████[0m| 40/40 [07:21<00:00,  3.73s/q, acc=0.650, correct=26/40]00:57:34 | INFO | evaluator |   [40/40] acc=0.650 (26/40)
-
-[generate] flat  bs=32  Q=40  N=2: 100%|[34m██████████[0m| 3/3 [07:21<00:00, 145.61s/chunk, saved=40/40, seqs=80/80][A[generate] flat  bs=32  Q=40  N=2: 100%|[34m██████████[0m| 3/3 [07:21<00:00, 147.31s/chunk, saved=40/40, seqs=80/80]
-[DN-BoN N=2 α=0.5]: 100%|[35m██████████[0m| 40/40 [07:21<00:00, 11.05s/q, acc=0.650, correct=26/40]
-00:57:34 | INFO | evaluator | Summary (final) saved → ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/dn_bon_amc23_N2_summary.json
-00:57:34 | INFO | evaluator | Done. acc=0.6500 (26/40)  wall=442.0s  avg=0.00s/q
-00:57:34 | INFO | run_eval | Redundancy/vote stats: {'avg_num_clusters': 1.175, 'avg_selected_cluster_size': 1.825, 'avg_max_cluster_size': 1.825, 'frac_selected_from_top_cluster': 1.0}
-00:57:34 | INFO | evaluator | Summary saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/dn_bon_amc23_N2_summary.json
-00:57:34 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-dn_bon                   0.6500         26       40      0.00s       442.0s
-00:57:34 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/comparison_amc23_N2.txt

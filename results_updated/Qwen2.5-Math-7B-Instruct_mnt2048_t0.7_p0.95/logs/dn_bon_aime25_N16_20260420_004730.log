@@ -1,48 +1,0 @@
-01:10:57 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
-01:10:57 | INFO | run_eval | Loading dataset: aime25
-01:11:00 | INFO | dataset_loader | Loaded 30 examples from 'aime25' (test split).  Sample answers: ['70', '588', '16']
-01:11:00 | INFO | run_eval | Loaded 30 examples.
-01:11:00 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=32
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-01:11:08 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-01:11:08 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-01:11:08 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-01:11:08 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
-01:11:09 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
-01:11:10 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.28s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.28s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.27s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.22s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.24s/it]
-01:11:16 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=32
-01:11:16 | INFO | model_wrapper |   GPU 0 memory: allocated=14.19 GB  reserved=14.31 GB
-01:11:16 | INFO | run_eval | Building verifier: prm
-01:11:16 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-01:11:17 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-01:11:17 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-01:11:22 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.26s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.25s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.25s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.07s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.14s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-01:11:27 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=32
-01:11:27 | INFO | run_eval | Building ClusterManager  embedding=all-MiniLM-L6-v2
-01:11:28 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
-01:11:28 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
-01:11:28 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
-01:11:29 | INFO | clustering | ClusterManager: SentenceTransformer ready.
-01:11:30 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime25'
-01:11:30 | INFO | run_eval | 
-================================================================
-01:11:30 | INFO | run_eval |  Running : dn_bon
-01:11:30 | INFO | run_eval |  Dataset : aime25  N=16  batch_size=32
-01:11:30 | INFO | run_eval | ================================================================
-01:11:30 | INFO | evaluator | Resuming: 30 questions already done  (acc so far: 5/30)
-01:11:30 | INFO | evaluator | Evaluating 0/30 pending questions  (method=DNBestOfN)
-01:11:30 | INFO | evaluator | All questions already completed — nothing to do.
-01:11:30 | INFO | run_eval | Redundancy/vote stats: {'avg_num_clusters': 2.367, 'avg_selected_cluster_size': 6.533, 'avg_max_cluster_size': 12.967, 'frac_selected_from_top_cluster': 0.333}
-01:11:30 | INFO | evaluator | Summary saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/dn_bon_aime25_N16_summary.json
-01:11:30 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-dn_bon                   0.1667          5       30      0.00s         0.0s
-01:11:30 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/comparison_aime25_N16.txt

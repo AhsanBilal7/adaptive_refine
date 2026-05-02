@@ -1,62 +1,0 @@
-03:08:12 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 NVL']
-03:08:12 | INFO | run_eval | Loading dataset: aime25
-03:08:21 | INFO | dataset_loader | Loaded 30 examples from 'aime25' (test split).  Sample answers: ['70', '588', '16']
-03:08:21 | INFO | run_eval | Loaded 30 examples.
-03:08:21 | INFO | run_eval | Loading model: Qwen/Qwen2.5-1.5B-Instruct  batch_size=16
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-03:08:36 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-03:08:36 | INFO | model_wrapper |   GPU 0: NVIDIA H100 NVL  93.1 GB
-03:08:36 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-03:08:36 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-1.5B-Instruct
-03:08:37 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-1.5B-Instruct
-03:08:39 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-03:08:52 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
-03:08:52 | INFO | model_wrapper |   GPU 0 memory: allocated=2.88 GB  reserved=2.96 GB
-03:08:52 | INFO | run_eval | Building verifier: prm
-03:08:52 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-03:08:53 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-03:08:53 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-03:08:54 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:06<00:20,  6.92s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:14<00:14,  7.43s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:21<00:07,  7.06s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:26<00:00,  6.18s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:26<00:00,  6.54s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-03:09:21 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=16
-03:09:21 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime25'
-03:09:21 | INFO | run_eval | 
-================================================================
-03:09:21 | INFO | run_eval |  Running : greedy_pass_n
-03:09:21 | INFO | run_eval |  Dataset : aime25  N=8  batch_size=16
-03:09:21 | INFO | run_eval | ================================================================
-03:09:21 | INFO | evaluator | Evaluating 30/30 pending questions  (method=GreedyPassN)
-03:09:21 | INFO | evaluator |   Flat-batch generation: Q=30  N=8  batch_size=16  →  240 total seqs  →  15 generate() calls  →  saving every 2 questions
-[GreedyPass@N N=8]:   0%|[36m          [0m| 0/30 [00:00<?, ?q/s]
-[generate] flat  bs=16  Q=30  N=8:   0%|[34m          [0m| 0/15 [00:00<?, ?chunk/s][A[GreedyPass@N N=8]:   3%|[36m▎         [0m| 1/30 [02:24<1:09:55, 144.66s/q, acc=0.000, correct=0/1][GreedyPass@N N=8]:   7%|[36m▋         [0m| 2/30 [02:24<27:51, 59.70s/q, acc=0.000, correct=0/2]   
-[generate] flat  bs=16  Q=30  N=8:   7%|[34m▋         [0m| 1/15 [02:24<33:47, 144.85s/chunk, saved=2/30, seqs=16/240][A[GreedyPass@N N=8]:  10%|[36m█         [0m| 3/30 [03:35<29:11, 64.87s/q, acc=0.000, correct=0/3][GreedyPass@N N=8]:  13%|[36m█▎        [0m| 4/30 [03:36<17:03, 39.36s/q, acc=0.000, correct=0/4]
-[generate] flat  bs=16  Q=30  N=8:  13%|[34m█▎        [0m| 2/15 [03:36<22:00, 101.57s/chunk, saved=4/30, seqs=32/240][A[GreedyPass@N N=8]:  17%|[36m█▋        [0m| 5/30 [04:58<22:47, 54.69s/q, acc=0.000, correct=0/5][GreedyPass@N N=8]:  20%|[36m██        [0m| 6/30 [04:58<14:28, 36.19s/q, acc=0.000, correct=0/6]
-[generate] flat  bs=16  Q=30  N=8:  20%|[34m██        [0m| 3/15 [04:58<18:32, 92.71s/chunk, saved=6/30, seqs=48/240] [A[GreedyPass@N N=8]:  23%|[36m██▎       [0m| 7/30 [06:50<23:20, 60.88s/q, acc=0.000, correct=0/7][GreedyPass@N N=8]:  27%|[36m██▋       [0m| 8/30 [06:50<15:15, 41.59s/q, acc=0.000, correct=0/8]
-[generate] flat  bs=16  Q=30  N=8:  27%|[34m██▋       [0m| 4/15 [06:50<18:23, 100.32s/chunk, saved=8/30, seqs=64/240][A[GreedyPass@N N=8]:  30%|[36m███       [0m| 9/30 [08:35<21:30, 61.47s/q, acc=0.111, correct=1/9][GreedyPass@N N=8]:  33%|[36m███▎      [0m| 10/30 [08:35<14:11, 42.59s/q, acc=0.100, correct=1/10]03:17:57 | INFO | evaluator |   [10/30] acc=0.100 (1/10)
-
-[generate] flat  bs=16  Q=30  N=8:  33%|[34m███▎      [0m| 5/15 [08:35<17:01, 102.19s/chunk, saved=10/30, seqs=80/240][A[GreedyPass@N N=8]:  37%|[36m███▋      [0m| 11/30 [10:26<20:02, 63.28s/q, acc=0.091, correct=1/11][GreedyPass@N N=8]:  40%|[36m████      [0m| 12/30 [10:26<13:14, 44.13s/q, acc=0.083, correct=1/12]
-[generate] flat  bs=16  Q=30  N=8:  40%|[34m████      [0m| 6/15 [10:26<15:45, 105.03s/chunk, saved=12/30, seqs=96/240][A[GreedyPass@N N=8]:  43%|[36m████▎     [0m| 13/30 [11:37<14:50, 52.41s/q, acc=0.077, correct=1/13][GreedyPass@N N=8]:  47%|[36m████▋     [0m| 14/30 [11:38<09:46, 36.66s/q, acc=0.071, correct=1/14]
-[generate] flat  bs=16  Q=30  N=8:  47%|[34m████▋     [0m| 7/15 [11:38<12:33, 94.13s/chunk, saved=14/30, seqs=112/240][A[GreedyPass@N N=8]:  50%|[36m█████     [0m| 15/30 [12:49<11:47, 47.15s/q, acc=0.067, correct=1/15][GreedyPass@N N=8]:  53%|[36m█████▎    [0m| 16/30 [12:49<07:42, 33.04s/q, acc=0.062, correct=1/16]
-[generate] flat  bs=16  Q=30  N=8:  53%|[34m█████▎    [0m| 8/15 [12:49<10:09, 87.00s/chunk, saved=16/30, seqs=128/240][A[GreedyPass@N N=8]:  57%|[36m█████▋    [0m| 17/30 [13:52<09:04, 41.89s/q, acc=0.059, correct=1/17][GreedyPass@N N=8]:  60%|[36m██████    [0m| 18/30 [13:52<05:52, 29.38s/q, acc=0.056, correct=1/18]
-[generate] flat  bs=16  Q=30  N=8:  60%|[34m██████    [0m| 9/15 [13:52<07:56, 79.42s/chunk, saved=18/30, seqs=144/240][A[GreedyPass@N N=8]:  63%|[36m██████▎   [0m| 19/30 [15:48<10:07, 55.24s/q, acc=0.053, correct=1/19][GreedyPass@N N=8]:  67%|[36m██████▋   [0m| 20/30 [15:48<06:27, 38.75s/q, acc=0.050, correct=1/20]03:25:09 | INFO | evaluator |   [20/30] acc=0.050 (1/20)
-
-[generate] flat  bs=16  Q=30  N=8:  67%|[34m██████▋   [0m| 10/15 [15:48<07:33, 90.65s/chunk, saved=20/30, seqs=160/240][A[GreedyPass@N N=8]:  70%|[36m███████   [0m| 21/30 [17:26<08:30, 56.67s/q, acc=0.048, correct=1/21][GreedyPass@N N=8]:  73%|[36m███████▎  [0m| 22/30 [17:27<05:18, 39.76s/q, acc=0.045, correct=1/22]
-[generate] flat  bs=16  Q=30  N=8:  73%|[34m███████▎  [0m| 11/15 [17:27<06:12, 93.14s/chunk, saved=22/30, seqs=176/240][A[GreedyPass@N N=8]:  77%|[36m███████▋  [0m| 23/30 [19:49<08:12, 70.42s/q, acc=0.043, correct=1/23][GreedyPass@N N=8]:  80%|[36m████████  [0m| 24/30 [19:49<04:56, 49.37s/q, acc=0.042, correct=1/24]
-[generate] flat  bs=16  Q=30  N=8:  80%|[34m████████  [0m| 12/15 [19:49<05:24, 108.07s/chunk, saved=24/30, seqs=192/240][A[GreedyPass@N N=8]:  83%|[36m████████▎ [0m| 25/30 [20:49<04:23, 52.76s/q, acc=0.040, correct=1/25][GreedyPass@N N=8]:  87%|[36m████████▋ [0m| 26/30 [20:50<02:28, 37.00s/q, acc=0.038, correct=1/26]
-[generate] flat  bs=16  Q=30  N=8:  87%|[34m████████▋ [0m| 13/15 [20:50<03:07, 93.78s/chunk, saved=26/30, seqs=208/240] [A[GreedyPass@N N=8]:  90%|[36m█████████ [0m| 27/30 [22:39<02:55, 58.58s/q, acc=0.037, correct=1/27][GreedyPass@N N=8]:  93%|[36m█████████▎[0m| 28/30 [22:39<01:22, 41.11s/q, acc=0.036, correct=1/28]
-[generate] flat  bs=16  Q=30  N=8:  93%|[34m█████████▎[0m| 14/15 [22:39<01:38, 98.46s/chunk, saved=28/30, seqs=224/240][A[GreedyPass@N N=8]:  97%|[36m█████████▋[0m| 29/30 [24:10<00:56, 56.03s/q, acc=0.034, correct=1/29][GreedyPass@N N=8]: 100%|[36m██████████[0m| 30/30 [24:10<00:00, 39.31s/q, acc=0.033, correct=1/30]03:33:32 | INFO | evaluator |   [30/30] acc=0.033 (1/30)
-
-[generate] flat  bs=16  Q=30  N=8: 100%|[34m██████████[0m| 15/15 [24:10<00:00, 96.25s/chunk, saved=30/30, seqs=240/240][A[generate] flat  bs=16  Q=30  N=8: 100%|[34m██████████[0m| 15/15 [24:10<00:00, 96.71s/chunk, saved=30/30, seqs=240/240]
-[GreedyPass@N N=8]: 100%|[36m██████████[0m| 30/30 [24:10<00:00, 48.35s/q, acc=0.033, correct=1/30]
-03:33:32 | INFO | evaluator | Summary (final) saved → ./results_updated/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/greedy_pass_n_aime25_N8_summary.json
-03:33:32 | INFO | evaluator | Done. acc=0.0333 (1/30)  wall=1450.6s  avg=0.00s/q
-03:33:32 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-greedy_pass_n            0.0333          1       30      0.00s      1450.6s
-03:33:32 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/comparison_aime25_N8.txt

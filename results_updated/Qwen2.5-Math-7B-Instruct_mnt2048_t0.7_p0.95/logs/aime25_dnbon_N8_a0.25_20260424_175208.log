@@ -1,66 +1,0 @@
-14:27:14 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
-14:27:14 | INFO | run_eval | Loading dataset: aime25
-14:27:18 | INFO | dataset_loader | Loaded 30 examples from 'aime25' (test split).  Sample answers: ['70', '588', '16']
-14:27:18 | INFO | run_eval | Loaded 30 examples.
-14:27:18 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=32
-/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-14:27:27 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-14:27:27 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-14:27:27 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-14:27:27 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
-14:27:28 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
-14:27:29 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.24s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.20s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.20s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.15s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.17s/it]
-14:27:34 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=32
-14:27:34 | INFO | model_wrapper |   GPU 0 memory: allocated=14.19 GB  reserved=14.31 GB
-14:27:34 | INFO | run_eval | Building verifier: prm
-14:27:34 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-14:27:35 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-14:27:35 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-14:27:40 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.20s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.18s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.18s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.01s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.07s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-14:27:45 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=32
-14:27:45 | INFO | run_eval | Building ClusterManager  embedding=all-MiniLM-L6-v2
-14:27:45 | WARNING | clustering | sentence-transformers not installed; trying HF AutoModel fallback.
-14:27:45 | INFO | clustering | ClusterManager: loading HF AutoModel 'all-MiniLM-L6-v2' — this happens ONCE.
-14:27:45 | WARNING | clustering | HF AutoModel load failed (all-MiniLM-L6-v2 is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'
-If this is a private repository, make sure to pass a token having permission to this repo either by logging in with `hf auth login` or by passing `token=<your_token>`); using TF-IDF fallback.
-14:27:45 | WARNING | clustering | ClusterManager: no neural embedder available — using TF-IDF fallback.
-14:27:46 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime25'
-14:27:46 | INFO | run_eval | 
-================================================================
-14:27:46 | INFO | run_eval |  Running : dn_bon
-14:27:46 | INFO | run_eval |  Dataset : aime25  N=8  batch_size=32
-14:27:46 | INFO | run_eval | ================================================================
-14:27:46 | INFO | evaluator | Evaluating 30/30 pending questions  (method=DNBestOfN)
-14:27:46 | INFO | evaluator |   Flat-batch generation: Q=30  N=8  batch_size=32  →  240 total seqs  →  8 generate() calls  →  saving every 4 questions
-🧩Cluster on Answer:  False
-🧩Alpha Value:  0.25
-[DN-BoN N=8 α=0.25]:   0%|[35m          [0m| 0/30 [00:00<?, ?q/s]
-[generate] flat  bs=32  Q=30  N=8:   0%|[34m          [0m| 0/8 [00:00<?, ?chunk/s][A[DN-BoN N=8 α=0.25]:   3%|[35m▎         [0m| 1/30 [02:23<1:09:25, 143.64s/q, acc=1.000, correct=1/1][DN-BoN N=8 α=0.25]:   7%|[35m▋         [0m| 2/30 [02:25<28:02, 60.08s/q, acc=0.500, correct=1/2]   [DN-BoN N=8 α=0.25]:  10%|[35m█         [0m| 3/30 [02:26<14:56, 33.19s/q, acc=0.667, correct=2/3][DN-BoN N=8 α=0.25]:  13%|[35m█▎        [0m| 4/30 [02:27<08:53, 20.50s/q, acc=0.750, correct=3/4]
-[generate] flat  bs=32  Q=30  N=8:  12%|[34m█▎        [0m| 1/8 [02:27<17:12, 147.44s/chunk, saved=4/30, seqs=32/240][A[DN-BoN N=8 α=0.25]:  17%|[35m█▋        [0m| 5/30 [04:48<26:38, 63.93s/q, acc=0.800, correct=4/5][DN-BoN N=8 α=0.25]:  20%|[35m██        [0m| 6/30 [04:49<17:04, 42.70s/q, acc=0.667, correct=4/6][DN-BoN N=8 α=0.25]:  23%|[35m██▎       [0m| 7/30 [04:51<11:11, 29.21s/q, acc=0.571, correct=4/7][DN-BoN N=8 α=0.25]:  27%|[35m██▋       [0m| 8/30 [04:52<07:28, 20.40s/q, acc=0.500, correct=4/8]
-[generate] flat  bs=32  Q=30  N=8:  25%|[34m██▌       [0m| 2/8 [04:52<14:37, 146.23s/chunk, saved=8/30, seqs=64/240][A[DN-BoN N=8 α=0.25]:  30%|[35m███       [0m| 9/30 [07:20<21:02, 60.14s/q, acc=0.444, correct=4/9][DN-BoN N=8 α=0.25]:  33%|[35m███▎      [0m| 10/30 [07:21<14:00, 42.05s/q, acc=0.400, correct=4/10]14:35:08 | INFO | evaluator |   [10/30] acc=0.400 (4/10)
-[DN-BoN N=8 α=0.25]:  37%|[35m███▋      [0m| 11/30 [07:23<09:23, 29.68s/q, acc=0.364, correct=4/11][DN-BoN N=8 α=0.25]:  40%|[35m████      [0m| 12/30 [07:25<06:19, 21.09s/q, acc=0.333, correct=4/12]
-[generate] flat  bs=32  Q=30  N=8:  38%|[34m███▊      [0m| 3/8 [07:24<12:24, 148.93s/chunk, saved=12/30, seqs=96/240][A[DN-BoN N=8 α=0.25]:  43%|[35m████▎     [0m| 13/30 [09:46<16:19, 57.63s/q, acc=0.308, correct=4/13][DN-BoN N=8 α=0.25]:  47%|[35m████▋     [0m| 14/30 [09:48<10:50, 40.65s/q, acc=0.286, correct=4/14][DN-BoN N=8 α=0.25]:  50%|[35m█████     [0m| 15/30 [09:49<07:12, 28.81s/q, acc=0.267, correct=4/15][DN-BoN N=8 α=0.25]:  53%|[35m█████▎    [0m| 16/30 [09:50<04:46, 20.46s/q, acc=0.312, correct=5/16]
-[generate] flat  bs=32  Q=30  N=8:  50%|[34m█████     [0m| 4/8 [09:50<09:50, 147.60s/chunk, saved=16/30, seqs=128/240][A[DN-BoN N=8 α=0.25]:  57%|[35m█████▋    [0m| 17/30 [12:12<12:21, 57.05s/q, acc=0.353, correct=6/17][DN-BoN N=8 α=0.25]:  60%|[35m██████    [0m| 18/30 [12:14<08:03, 40.32s/q, acc=0.333, correct=6/18][DN-BoN N=8 α=0.25]:  63%|[35m██████▎   [0m| 19/30 [12:15<05:14, 28.63s/q, acc=0.316, correct=6/19][DN-BoN N=8 α=0.25]:  67%|[35m██████▋   [0m| 20/30 [12:16<03:24, 20.44s/q, acc=0.300, correct=6/20]14:40:03 | INFO | evaluator |   [20/30] acc=0.300 (6/20)
-
-[generate] flat  bs=32  Q=30  N=8:  62%|[34m██████▎   [0m| 5/8 [12:16<07:21, 147.13s/chunk, saved=20/30, seqs=160/240][A[DN-BoN N=8 α=0.25]:  70%|[35m███████   [0m| 21/30 [14:41<08:40, 57.83s/q, acc=0.286, correct=6/21][DN-BoN N=8 α=0.25]:  73%|[35m███████▎  [0m| 22/30 [14:43<05:27, 40.89s/q, acc=0.273, correct=6/22][DN-BoN N=8 α=0.25]:  77%|[35m███████▋  [0m| 23/30 [14:44<03:23, 29.04s/q, acc=0.261, correct=6/23][DN-BoN N=8 α=0.25]:  80%|[35m████████  [0m| 24/30 [14:46<02:04, 20.74s/q, acc=0.250, correct=6/24]
-[generate] flat  bs=32  Q=30  N=8:  75%|[34m███████▌  [0m| 6/8 [14:45<04:55, 147.82s/chunk, saved=24/30, seqs=192/240][A[DN-BoN N=8 α=0.25]:  83%|[35m████████▎ [0m| 25/30 [17:07<04:45, 57.04s/q, acc=0.240, correct=6/25][DN-BoN N=8 α=0.25]:  87%|[35m████████▋ [0m| 26/30 [17:09<02:41, 40.36s/q, acc=0.231, correct=6/26][DN-BoN N=8 α=0.25]:  90%|[35m█████████ [0m| 27/30 [17:10<01:26, 28.75s/q, acc=0.222, correct=6/27][DN-BoN N=8 α=0.25]:  93%|[35m█████████▎[0m| 28/30 [17:12<00:41, 20.52s/q, acc=0.214, correct=6/28]
-[generate] flat  bs=32  Q=30  N=8:  88%|[34m████████▊ [0m| 7/8 [17:12<02:27, 147.27s/chunk, saved=28/30, seqs=224/240][A[DN-BoN N=8 α=0.25]:  97%|[35m█████████▋[0m| 29/30 [19:33<00:56, 56.82s/q, acc=0.207, correct=6/29][DN-BoN N=8 α=0.25]: 100%|[35m██████████[0m| 30/30 [19:35<00:00, 40.18s/q, acc=0.200, correct=6/30]14:47:21 | INFO | evaluator |   [30/30] acc=0.200 (6/30)
-
-[generate] flat  bs=32  Q=30  N=8: 100%|[34m██████████[0m| 8/8 [19:34<00:00, 145.87s/chunk, saved=30/30, seqs=240/240][A[generate] flat  bs=32  Q=30  N=8: 100%|[34m██████████[0m| 8/8 [19:34<00:00, 146.87s/chunk, saved=30/30, seqs=240/240]
-[DN-BoN N=8 α=0.25]: 100%|[35m██████████[0m| 30/30 [19:35<00:00, 39.17s/q, acc=0.200, correct=6/30]
-14:47:21 | INFO | evaluator | Summary (final) saved → ./results_updated_alpha_0.25/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/dn_bon_aime25_N8_summary.json
-14:47:21 | INFO | evaluator | Done. acc=0.2000 (6/30)  wall=1175.0s  avg=0.00s/q
-14:47:21 | INFO | run_eval | Redundancy/vote stats: {'avg_num_clusters': 7.9, 'avg_selected_cluster_size': 1.0, 'avg_max_cluster_size': 1.067, 'frac_selected_from_top_cluster': 0.933}
-14:47:21 | INFO | evaluator | Summary saved to ./results_updated_alpha_0.25/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/dn_bon_aime25_N8_summary.json
-14:47:21 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-dn_bon                   0.2000          6       30      0.00s      1175.0s
-14:47:21 | INFO | run_eval | Comparison table saved to ./results_updated_alpha_0.25/Qwen2.5-Math-7B-Instruct_mnt2048_t0.7_p0.95/comparison_aime25_N8.txt

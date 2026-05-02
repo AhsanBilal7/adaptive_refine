@@ -1,51 +1,0 @@
-19:51:58 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
-19:51:58 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
-19:51:58 | INFO | run_eval | Loading dataset: olympiadbench
-19:52:03 | INFO | dataset_loader | Loaded 200 examples from 'olympiadbench' (train split).  Sample answers: ['2', '\\frac{1}{2 n+2}', '2^{1009}']
-19:52:03 | INFO | run_eval | Loaded 200 examples.
-19:52:03 | INFO | run_eval | Loading model: meta-llama/Llama-3.1-8B-Instruct  batch_size=64
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-19:52:11 | INFO | model_wrapper | CUDA available: 4 GPU(s)
-19:52:11 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-19:52:11 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
-19:52:11 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
-19:52:11 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
-19:52:11 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
-19:52:11 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.1-8B-Instruct
-19:52:13 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.1-8B-Instruct
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:47<02:23, 47.86s/it]Loading checkpoint shards:  50%|█████     | 2/4 [01:41<01:42, 51.40s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [02:34<00:52, 52.11s/it]Loading checkpoint shards: 100%|██████████| 4/4 [02:49<00:00, 37.47s/it]Loading checkpoint shards: 100%|██████████| 4/4 [02:49<00:00, 42.43s/it]
-19:55:07 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
-19:55:07 | INFO | model_wrapper |   GPU 0 memory: allocated=3.01 GB  reserved=3.01 GB
-19:55:07 | INFO | model_wrapper |   GPU 1 memory: allocated=4.06 GB  reserved=4.06 GB
-19:55:07 | INFO | model_wrapper |   GPU 2 memory: allocated=4.06 GB  reserved=4.06 GB
-19:55:07 | INFO | model_wrapper |   GPU 3 memory: allocated=3.82 GB  reserved=3.82 GB
-19:55:07 | INFO | run_eval | Building verifier: prm
-19:55:07 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-19:55:08 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-19:55:08 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:22<01:07, 22.48s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:58<01:00, 30.37s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [01:24<00:28, 28.24s/it]Loading checkpoint shards: 100%|██████████| 4/4 [01:50<00:00, 27.39s/it]Loading checkpoint shards: 100%|██████████| 4/4 [01:50<00:00, 27.54s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-19:57:02 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=64
-19:57:02 | INFO | inference_methods | Evaluator: OlympiadEvaluator for dataset='olympiadbench'
-19:57:02 | INFO | run_eval | 
-================================================================
-19:57:02 | INFO | run_eval |  Running : greedy
-19:57:02 | INFO | run_eval |  Dataset : olympiadbench  N=8  batch_size=64
-19:57:02 | INFO | run_eval | ================================================================
-19:57:02 | INFO | evaluator | Evaluating 200/200 pending questions  (method=GreedyInference)
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/4 [00:00<?, ?chunk/s]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][AThe following generation flags are not valid and may be ignored: ['temperature', 'top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:11<00:00, 311.32s/chunk, q=64/64][A[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:11<00:00, 311.32s/chunk, q=64/64]
-20:02:16 | INFO | evaluator |   [10/200] acc=0.100 (1/10)
-20:02:17 | INFO | evaluator |   [20/200] acc=0.050 (1/20)
-20:02:18 | INFO | evaluator |   [30/200] acc=0.033 (1/30)
-20:02:19 | INFO | evaluator |   [40/200] acc=0.050 (2/40)
-20:02:20 | INFO | evaluator |   [50/200] acc=0.060 (3/50)
-20:02:21 | INFO | evaluator |   [60/200] acc=0.050 (3/60)
-[Greedy] generate (bs=64):  25%|[32m██▌       [0m| 1/4 [05:18<15:56, 318.85s/chunk, questions=64/200]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A

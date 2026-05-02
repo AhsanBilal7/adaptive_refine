@@ -1,39 +1,0 @@
-15:06:27 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
-15:06:27 | INFO | run_eval | Loading dataset: aime24
-15:06:31 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
-15:06:31 | INFO | run_eval | Loaded 30 examples.
-15:06:31 | INFO | run_eval | Loading model: meta-llama/Llama-3.2-1B-Instruct  batch_size=4
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-15:06:39 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-15:06:39 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-15:06:39 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-15:06:39 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.2-1B-Instruct
-15:06:41 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.2-1B-Instruct
-15:06:42 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-15:06:49 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=4
-15:06:49 | INFO | model_wrapper |   GPU 0 memory: allocated=2.30 GB  reserved=2.33 GB
-15:06:49 | INFO | run_eval | Building verifier: prm
-15:06:49 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-15:06:50 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-15:06:50 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-15:06:56 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:12<00:38, 12.89s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:25<00:25, 12.78s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:41<00:14, 14.13s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:52<00:00, 12.85s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:52<00:00, 13.06s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-15:07:48 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=4
-15:07:48 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
-15:07:48 | INFO | run_eval | 
-================================================================
-15:07:48 | INFO | run_eval |  Running : greedy
-15:07:48 | INFO | run_eval |  Dataset : aime24  N=8  batch_size=4
-15:07:48 | INFO | run_eval | ================================================================
-15:07:48 | INFO | evaluator | Evaluating 30/30 pending questions  (method=GreedyInference)
-[Greedy] generate (bs=4):   0%|[32m          [0m| 0/8 [00:00<?, ?chunk/s]
-[Greedy] generate (bs=4):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][AThe following generation flags are not valid and may be ignored: ['temperature', 'top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-
-[Greedy] generate (bs=4): 100%|[32m██████████[0m| 1/1 [01:19<00:00, 79.85s/chunk, q=4/4][A[Greedy] generate (bs=4): 100%|[32m██████████[0m| 1/1 [01:19<00:00, 79.85s/chunk, q=4/4]
-[Greedy] generate (bs=4):  12%|[32m█▎        [0m| 1/8 [01:21<09:31, 81.64s/chunk, questions=4/30]
-[Greedy] generate (bs=4):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A

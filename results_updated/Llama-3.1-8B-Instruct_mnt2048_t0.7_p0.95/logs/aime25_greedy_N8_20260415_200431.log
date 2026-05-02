@@ -1,54 +1,0 @@
-03:11:41 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
-03:11:41 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
-03:11:41 | INFO | run_eval | Loading dataset: aime25
-03:11:45 | INFO | dataset_loader | Loaded 30 examples from 'aime25' (test split).  Sample answers: ['70', '588', '16']
-03:11:45 | INFO | run_eval | Loaded 30 examples.
-03:11:45 | INFO | run_eval | Loading model: meta-llama/Llama-3.1-8B-Instruct  batch_size=64
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-03:11:54 | INFO | model_wrapper | CUDA available: 4 GPU(s)
-03:11:54 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-03:11:54 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
-03:11:54 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
-03:11:54 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
-03:11:54 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
-03:11:54 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.1-8B-Instruct
-03:11:55 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.1-8B-Instruct
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:31<01:34, 31.38s/it]Loading checkpoint shards:  50%|█████     | 2/4 [01:10<01:11, 35.98s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [01:48<00:36, 36.76s/it]Loading checkpoint shards: 100%|██████████| 4/4 [01:56<00:00, 25.48s/it]Loading checkpoint shards: 100%|██████████| 4/4 [01:56<00:00, 29.12s/it]
-03:13:54 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
-03:13:54 | INFO | model_wrapper |   GPU 0 memory: allocated=3.01 GB  reserved=3.01 GB
-03:13:54 | INFO | model_wrapper |   GPU 1 memory: allocated=4.06 GB  reserved=4.06 GB
-03:13:54 | INFO | model_wrapper |   GPU 2 memory: allocated=4.06 GB  reserved=4.06 GB
-03:13:54 | INFO | model_wrapper |   GPU 3 memory: allocated=3.82 GB  reserved=3.82 GB
-03:13:54 | INFO | run_eval | Building verifier: prm
-03:13:54 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-03:13:55 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-03:13:55 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:11<00:35, 11.68s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:22<00:22, 11.17s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:35<00:12, 12.16s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:41<00:00,  9.67s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:41<00:00, 10.42s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-03:14:43 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=64
-03:14:43 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime25'
-03:14:43 | INFO | run_eval | 
-================================================================
-03:14:43 | INFO | run_eval |  Running : greedy
-03:14:43 | INFO | run_eval |  Dataset : aime25  N=8  batch_size=64
-03:14:43 | INFO | run_eval | ================================================================
-03:14:43 | INFO | evaluator | Evaluating 30/30 pending questions  (method=GreedyInference)
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][AThe following generation flags are not valid and may be ignored: ['temperature', 'top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [03:44<00:00, 224.10s/chunk, q=30/30][A[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [03:44<00:00, 224.10s/chunk, q=30/30]
-03:18:29 | INFO | evaluator |   [10/30] acc=0.000 (0/10)
-03:18:30 | INFO | evaluator |   [20/30] acc=0.000 (0/20)
-03:18:31 | INFO | evaluator |   [30/30] acc=0.000 (0/30)
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [03:48<00:00, 228.46s/chunk, questions=30/30][Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [03:48<00:00, 228.46s/chunk, questions=30/30]
-03:18:31 | INFO | evaluator | Summary (final) saved → ./results_updated/Llama-3.1-8B-Instruct_mnt2048_t0.7_p0.95/greedy_aime25_N8_summary.json
-03:18:31 | INFO | evaluator | Done. acc=0.0000 (0/30)  wall=228.5s  avg=7.47s/q
-03:18:31 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-greedy                   0.0000          0       30      7.47s       228.5s
-03:18:31 | INFO | run_eval | Comparison table saved to ./results_updated/Llama-3.1-8B-Instruct_mnt2048_t0.7_p0.95/comparison_aime25_N8.txt

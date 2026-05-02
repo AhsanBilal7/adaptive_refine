@@ -1,122 +1,0 @@
-04:57:44 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
-04:57:44 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
-04:57:44 | INFO | run_eval | Loading dataset: math500
-04:57:48 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
-04:57:48 | INFO | run_eval | Loaded 500 examples.
-04:57:48 | INFO | run_eval | Loading model: meta-llama/Llama-3.1-8B-Instruct  batch_size=64
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-04:57:56 | INFO | model_wrapper | CUDA available: 4 GPU(s)
-04:57:56 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-04:57:56 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
-04:57:56 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
-04:57:56 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
-04:57:56 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
-04:57:56 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.1-8B-Instruct
-04:57:57 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.1-8B-Instruct
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:17<00:51, 17.17s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:35<00:35, 17.96s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:53<00:17, 17.96s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:56<00:00, 12.19s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:56<00:00, 14.25s/it]
-04:58:58 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
-04:58:58 | INFO | model_wrapper |   GPU 0 memory: allocated=3.01 GB  reserved=3.01 GB
-04:58:58 | INFO | model_wrapper |   GPU 1 memory: allocated=4.06 GB  reserved=4.06 GB
-04:58:58 | INFO | model_wrapper |   GPU 2 memory: allocated=4.06 GB  reserved=4.06 GB
-04:58:58 | INFO | model_wrapper |   GPU 3 memory: allocated=3.82 GB  reserved=3.82 GB
-04:58:58 | INFO | run_eval | Building verifier: prm
-04:58:58 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-04:58:59 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-04:58:59 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:05<00:17,  5.95s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:11<00:11,  5.88s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:17<00:05,  5.71s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:20<00:00,  4.92s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:20<00:00,  5.25s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-04:59:26 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=64
-04:59:26 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='math500'
-04:59:26 | INFO | run_eval | 
-================================================================
-04:59:26 | INFO | run_eval |  Running : greedy
-04:59:26 | INFO | run_eval |  Dataset : math500  N=8  batch_size=64
-04:59:26 | INFO | run_eval | ================================================================
-04:59:26 | INFO | evaluator | Evaluating 500/500 pending questions  (method=GreedyInference)
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/8 [00:00<?, ?chunk/s]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][AThe following generation flags are not valid and may be ignored: ['temperature', 'top_p']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
-
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:11<00:00, 311.94s/chunk, q=64/64][A[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:11<00:00, 311.94s/chunk, q=64/64]
-05:04:41 | INFO | evaluator |   [10/500] acc=0.400 (4/10)
-05:04:42 | INFO | evaluator |   [20/500] acc=0.400 (8/20)
-05:04:43 | INFO | evaluator |   [30/500] acc=0.433 (13/30)
-05:04:43 | INFO | evaluator |   [40/500] acc=0.450 (18/40)
-05:04:44 | INFO | evaluator |   [50/500] acc=0.480 (24/50)
-05:04:44 | INFO | evaluator |   [60/500] acc=0.517 (31/60)
-[Greedy] generate (bs=64):  12%|[32m█▎        [0m| 1/8 [05:18<37:07, 318.20s/chunk, questions=64/500]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:01<00:00, 301.16s/chunk, q=64/64][A[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:01<00:00, 301.16s/chunk, q=64/64]
-05:09:47 | INFO | evaluator |   [70/500] acc=0.500 (35/70)
-05:09:48 | INFO | evaluator |   [80/500] acc=0.512 (41/80)
-05:09:49 | INFO | evaluator |   [90/500] acc=0.522 (47/90)
-05:09:49 | INFO | evaluator |   [100/500] acc=0.510 (51/100)
-05:09:51 | INFO | evaluator |   [110/500] acc=0.491 (54/110)
-05:09:51 | INFO | evaluator |   [120/500] acc=0.483 (58/120)
-[Greedy] generate (bs=64):  25%|[32m██▌       [0m| 2/8 [10:25<31:11, 311.84s/chunk, questions=128/500]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:39<00:00, 339.71s/chunk, q=64/64][A[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:39<00:00, 339.71s/chunk, q=64/64]
-05:15:32 | INFO | evaluator |   [130/500] acc=0.492 (64/130)
-05:15:32 | INFO | evaluator |   [140/500] acc=0.500 (70/140)
-05:15:33 | INFO | evaluator |   [150/500] acc=0.500 (75/150)
-05:15:34 | INFO | evaluator |   [160/500] acc=0.481 (77/160)
-05:15:34 | INFO | evaluator |   [170/500] acc=0.482 (82/170)
-05:15:36 | INFO | evaluator |   [180/500] acc=0.478 (86/180)
-05:15:36 | INFO | evaluator |   [190/500] acc=0.479 (91/190)
-[Greedy] generate (bs=64):  38%|[32m███▊      [0m| 3/8 [16:10<27:14, 326.84s/chunk, questions=192/500]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:43<00:00, 343.31s/chunk, q=64/64][A[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:43<00:00, 343.31s/chunk, q=64/64]
-05:21:21 | INFO | evaluator |   [200/500] acc=0.475 (95/200)
-05:21:22 | INFO | evaluator |   [210/500] acc=0.476 (100/210)
-05:21:23 | INFO | evaluator |   [220/500] acc=0.477 (105/220)
-05:21:23 | INFO | evaluator |   [230/500] acc=0.478 (110/230)
-05:21:24 | INFO | evaluator |   [240/500] acc=0.479 (115/240)
-05:21:26 | INFO | evaluator |   [250/500] acc=0.464 (116/250)
-[Greedy] generate (bs=64):  50%|[32m█████     [0m| 4/8 [22:00<22:23, 336.00s/chunk, questions=256/500]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:55<00:00, 355.18s/chunk, q=64/64][A[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [05:55<00:00, 355.18s/chunk, q=64/64]
-05:27:22 | INFO | evaluator |   [260/500] acc=0.473 (123/260)
-05:27:23 | INFO | evaluator |   [270/500] acc=0.474 (128/270)
-05:27:24 | INFO | evaluator |   [280/500] acc=0.471 (132/280)
-05:27:25 | INFO | evaluator |   [290/500] acc=0.466 (135/290)
-05:27:26 | INFO | evaluator |   [300/500] acc=0.460 (138/300)
-05:27:27 | INFO | evaluator |   [310/500] acc=0.458 (142/310)
-05:27:28 | INFO | evaluator |   [320/500] acc=0.456 (146/320)
-[Greedy] generate (bs=64):  62%|[32m██████▎   [0m| 5/8 [28:01<17:15, 345.14s/chunk, questions=320/500]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [04:53<00:00, 293.28s/chunk, q=64/64][A[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [04:53<00:00, 293.28s/chunk, q=64/64]
-05:32:22 | INFO | evaluator |   [330/500] acc=0.458 (151/330)
-05:32:23 | INFO | evaluator |   [340/500] acc=0.468 (159/340)
-05:32:23 | INFO | evaluator |   [350/500] acc=0.469 (164/350)
-05:32:24 | INFO | evaluator |   [360/500] acc=0.464 (167/360)
-05:32:25 | INFO | evaluator |   [370/500] acc=0.462 (171/370)
-05:32:26 | INFO | evaluator |   [380/500] acc=0.468 (178/380)
-[Greedy] generate (bs=64):  75%|[32m███████▌  [0m| 6/8 [33:00<10:58, 329.27s/chunk, questions=384/500]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [04:33<00:00, 273.37s/chunk, q=64/64][A[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [04:33<00:00, 273.37s/chunk, q=64/64]
-05:37:00 | INFO | evaluator |   [390/500] acc=0.474 (185/390)
-05:37:01 | INFO | evaluator |   [400/500] acc=0.470 (188/400)
-05:37:02 | INFO | evaluator |   [410/500] acc=0.466 (191/410)
-05:37:03 | INFO | evaluator |   [420/500] acc=0.462 (194/420)
-05:37:04 | INFO | evaluator |   [430/500] acc=0.460 (198/430)
-05:37:06 | INFO | evaluator |   [440/500] acc=0.457 (201/440)
-[Greedy] generate (bs=64):  88%|[32m████████▊ [0m| 7/8 [37:40<05:13, 313.23s/chunk, questions=448/500]
-[Greedy] generate (bs=64):   0%|[32m          [0m| 0/1 [00:00<?, ?chunk/s][A
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [04:08<00:00, 248.00s/chunk, q=52/52][A[Greedy] generate (bs=64): 100%|[32m██████████[0m| 1/1 [04:08<00:00, 248.01s/chunk, q=52/52]
-05:41:15 | INFO | evaluator |   [450/500] acc=0.460 (207/450)
-05:41:16 | INFO | evaluator |   [460/500] acc=0.461 (212/460)
-05:41:16 | INFO | evaluator |   [470/500] acc=0.466 (219/470)
-05:41:18 | INFO | evaluator |   [480/500] acc=0.465 (223/480)
-05:41:19 | INFO | evaluator |   [490/500] acc=0.461 (226/490)
-05:41:20 | INFO | evaluator |   [500/500] acc=0.458 (229/500)
-[Greedy] generate (bs=64): 100%|[32m██████████[0m| 8/8 [41:53<00:00, 294.13s/chunk, questions=500/500][Greedy] generate (bs=64): 100%|[32m██████████[0m| 8/8 [41:53<00:00, 314.20s/chunk, questions=500/500]
-05:41:20 | INFO | evaluator | Summary (final) saved → ./results_updated/Llama-3.1-8B-Instruct_mnt2048_t0.7_p0.95/greedy_math500_N8_summary.json
-05:41:20 | INFO | evaluator | Done. acc=0.4580 (229/500)  wall=2513.6s  avg=4.93s/q
-05:41:20 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-greedy                   0.4580        229      500      4.93s      2513.6s
-05:41:20 | INFO | run_eval | Comparison table saved to ./results_updated/Llama-3.1-8B-Instruct_mnt2048_t0.7_p0.95/comparison_math500_N8.txt

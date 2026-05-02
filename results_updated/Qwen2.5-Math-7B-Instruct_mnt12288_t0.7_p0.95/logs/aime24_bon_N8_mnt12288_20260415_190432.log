@@ -1,42 +1,0 @@
-19:04:40 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
-19:04:40 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
-19:04:40 | INFO | run_eval | Loading dataset: aime24
-19:04:45 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
-19:04:45 | INFO | run_eval | Loaded 30 examples.
-19:04:45 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=64
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-19:04:53 | INFO | model_wrapper | CUDA available: 4 GPU(s)
-19:04:53 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-19:04:53 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
-19:04:53 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
-19:04:53 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
-19:04:53 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
-19:04:53 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
-19:04:55 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:46<02:18, 46.00s/it]Loading checkpoint shards:  50%|█████     | 2/4 [01:31<01:31, 45.93s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [02:12<00:43, 43.50s/it]Loading checkpoint shards: 100%|██████████| 4/4 [02:46<00:00, 39.84s/it]Loading checkpoint shards: 100%|██████████| 4/4 [02:46<00:00, 41.68s/it]
-19:07:45 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
-19:07:45 | INFO | model_wrapper |   GPU 0 memory: allocated=2.75 GB  reserved=2.77 GB
-19:07:45 | INFO | model_wrapper |   GPU 1 memory: allocated=3.91 GB  reserved=3.93 GB
-19:07:45 | INFO | model_wrapper |   GPU 2 memory: allocated=3.91 GB  reserved=3.93 GB
-19:07:45 | INFO | model_wrapper |   GPU 3 memory: allocated=3.62 GB  reserved=3.64 GB
-19:07:45 | INFO | run_eval | Building verifier: prm
-19:07:45 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-19:07:47 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-19:07:47 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:50<02:31, 50.40s/it]Loading checkpoint shards:  50%|█████     | 2/4 [01:43<01:43, 51.71s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [02:26<00:47, 47.81s/it]Loading checkpoint shards: 100%|██████████| 4/4 [03:05<00:00, 44.39s/it]Loading checkpoint shards: 100%|██████████| 4/4 [03:05<00:00, 46.34s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-19:10:55 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=64
-19:10:55 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
-19:10:55 | INFO | run_eval | 
-================================================================
-19:10:55 | INFO | run_eval |  Running : bon
-19:10:55 | INFO | run_eval |  Dataset : aime24  N=8  batch_size=64
-19:10:55 | INFO | run_eval | ================================================================
-19:10:55 | INFO | evaluator | Evaluating 30/30 pending questions  (method=BestOfN)
-19:10:55 | INFO | evaluator |   Flat-batch generation: Q=30  N=8  batch_size=64  →  240 total seqs  →  4 generate() calls  →  saving every 8 questions
-[BoN N=8]:   0%|[34m          [0m| 0/30 [00:00<?, ?q/s]
-[generate] flat  bs=64  Q=30  N=8:   0%|[34m          [0m| 0/4 [00:00<?, ?chunk/s][AThis is a friendly reminder - the current text generation call has exceeded the model's predefined maximum length (4096). Depending on the model, you may observe exceptions, performance degradation, or nothing at all.

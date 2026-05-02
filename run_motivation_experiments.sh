@@ -112,7 +112,7 @@ LOAD_8BIT=0
 GPUS=""              # e.g. "0,1" for multi-GPU; "" = all visible
 
 # Output directories
-BASE_OUT="./results_updated"
+BASE_OUT="./experiments_results/results_updated"
 ANALYSIS_OUT="./motivation_analysis"
 
 # HuggingFace cache

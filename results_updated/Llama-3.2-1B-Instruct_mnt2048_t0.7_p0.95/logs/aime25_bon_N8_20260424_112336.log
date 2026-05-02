@@ -1,40 +1,0 @@
-11:23:42 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 80GB HBM3']
-11:23:42 | INFO | run_eval | Loading dataset: aime25
-11:23:45 | INFO | dataset_loader | Loaded 30 examples from 'aime25' (test split).  Sample answers: ['70', '588', '16']
-11:23:45 | INFO | run_eval | Loaded 30 examples.
-11:23:45 | INFO | run_eval | Loading model: meta-llama/Llama-3.2-1B-Instruct  batch_size=16
-/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-11:23:54 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-11:23:54 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-11:23:54 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-11:23:54 | INFO | model_wrapper | Loading tokenizer: meta-llama/Llama-3.2-1B-Instruct
-11:23:55 | INFO | model_wrapper | Loading model: meta-llama/Llama-3.2-1B-Instruct
-11:23:57 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-11:23:58 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
-11:23:58 | INFO | model_wrapper |   GPU 0 memory: allocated=2.30 GB  reserved=2.33 GB
-11:23:58 | INFO | run_eval | Building verifier: prm
-11:23:58 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-11:23:59 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-11:23:59 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-11:24:04 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.30s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.29s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.29s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.11s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.18s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-11:24:09 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=16
-11:24:10 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime25'
-11:24:10 | INFO | run_eval | 
-================================================================
-11:24:10 | INFO | run_eval |  Running : bon
-11:24:10 | INFO | run_eval |  Dataset : aime25  N=8  batch_size=16
-11:24:10 | INFO | run_eval | ================================================================
-11:24:10 | INFO | evaluator | Resuming: 30 questions already done  (acc so far: 0/30)
-11:24:10 | INFO | evaluator | Evaluating 0/30 pending questions  (method=BestOfN)
-11:24:10 | INFO | evaluator | All questions already completed — nothing to do.
-11:24:10 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-bon                      0.0000          0       30      0.00s         0.0s
-11:24:10 | INFO | run_eval | Comparison table saved to ./results_updated/Llama-3.2-1B-Instruct_mnt2048_t0.7_p0.95/comparison_aime25_N8.txt

@@ -1,211 +1,0 @@
-05:05:27 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
-05:05:27 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
-05:05:27 | INFO | run_eval | Loading dataset: aime24
-05:05:31 | INFO | dataset_loader | Loaded 30 examples from 'aime24' (train split).  Sample answers: ['33', '23', '116']
-05:05:31 | INFO | run_eval | Loaded 30 examples.
-05:05:31 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=32
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-05:05:38 | INFO | model_wrapper | CUDA available: 4 GPU(s)
-05:05:38 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-05:05:38 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
-05:05:38 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
-05:05:38 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
-05:05:38 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
-05:05:38 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
-05:05:39 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:05,  1.93s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:03<00:03,  1.99s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:05<00:01,  1.97s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.82s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.88s/it]
-05:05:50 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
-05:05:50 | INFO | model_wrapper |   GPU 0 memory: allocated=2.75 GB  reserved=2.77 GB
-05:05:50 | INFO | model_wrapper |   GPU 1 memory: allocated=3.91 GB  reserved=3.93 GB
-05:05:50 | INFO | model_wrapper |   GPU 2 memory: allocated=3.91 GB  reserved=3.92 GB
-05:05:50 | INFO | model_wrapper |   GPU 3 memory: allocated=3.62 GB  reserved=3.64 GB
-05:05:50 | INFO | run_eval | Building verifier: prm
-05:05:50 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-05:05:51 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-05:05:51 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:01<00:03,  1.29s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:02<00:02,  1.27s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:03<00:01,  1.26s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.08s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:04<00:00,  1.15s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-05:05:57 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=32
-05:05:57 | INFO | run_eval | Building ClusterManager  embedding=all-MiniLM-L6-v2
-05:05:58 | INFO | clustering | ClusterManager: loading SentenceTransformer 'all-MiniLM-L6-v2' — this happens ONCE.
-05:05:58 | INFO | sentence_transformers.base.model | No device provided, using cuda:0
-05:05:58 | INFO | sentence_transformers.base.model | Loading SentenceTransformer model from sentence-transformers/all-MiniLM-L6-v2.
-05:05:59 | INFO | clustering | ClusterManager: SentenceTransformer ready.
-05:06:00 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime24'
-05:06:00 | INFO | run_eval | 
-================================================================
-05:06:00 | INFO | run_eval |  Running : dn_bon
-05:06:00 | INFO | run_eval |  Dataset : aime24  N=8  batch_size=32
-05:06:00 | INFO | run_eval | ================================================================
-05:06:00 | INFO | evaluator | Evaluating 30/30 pending questions  (method=DNBestOfN)
-05:06:00 | INFO | evaluator |   Flat-batch generation: Q=30  N=8  batch_size=32  →  240 total seqs  →  8 generate() calls  →  saving every 4 questions
-[DN-BoN N=8 α=0.5]:   0%|[35m          [0m| 0/30 [00:00<?, ?q/s]
-[generate] flat  bs=32  Q=30  N=8:   0%|[34m          [0m| 0/8 [00:00<?, ?chunk/s][A[generate] flat  bs=32  Q=30  N=8:   0%|[34m          [0m| 0/8 [00:01<?, ?chunk/s]
-05:06:01 | ERROR | evaluator |   generate_samples_flat failed: CUDA out of memory. Tried to allocate 94.00 MiB. GPU 2 has a total capacity of 79.21 GiB of which 67.44 MiB is free. Process 2638830 has 74.20 GiB memory in use. Including non-PyTorch memory, this process has 4.92 GiB memory in use. Of the allocated memory 4.40 GiB is allocated by PyTorch, and 21.39 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables). Falling back to per-question.
-05:06:01 | ERROR | evaluator |   fallback q[0] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:   3%|[35m▎         [0m| 1/30 [00:01<00:47,  1.63s/q]05:06:01 | ERROR | evaluator |   fallback q[1] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:01 | ERROR | evaluator |   fallback q[2] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  10%|[35m█         [0m| 3/30 [00:01<00:12,  2.16q/s]05:06:01 | ERROR | evaluator |   fallback q[3] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:01 | ERROR | evaluator |   fallback q[4] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  17%|[35m█▋        [0m| 5/30 [00:01<00:06,  3.92q/s]05:06:01 | ERROR | evaluator |   fallback q[5] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:02 | ERROR | evaluator |   fallback q[6] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  23%|[35m██▎       [0m| 7/30 [00:01<00:03,  5.89q/s]05:06:02 | ERROR | evaluator |   fallback q[7] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:02 | ERROR | evaluator |   fallback q[8] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  30%|[35m███       [0m| 9/30 [00:02<00:02,  7.95q/s]05:06:02 | ERROR | evaluator |   fallback q[9] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:02 | INFO | evaluator |   [10/30] acc=0.000 (0/10)
-05:06:02 | ERROR | evaluator |   fallback q[10] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  37%|[35m███▋      [0m| 11/30 [00:02<00:01, 10.02q/s]05:06:02 | ERROR | evaluator |   fallback q[11] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:02 | ERROR | evaluator |   fallback q[12] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  43%|[35m████▎     [0m| 13/30 [00:02<00:01, 11.85q/s]05:06:02 | ERROR | evaluator |   fallback q[13] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:02 | ERROR | evaluator |   fallback q[14] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  50%|[35m█████     [0m| 15/30 [00:02<00:01, 13.54q/s]05:06:02 | ERROR | evaluator |   fallback q[15] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:02 | ERROR | evaluator |   fallback q[16] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  57%|[35m█████▋    [0m| 17/30 [00:02<00:00, 14.74q/s]05:06:02 | ERROR | evaluator |   fallback q[17] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:02 | ERROR | evaluator |   fallback q[18] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  63%|[35m██████▎   [0m| 19/30 [00:02<00:00, 15.71q/s]05:06:02 | ERROR | evaluator |   fallback q[19] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:02 | INFO | evaluator |   [20/30] acc=0.000 (0/20)
-05:06:02 | ERROR | evaluator |   fallback q[20] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  70%|[35m███████   [0m| 21/30 [00:02<00:00, 16.49q/s]05:06:02 | ERROR | evaluator |   fallback q[21] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:02 | ERROR | evaluator |   fallback q[22] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  77%|[35m███████▋  [0m| 23/30 [00:02<00:00, 17.05q/s]05:06:02 | ERROR | evaluator |   fallback q[23] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:02 | ERROR | evaluator |   fallback q[24] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  83%|[35m████████▎ [0m| 25/30 [00:02<00:00, 17.39q/s]05:06:03 | ERROR | evaluator |   fallback q[25] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:03 | ERROR | evaluator |   fallback q[26] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  90%|[35m█████████ [0m| 27/30 [00:03<00:00, 16.67q/s]05:06:03 | ERROR | evaluator |   fallback q[27] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:03 | ERROR | evaluator |   fallback q[28] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-[DN-BoN N=8 α=0.5]:  97%|[35m█████████▋[0m| 29/30 [00:03<00:00, 17.16q/s]05:06:03 | ERROR | evaluator |   fallback q[29] failed: CUDA error: out of memory
-CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
-For debugging consider passing CUDA_LAUNCH_BLOCKING=1
-Compile with `TORCH_USE_CUDA_DSA` to enable device-side assertions.
-
-05:06:03 | INFO | evaluator |   [30/30] acc=0.000 (0/30)
-[DN-BoN N=8 α=0.5]: 100%|[35m██████████[0m| 30/30 [00:03<00:00,  9.30q/s]
-05:06:03 | INFO | evaluator | Summary (final) saved → ./results_updated/Qwen2.5-Math-7B-Instruct_mnt4096_t0.7_p0.95/dn_bon_aime24_N8_summary.json
-05:06:03 | INFO | evaluator | Done. acc=0.0000 (0/30)  wall=3.2s  avg=0.00s/q
-05:06:03 | INFO | run_eval | Redundancy/vote stats: {}
-05:06:03 | INFO | evaluator | Summary saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt4096_t0.7_p0.95/dn_bon_aime24_N8_summary.json
-05:06:03 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-dn_bon                   0.0000          0       30      0.00s         3.2s
-05:06:03 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt4096_t0.7_p0.95/comparison_aime24_N8.txt

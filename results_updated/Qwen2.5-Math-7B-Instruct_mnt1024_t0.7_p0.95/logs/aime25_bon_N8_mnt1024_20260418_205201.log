@@ -1,42 +1,0 @@
-20:52:08 | INFO | run_eval | GPUs available: 2  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
-20:52:08 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 2 GPUs via device_map='auto' (unless --device is pinned).
-20:52:08 | INFO | run_eval | Loading dataset: aime25
-20:52:13 | INFO | dataset_loader | Loaded 30 examples from 'aime25' (test split).  Sample answers: ['70', '588', '16']
-20:52:13 | INFO | run_eval | Loaded 30 examples.
-20:52:13 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=8
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-20:52:23 | INFO | model_wrapper | CUDA available: 2 GPU(s)
-20:52:23 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-20:52:23 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
-20:52:23 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=2  dtype=torch.float16  4bit=False  8bit=False
-20:52:23 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
-20:52:24 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:46<02:20, 46.77s/it]Loading checkpoint shards:  50%|█████     | 2/4 [01:29<01:28, 44.25s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [02:12<00:43, 43.89s/it]Loading checkpoint shards: 100%|██████████| 4/4 [02:50<00:00, 41.30s/it]Loading checkpoint shards: 100%|██████████| 4/4 [02:50<00:00, 42.51s/it]
-20:55:16 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1']  (primary=cuda:0)
-20:55:16 | INFO | model_wrapper |   GPU 0 memory: allocated=6.22 GB  reserved=6.24 GB
-20:55:16 | INFO | model_wrapper |   GPU 1 memory: allocated=7.96 GB  reserved=7.98 GB
-20:55:16 | INFO | run_eval | Building verifier: prm
-20:55:16 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-20:55:18 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-20:55:18 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:42<02:07, 42.40s/it]Loading checkpoint shards:  50%|█████     | 2/4 [01:23<01:23, 41.52s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [02:01<00:40, 40.01s/it]Loading checkpoint shards: 100%|██████████| 4/4 [02:25<00:00, 33.83s/it]Loading checkpoint shards: 100%|██████████| 4/4 [02:25<00:00, 36.47s/it]
-Some weights of the model checkpoint at Qwen/Qwen2.5-Math-PRM-7B were not used when initializing Qwen2ForProcessRewardModel: ['lm_head.weight']
-- This IS expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model trained on another task or with another architecture (e.g. initializing a BertForSequenceClassification model from a BertForPreTraining model).
-- This IS NOT expected if you are initializing Qwen2ForProcessRewardModel from the checkpoint of a model that you expect to be exactly identical (initializing a BertForSequenceClassification model from a BertForSequenceClassification model).
-20:57:50 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=8
-20:57:50 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime25'
-20:57:50 | INFO | run_eval | 
-================================================================
-20:57:50 | INFO | run_eval |  Running : bon
-20:57:50 | INFO | run_eval |  Dataset : aime25  N=8  batch_size=8
-20:57:50 | INFO | run_eval | ================================================================
-20:57:50 | INFO | evaluator | Resuming: 30 questions already done  (acc so far: 4/30)
-20:57:50 | INFO | evaluator | Evaluating 0/30 pending questions  (method=BestOfN)
-20:57:50 | INFO | evaluator | All questions already completed — nothing to do.
-20:57:50 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-bon                      0.1333          4       30      0.00s         0.0s
-20:57:50 | INFO | run_eval | Comparison table saved to ./results_updated/Qwen2.5-Math-7B-Instruct_mnt1024_t0.7_p0.95/comparison_aime25_N8.txt

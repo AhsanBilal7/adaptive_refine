@@ -113,7 +113,7 @@ LOAD_8BIT=0   # set 1 for int8  (~8 GB for 7B)
 # BASE_OUT
 # Root output directory. One sub-folder is created per token budget.
 # -----------------------------------------------------------------------------
-BASE_OUT="./results_updated"
+BASE_OUT="./experiments_results/results_updated"
 
 # -----------------------------------------------------------------------------
 # PYTHON

@@ -118,7 +118,7 @@ CIMR_CONTINUATION_MAX_PRIOR_CHARS=4000
 CIMR_OTHER_AWARE=1
 
 # Output root
-BASE_OUT="./results_paired"
+BASE_OUT="./experiments_results/results_paired"
 
 # GPU(s) to use (comma-separated indices, blank = auto)
 GPUS="1"

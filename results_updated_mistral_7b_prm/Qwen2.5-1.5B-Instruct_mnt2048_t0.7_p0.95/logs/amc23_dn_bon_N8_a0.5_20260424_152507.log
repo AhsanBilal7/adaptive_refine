@@ -1,62 +1,0 @@
-15:25:14 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 NVL']
-15:25:14 | INFO | run_eval | Loading dataset: amc23
-15:25:18 | INFO | dataset_loader | Loaded 40 examples from 'amc23' (test split).  Sample answers: ['27', '36', '45']
-15:25:18 | INFO | run_eval | Loaded 40 examples.
-15:25:18 | INFO | run_eval | Loading model: Qwen/Qwen2.5-1.5B-Instruct  batch_size=16
-/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-15:25:28 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-15:25:28 | INFO | model_wrapper |   GPU 0: NVIDIA H100 NVL  93.1 GB
-15:25:28 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-15:25:28 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-1.5B-Instruct
-15:25:31 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-1.5B-Instruct
-15:25:32 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-15:25:51 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
-15:25:51 | INFO | model_wrapper |   GPU 0 memory: allocated=2.88 GB  reserved=2.96 GB
-15:25:51 | INFO | run_eval | Building verifier: prm
-15:25:51 | INFO | verifier | Loading PRM tokenizer: peiyi9979/math-shepherd-mistral-7b-prm
-You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama.LlamaTokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message
-You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama_fast.LlamaTokenizerFast'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message.
-15:25:52 | INFO | verifier |   step_sep_id ('<extra_0>') = 1
-15:25:52 | INFO | verifier | Loading PRM model: peiyi9979/math-shepherd-mistral-7b-prm
-`torch_dtype` is deprecated! Use `dtype` instead!
-15:25:52 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:27<00:27, 27.49s/it]Loading checkpoint shards: 100%|██████████| 2/2 [01:00<00:00, 30.49s/it]Loading checkpoint shards: 100%|██████████| 2/2 [01:00<00:00, 30.04s/it]
-15:26:53 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=16
-15:26:53 | INFO | run_eval | Building ClusterManager  embedding=all-MiniLM-L6-v2
-15:26:53 | WARNING | clustering | sentence-transformers not installed; trying HF AutoModel fallback.
-15:26:53 | INFO | clustering | ClusterManager: loading HF AutoModel 'all-MiniLM-L6-v2' — this happens ONCE.
-15:26:53 | WARNING | clustering | HF AutoModel load failed (all-MiniLM-L6-v2 is not a local folder and is not a valid model identifier listed on 'https://huggingface.co/models'
-If this is a private repository, make sure to pass a token having permission to this repo either by logging in with `hf auth login` or by passing `token=<your_token>`); using TF-IDF fallback.
-15:26:53 | WARNING | clustering | ClusterManager: no neural embedder available — using TF-IDF fallback.
-15:26:54 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='amc23'
-15:26:54 | INFO | run_eval | 
-================================================================
-15:26:54 | INFO | run_eval |  Running : dn_bon
-15:26:54 | INFO | run_eval |  Dataset : amc23  N=8  batch_size=16
-15:26:54 | INFO | run_eval | ================================================================
-15:26:54 | INFO | evaluator | Evaluating 40/40 pending questions  (method=DNBestOfN)
-15:26:54 | INFO | evaluator |   Flat-batch generation: Q=40  N=8  batch_size=16  →  320 total seqs  →  20 generate() calls  →  saving every 2 questions
-🧩Cluster on Answer:  False
-🧩Alpha Value:  0.5
-[DN-BoN N=8 α=0.5]:   0%|[35m          [0m| 0/40 [00:00<?, ?q/s]
-[generate] flat  bs=16  Q=40  N=8:   0%|[34m          [0m| 0/20 [00:00<?, ?chunk/s][A15:28:00 | ERROR | evaluator |   _select q[0] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-[DN-BoN N=8 α=0.5]:   2%|[35m▎         [0m| 1/40 [01:06<43:11, 66.45s/q, acc=0.000, correct=0/1]15:28:00 | ERROR | evaluator |   _select q[1] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-
-[generate] flat  bs=16  Q=40  N=8:   5%|[34m▌         [0m| 1/20 [01:06<21:01, 66.41s/chunk, saved=2/40, seqs=16/320][A15:29:19 | ERROR | evaluator |   _select q[2] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-[DN-BoN N=8 α=0.5]:   8%|[35m▊         [0m| 3/40 [02:25<28:45, 46.63s/q, acc=0.000, correct=0/3]15:29:19 | ERROR | evaluator |   _select q[3] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-
-[generate] flat  bs=16  Q=40  N=8:  10%|[34m█         [0m| 2/20 [02:25<22:12, 74.04s/chunk, saved=4/40, seqs=32/320][A15:30:35 | ERROR | evaluator |   _select q[4] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-[DN-BoN N=8 α=0.5]:  12%|[35m█▎        [0m| 5/40 [03:41<24:32, 42.06s/q, acc=0.000, correct=0/5]15:30:35 | ERROR | evaluator |   _select q[5] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-
-[generate] flat  bs=16  Q=40  N=8:  15%|[34m█▌        [0m| 3/20 [03:41<21:09, 74.70s/chunk, saved=6/40, seqs=48/320][A15:32:19 | ERROR | evaluator |   _select q[6] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-[DN-BoN N=8 α=0.5]:  18%|[35m█▊        [0m| 7/40 [05:25<25:25, 46.22s/q, acc=0.000, correct=0/7]15:32:19 | ERROR | evaluator |   _select q[7] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-
-[generate] flat  bs=16  Q=40  N=8:  20%|[34m██        [0m| 4/20 [05:25<22:58, 86.17s/chunk, saved=8/40, seqs=64/320][A15:33:58 | ERROR | evaluator |   _select q[8] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-[DN-BoN N=8 α=0.5]:  22%|[35m██▎       [0m| 9/40 [07:04<24:32, 47.50s/q, acc=0.000, correct=0/9]15:33:58 | ERROR | evaluator |   _select q[9] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-15:33:58 | INFO | evaluator |   [10/40] acc=0.000 (0/10)
-
-[generate] flat  bs=16  Q=40  N=8:  25%|[34m██▌       [0m| 5/20 [07:04<22:43, 90.88s/chunk, saved=10/40, seqs=80/320][A15:36:21 | ERROR | evaluator |   _select q[10] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-[DN-BoN N=8 α=0.5]:  28%|[35m██▊       [0m| 11/40 [09:27<27:03, 55.97s/q, acc=0.000, correct=0/11]15:36:21 | ERROR | evaluator |   _select q[11] failed: Cannot use chat template functions because tokenizer.chat_template is not set and no template argument was passed! For information about writing templates and setting the tokenizer.chat_template attribute, please see the documentation at https://huggingface.co/docs/transformers/main/en/chat_templating
-
-[generate] flat  bs=16  Q=40  N=8:  30%|[34m███       [0m| 6/20 [09:27<25:22, 108.74s/chunk, saved=12/40, seqs=96/320][A

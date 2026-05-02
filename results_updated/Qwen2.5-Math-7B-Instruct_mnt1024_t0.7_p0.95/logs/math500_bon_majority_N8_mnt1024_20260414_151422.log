@@ -1,52 +1,0 @@
-15:16:44 | INFO | run_eval | GPUs available: 4  →  ['NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3', 'NVIDIA H100 80GB HBM3']
-15:16:44 | INFO | run_eval | Multi-GPU detected — model will be sharded across all 4 GPUs via device_map='auto' (unless --device is pinned).
-15:16:44 | INFO | run_eval | Loading dataset: math500
-15:16:48 | INFO | dataset_loader | Loaded 500 examples from 'math500' (test split).  Sample answers: ['\\left( 3, \\frac{\\pi}{2} \\right)', 'p - q', '\\frac{14}{3}']
-15:16:48 | INFO | run_eval | Loaded 500 examples.
-15:16:48 | INFO | run_eval | Loading model: Qwen/Qwen2.5-Math-7B-Instruct  batch_size=64
-/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-15:16:56 | INFO | model_wrapper | CUDA available: 4 GPU(s)
-15:16:56 | INFO | model_wrapper |   GPU 0: NVIDIA H100 80GB HBM3  79.2 GB
-15:16:56 | INFO | model_wrapper |   GPU 1: NVIDIA H100 80GB HBM3  79.2 GB
-15:16:56 | INFO | model_wrapper |   GPU 2: NVIDIA H100 80GB HBM3  79.2 GB
-15:16:56 | INFO | model_wrapper |   GPU 3: NVIDIA H100 80GB HBM3  79.2 GB
-15:16:56 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=4  dtype=torch.float16  4bit=False  8bit=False
-15:16:56 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-Math-7B-Instruct
-15:16:56 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-Math-7B-Instruct
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:  25%|██▌       | 1/4 [00:02<00:06,  2.03s/it]Loading checkpoint shards:  50%|█████     | 2/4 [00:04<00:04,  2.05s/it]Loading checkpoint shards:  75%|███████▌  | 3/4 [00:06<00:02,  2.05s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.87s/it]Loading checkpoint shards: 100%|██████████| 4/4 [00:07<00:00,  1.94s/it]
-15:17:08 | INFO | model_wrapper | Multi-GPU: model sharded across devices ['0', '1', '2', '3']  (primary=cuda:0)
-15:17:08 | INFO | model_wrapper |   GPU 0 memory: allocated=2.75 GB  reserved=2.77 GB
-15:17:08 | INFO | model_wrapper |   GPU 1 memory: allocated=3.91 GB  reserved=3.93 GB
-15:17:08 | INFO | model_wrapper |   GPU 2 memory: allocated=3.91 GB  reserved=3.93 GB
-15:17:08 | INFO | model_wrapper |   GPU 3 memory: allocated=3.62 GB  reserved=3.64 GB
-15:17:08 | INFO | run_eval | Building verifier: prm
-15:17:08 | INFO | verifier | Loading PRM tokenizer: Qwen/Qwen2.5-Math-PRM-7B
-15:17:09 | INFO | verifier |   step_sep_id ('<extra_0>') = 151651
-15:17:09 | INFO | verifier | Loading PRM model: Qwen/Qwen2.5-Math-PRM-7B
-`torch_dtype` is deprecated! Use `dtype` instead!
-Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]Loading checkpoint shards:   0%|          | 0/4 [00:01<?, ?it/s]
-Traceback (most recent call last):
-  File "/home/ahsan/adaptive_scientific_discovery/run_eval.py", line 390, in <module>
-    main()
-  File "/home/ahsan/adaptive_scientific_discovery/run_eval.py", line 289, in main
-    verifier = build_verifier(
-  File "/home/ahsan/adaptive_scientific_discovery/verifier.py", line 408, in build_verifier
-    return HFProcessRewardVerifier(
-  File "/home/ahsan/adaptive_scientific_discovery/verifier.py", line 214, in __init__
-    self._model = AutoModel.from_pretrained(
-  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/models/auto/auto_factory.py", line 597, in from_pretrained
-    return model_class.from_pretrained(
-  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/modeling_utils.py", line 277, in _wrapper
-    return func(*args, **kwargs)
-  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/modeling_utils.py", line 5048, in from_pretrained
-    ) = cls._load_pretrained_model(
-  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/modeling_utils.py", line 5468, in _load_pretrained_model
-    _error_msgs, disk_offload_index = load_shard_file(args)
-  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/modeling_utils.py", line 843, in load_shard_file
-    disk_offload_index = _load_state_dict_into_meta_model(
-  File "/home/ahsan/.local/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 116, in decorate_context
-    return func(*args, **kwargs)
-  File "/home/ahsan/.conda/envs/dora/lib/python3.10/site-packages/transformers/modeling_utils.py", line 770, in _load_state_dict_into_meta_model
-    _load_parameter_into_model(model, param_name, param.to(param_device))
-torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 130.00 MiB. GPU 1 has a total capacity of 79.21 GiB of which 117.38 MiB is free. Process 1695646 has 65.71 GiB memory in use. Process 1731709 has 8.80 GiB memory in use. Including non-PyTorch memory, this process has 4.56 GiB memory in use. Of the allocated memory 4.03 GiB is allocated by PyTorch, and 21.29 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)

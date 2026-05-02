@@ -1,63 +1,0 @@
-14:39:03 | INFO | run_eval | GPUs available: 1  →  ['NVIDIA H100 NVL']
-14:39:03 | INFO | run_eval | Loading dataset: aime25
-14:39:07 | INFO | dataset_loader | Loaded 30 examples from 'aime25' (test split).  Sample answers: ['70', '588', '16']
-14:39:07 | INFO | run_eval | Loaded 30 examples.
-14:39:07 | INFO | run_eval | Loading model: Qwen/Qwen2.5-1.5B-Instruct  batch_size=16
-/home/ahsan/crisp/.venv/lib/python3.11/site-packages/transformers/utils/hub.py:110: FutureWarning: Using `TRANSFORMERS_CACHE` is deprecated and will be removed in v5 of Transformers. Use `HF_HOME` instead.
-  warnings.warn(
-14:39:16 | INFO | model_wrapper | CUDA available: 1 GPU(s)
-14:39:16 | INFO | model_wrapper |   GPU 0: NVIDIA H100 NVL  93.1 GB
-14:39:16 | INFO | model_wrapper | Device config: device='auto'  device_map=auto  n_gpus=1  dtype=torch.float16  4bit=False  8bit=False
-14:39:16 | INFO | model_wrapper | Loading tokenizer: Qwen/Qwen2.5-1.5B-Instruct
-14:39:17 | INFO | model_wrapper | Loading model: Qwen/Qwen2.5-1.5B-Instruct
-14:39:18 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-14:39:20 | INFO | model_wrapper | Model loaded on cuda:0  |  batch_size=16
-14:39:20 | INFO | model_wrapper |   GPU 0 memory: allocated=2.88 GB  reserved=2.96 GB
-14:39:20 | INFO | run_eval | Building verifier: prm
-14:39:20 | INFO | verifier | Loading PRM tokenizer: peiyi9979/math-shepherd-mistral-7b-prm
-You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama.LlamaTokenizer'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message
-You are using the default legacy behaviour of the <class 'transformers.models.llama.tokenization_llama_fast.LlamaTokenizerFast'>. This is expected, and simply means that the `legacy` (previous) behavior will be used so nothing changes for you. If you want to use the new behaviour, set `legacy=False`. This should only be set if you understand what it means, and thoroughly read the reason why this was added as explained in https://github.com/huggingface/transformers/pull/24565 - if you loaded a llama tokenizer from a GGUF file you can ignore this message.
-14:39:21 | INFO | verifier |   step_sep_id ('<extra_0>') = 1
-14:39:21 | INFO | verifier | Loading PRM model: peiyi9979/math-shepherd-mistral-7b-prm
-`torch_dtype` is deprecated! Use `dtype` instead!
-14:39:21 | INFO | accelerate.utils.modeling | We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
-Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:03<00:03,  3.06s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.47s/it]Loading checkpoint shards: 100%|██████████| 2/2 [00:05<00:00,  2.56s/it]
-14:39:26 | INFO | verifier | PRM loaded on cuda:0  |  aggregation=mean  batch_size=16
-14:39:27 | INFO | inference_methods | Evaluator: MATHEvaluator for dataset='aime25'
-14:39:27 | INFO | run_eval | 
-================================================================
-14:39:27 | INFO | run_eval |  Running : bon_majority
-14:39:27 | INFO | run_eval |  Dataset : aime25  N=8  batch_size=16
-14:39:27 | INFO | run_eval | ================================================================
-14:39:27 | INFO | evaluator | Evaluating 30/30 pending questions  (method=BestOfNMajority)
-14:39:27 | INFO | evaluator |   Flat-batch generation: Q=30  N=8  batch_size=16  →  240 total seqs  →  15 generate() calls  →  saving every 2 questions
-[BoN-Majority N=8]:   0%|[33m          [0m| 0/30 [00:00<?, ?q/s]
-[generate] flat  bs=16  Q=30  N=8:   0%|[34m          [0m| 0/15 [00:00<?, ?chunk/s][A[BoN-Majority N=8]:   3%|[33m▎         [0m| 1/30 [02:02<59:02, 122.16s/q, acc=0.000, correct=0/1][BoN-Majority N=8]:   7%|[33m▋         [0m| 2/30 [02:04<24:09, 51.79s/q, acc=0.000, correct=0/2] 
-[generate] flat  bs=16  Q=30  N=8:   7%|[34m▋         [0m| 1/15 [02:04<29:05, 124.65s/chunk, saved=2/30, seqs=16/240][A[BoN-Majority N=8]:  10%|[33m█         [0m| 3/30 [03:41<32:34, 72.41s/q, acc=0.000, correct=0/3][BoN-Majority N=8]:  13%|[33m█▎        [0m| 4/30 [03:43<19:15, 44.43s/q, acc=0.000, correct=0/4]
-[generate] flat  bs=16  Q=30  N=8:  13%|[34m█▎        [0m| 2/15 [03:43<23:40, 109.26s/chunk, saved=4/30, seqs=32/240][A[BoN-Majority N=8]:  17%|[33m█▋        [0m| 5/30 [04:59<23:19, 55.99s/q, acc=0.000, correct=0/5][BoN-Majority N=8]:  20%|[33m██        [0m| 6/30 [05:02<15:07, 37.82s/q, acc=0.000, correct=0/6]
-[generate] flat  bs=16  Q=30  N=8:  20%|[34m██        [0m| 3/15 [05:02<19:05, 95.46s/chunk, saved=6/30, seqs=48/240] [A[BoN-Majority N=8]:  23%|[33m██▎       [0m| 7/30 [06:31<20:57, 54.67s/q, acc=0.000, correct=0/7][BoN-Majority N=8]:  27%|[33m██▋       [0m| 8/30 [06:34<13:57, 38.08s/q, acc=0.000, correct=0/8]
-[generate] flat  bs=16  Q=30  N=8:  27%|[34m██▋       [0m| 4/15 [06:34<17:14, 94.07s/chunk, saved=8/30, seqs=64/240][A[BoN-Majority N=8]:  30%|[33m███       [0m| 9/30 [08:45<23:30, 67.16s/q, acc=0.000, correct=0/9][BoN-Majority N=8]:  33%|[33m███▎      [0m| 10/30 [08:47<15:41, 47.08s/q, acc=0.000, correct=0/10]14:48:15 | INFO | evaluator |   [10/30] acc=0.000 (0/10)
-
-[generate] flat  bs=16  Q=30  N=8:  33%|[34m███▎      [0m| 5/15 [08:47<18:01, 108.18s/chunk, saved=10/30, seqs=80/240][A[BoN-Majority N=8]:  37%|[33m███▋      [0m| 11/30 [10:46<21:55, 69.23s/q, acc=0.000, correct=0/11][BoN-Majority N=8]:  40%|[33m████      [0m| 12/30 [10:49<14:41, 48.95s/q, acc=0.000, correct=0/12]
-[generate] flat  bs=16  Q=30  N=8:  40%|[34m████      [0m| 6/15 [10:49<16:56, 112.89s/chunk, saved=12/30, seqs=96/240][A[BoN-Majority N=8]:  43%|[33m████▎     [0m| 13/30 [12:05<16:11, 57.17s/q, acc=0.000, correct=0/13][BoN-Majority N=8]:  47%|[33m████▋     [0m| 14/30 [12:07<10:50, 40.65s/q, acc=0.000, correct=0/14]
-[generate] flat  bs=16  Q=30  N=8:  47%|[34m████▋     [0m| 7/15 [12:07<13:33, 101.67s/chunk, saved=14/30, seqs=112/240][A[BoN-Majority N=8]:  50%|[33m█████     [0m| 15/30 [14:27<17:38, 70.58s/q, acc=0.000, correct=0/15][BoN-Majority N=8]:  53%|[33m█████▎    [0m| 16/30 [14:30<11:41, 50.08s/q, acc=0.000, correct=0/16]
-[generate] flat  bs=16  Q=30  N=8:  53%|[34m█████▎    [0m| 8/15 [14:30<13:22, 114.64s/chunk, saved=16/30, seqs=128/240][A[BoN-Majority N=8]:  57%|[33m█████▋    [0m| 17/30 [15:39<12:05, 55.81s/q, acc=0.000, correct=0/17][BoN-Majority N=8]:  60%|[33m██████    [0m| 18/30 [15:41<07:55, 39.64s/q, acc=0.000, correct=0/18]
-[generate] flat  bs=16  Q=30  N=8:  60%|[34m██████    [0m| 9/15 [15:41<10:06, 101.04s/chunk, saved=18/30, seqs=144/240][A[BoN-Majority N=8]:  63%|[33m██████▎   [0m| 19/30 [18:01<12:49, 69.92s/q, acc=0.000, correct=0/19][BoN-Majority N=8]:  67%|[33m██████▋   [0m| 20/30 [18:04<08:17, 49.70s/q, acc=0.000, correct=0/20]14:57:32 | INFO | evaluator |   [20/30] acc=0.000 (0/20)
-
-[generate] flat  bs=16  Q=30  N=8:  67%|[34m██████▋   [0m| 10/15 [18:04<09:30, 114.01s/chunk, saved=20/30, seqs=160/240][A[BoN-Majority N=8]:  70%|[33m███████   [0m| 21/30 [20:24<11:31, 76.87s/q, acc=0.000, correct=0/21][BoN-Majority N=8]:  73%|[33m███████▎  [0m| 22/30 [20:26<07:14, 54.37s/q, acc=0.000, correct=0/22]
-[generate] flat  bs=16  Q=30  N=8:  73%|[34m███████▎  [0m| 11/15 [20:26<08:10, 122.61s/chunk, saved=22/30, seqs=176/240][A[BoN-Majority N=8]:  77%|[33m███████▋  [0m| 23/30 [21:56<07:34, 64.91s/q, acc=0.000, correct=0/23][BoN-Majority N=8]:  80%|[33m████████  [0m| 24/30 [21:57<04:35, 45.97s/q, acc=0.000, correct=0/24]
-[generate] flat  bs=16  Q=30  N=8:  80%|[34m████████  [0m| 12/15 [21:57<05:39, 113.08s/chunk, saved=24/30, seqs=192/240][A[BoN-Majority N=8]:  83%|[33m████████▎ [0m| 25/30 [22:57<04:10, 50.03s/q, acc=0.000, correct=0/25][BoN-Majority N=8]:  87%|[33m████████▋ [0m| 26/30 [23:00<02:23, 35.82s/q, acc=0.000, correct=0/26]
-[generate] flat  bs=16  Q=30  N=8:  87%|[34m████████▋ [0m| 13/15 [23:00<03:15, 97.65s/chunk, saved=26/30, seqs=208/240] [A[BoN-Majority N=8]:  90%|[33m█████████ [0m| 27/30 [24:55<02:58, 59.63s/q, acc=0.000, correct=0/27][BoN-Majority N=8]:  93%|[33m█████████▎[0m| 28/30 [24:57<01:24, 42.31s/q, acc=0.000, correct=0/28]
-[generate] flat  bs=16  Q=30  N=8:  93%|[34m█████████▎[0m| 14/15 [24:57<01:43, 103.52s/chunk, saved=28/30, seqs=224/240][A[BoN-Majority N=8]:  97%|[33m█████████▋[0m| 29/30 [26:46<01:02, 62.43s/q, acc=0.000, correct=0/29][BoN-Majority N=8]: 100%|[33m██████████[0m| 30/30 [26:49<00:00, 44.44s/q, acc=0.000, correct=0/30]15:06:16 | INFO | evaluator |   [30/30] acc=0.000 (0/30)
-
-[generate] flat  bs=16  Q=30  N=8: 100%|[34m██████████[0m| 15/15 [26:48<00:00, 106.03s/chunk, saved=30/30, seqs=240/240][A[generate] flat  bs=16  Q=30  N=8: 100%|[34m██████████[0m| 15/15 [26:48<00:00, 107.27s/chunk, saved=30/30, seqs=240/240]
-[BoN-Majority N=8]: 100%|[33m██████████[0m| 30/30 [26:49<00:00, 53.63s/q, acc=0.000, correct=0/30]
-15:06:16 | INFO | evaluator | Summary (final) saved → ./results_updated_mistral_7b_prm/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/bon_majority_aime25_N8_summary.json
-15:06:16 | INFO | evaluator | Done. acc=0.0000 (0/30)  wall=1609.0s  avg=0.00s/q
-15:06:16 | INFO | run_eval | Redundancy/vote stats: {'avg_num_clusters': 7.333, 'avg_selected_cluster_size': 1.6, 'avg_max_cluster_size': 1.6, 'frac_selected_from_top_cluster': 1.0}
-15:06:16 | INFO | evaluator | Summary saved to ./results_updated_mistral_7b_prm/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/bon_majority_aime25_N8_summary.json
-15:06:16 | INFO | run_eval | 
-Method                 Accuracy    Correct    Total   Avg time    Wall time
---------------------------------------------------------------------------
-bon_majority             0.0000          0       30      0.00s      1609.0s
-15:06:16 | INFO | run_eval | Comparison table saved to ./results_updated_mistral_7b_prm/Qwen2.5-1.5B-Instruct_mnt2048_t0.7_p0.95/comparison_aime25_N8.txt

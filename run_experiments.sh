@@ -78,7 +78,7 @@ PYTHON="python"
 # encodes MAX_NEW_TOKENS, TEMPERATURE, TOP_P, and quantisation flags.
 # All experiment JSONL + summary JSON files go into that one folder.
 # -----------------------------------------------------------------------------
-BASE_OUT="./results_updated"
+BASE_OUT="./experiments_results/results_updated"
 
 # -----------------------------------------------------------------------------
 # MAX_NEW_TOKENS
