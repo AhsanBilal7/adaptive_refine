@@ -586,56 +586,28 @@ def main():
         use_answer_only=False, batch_size=args.batch_size,
     )
 
-    # ── 6. Generate baseline samples (or load cache) ───────────────────────
-    cache_path = os.path.join(args.output_dir, f"sample_cache_{tag}.jsonl")
-    if args.load_cache and os.path.exists(args.load_cache):
-        logger.info(f"Loading sample cache from {args.load_cache}")
-        records = load_cache(args.load_cache)
-    elif os.path.exists(cache_path):
-        logger.info(f"Found existing sample cache: {cache_path} — loading.")
-        records = load_cache(cache_path)
-    else:
-        logger.info(
-            f"No sample cache found. Generating {args.N} traces × "
-            f"{len(examples)} questions..."
-        )
-        records = generate_and_score(
-            examples=examples, model=model, verifier=verifier, ev=ev,
-            data_name=data_name, N=args.N,
-            max_new_tokens=args.max_new_tokens,
-            temperature=args.temperature, top_p=args.top_p,
-            cache_path=cache_path if args.save_traces else None,
-            log_every=args.log_every,
-        )
-        if args.save_traces and not os.path.exists(cache_path):
-            with open(cache_path, "w") as f:
-                for r in records:
-                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
-            logger.info(f"Sample cache written → {cache_path}")
+    # ── 6. CIMR-only mode (skip cache-driven baselines) ───────────────────
+    # Build minimal per-question records directly from the loaded examples.
+    # This removes the one-time baseline generation / PRM scoring pass
+    # and runs CIMR live (N rollouts × d refinement steps) for each
+    # question.
+    records = []
+    for i, ex in enumerate(examples):
+        rec: Dict[str, Any] = {
+            "id": ex.get("id", str(i)),
+            "question": ex.get("question"),
+            "gold_answer": ex.get("answer", None),
+        }
+        records.append(rec)
 
-    # ── 7. PASS 1 — cache-driven baselines ─────────────────────────────────
-    logger.info(
-        f"Pass 1: cache-driven baselines  "
-        f"(α: {args.alpha_values}, τ: {args.tau_values})..."
-    )
+    # Pre-initialize the per-question results list so CIMR can inject
+    # its aggregated predictions (majority / max_prm) into each entry.
     all_question_results: List[Dict[str, Any]] = []
     for i, rec in enumerate(records):
-        traces = rec.get("traces", [])
-        prm_scores = np.array(rec.get("prm_scores", []), dtype=float)
-        all_correct = rec.get("all_correct", [])
-        if len(traces) == 0 or len(prm_scores) == 0:
-            logger.warning(f"  Skipping q[{i}] — empty traces/scores.")
-            all_question_results.append({"__meta__": {"error": True}})
-            continue
-        qr = apply_baseline_methods(
-            question=rec["question"], gold=rec.get("gold_answer"),
-            traces=traces, prm_scores=prm_scores,
-            all_correct=all_correct,
-            alpha_values=args.alpha_values, tau_values=args.tau_values,
-            cluster_manager=cluster_manager, ev=ev, data_name=data_name,
-        )
-        qr["__id__"] = rec.get("id", str(i))
-        all_question_results.append(qr)
+        all_question_results.append({
+            "__id__": rec.get("id", str(i)),
+            "__meta__": {"question": rec.get("question")},
+        })
 
     # ── 8. PASS 2 — CIMR (live, on-the-go save + resume) ───────────────────
     if args.enable_cimr:
