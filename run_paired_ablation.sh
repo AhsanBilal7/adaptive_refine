@@ -117,8 +117,11 @@ CIMR_CONTINUATION_MAX_PRIOR_CHARS=4000
 # Surface sibling-rollout corrected answers to critique + correction
 CIMR_OTHER_AWARE=1
 
+# Resolve paths relative to this script so cache lookup works from any cwd.
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Output root
-BASE_OUT="./experiments_results/results_paired"
+BASE_OUT="${ROOT_DIR}/experiments_results/results_paired"
 
 # GPU(s) to use (comma-separated indices, blank = auto)
 GPUS="1"

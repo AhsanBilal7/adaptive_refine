@@ -106,8 +106,11 @@ CIMR_RESOLVE_MAX_TOKENS=4096    # max tokens for resolve_from_valid output
 # CIMR_DISABLE_CROSS_EXAMINE=1       # uncomment to skip cross-examination
 CIMR_XC_MAX_TOKENS=4096         # max tokens for cross-examination output
 
+# Resolve paths relative to this script so cache lookup works from any cwd.
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Output root
-BASE_OUT="./experiments_results/results_paired"
+BASE_OUT="${ROOT_DIR}/experiments_results/results_paired"
 
 # GPU(s) to use (comma-separated indices, or leave blank for auto)
 GPUS="1"           # e.g. "0" or "0,1"
@@ -368,7 +371,7 @@ import json, os, glob, sys
 out_dir = os.environ.get("OUT_DIR", "./experiments_results/results_paired")
 # Find any OUT dir from this run
 import glob
-dirs = glob.glob("./experiments_results/results_paired/*") + ["./experiments_results/results_paired/"]
+dirs = glob.glob(os.path.join(out_dir, "*")) + [out_dir]
 out_dir_candidates = [d for d in dirs if os.path.isdir(d)]
 
 summaries = {}

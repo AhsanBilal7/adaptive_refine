@@ -136,7 +136,7 @@ def _build_evaluator(data_name: str):
     as self.ev and reused for the entire evaluation run.
     """
     try:
-        from evaluator_classes import get_evaluator  # type: ignore
+        from .evaluator_classes import get_evaluator  # type: ignore
         task = _EVALUATOR_MAP.get(data_name, "MATH500")
         ev = get_evaluator(task)
         logger.info(f"Evaluator: {ev.__class__.__name__} for dataset='{data_name}'")
