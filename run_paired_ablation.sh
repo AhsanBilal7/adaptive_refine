@@ -28,9 +28,9 @@
 #
 # USAGE
 # ─────
-#   bash run_paired_ablation.sh                   # all datasets
-#   bash run_paired_ablation.sh aime24            # one dataset
-#   bash run_paired_ablation.sh math500 aime24    # multiple
+#   bash run_paired_ablation.sh --model_name MODEL_PATH            # all datasets
+#   bash run_paired_ablation.sh --model_name MODEL_PATH aime24     # one dataset
+#   bash run_paired_ablation.sh --model_name MODEL_PATH math500 ... # multiple
 #   LOAD_CACHE=1 bash run_paired_ablation.sh      # force --load_cache
 #
 # OUTPUTS (per dataset)
@@ -52,7 +52,8 @@ set -euo pipefail
 # Generator LLM
 # MODEL="Qwen/Qwen2.5-1.5B-Instruct"
 # MODEL="Qwen/Qwen2.5-Math-7B-Instruct"
-MODEL="meta-llama/Llama-3.1-8B-Instruct"
+# MODEL="meta-llama/Llama-3.1-8B-Instruct"
+MODEL_DEFAULT="meta-llama/Llama-3.2-3B-Instruct"
 
 # PRM verifier
 VERIFIER_MODEL="Qwen/Qwen2.5-Math-PRM-7B"
@@ -135,6 +136,33 @@ GPUS="1"
 # Python executable
 PYTHON="python"
 
+MODEL_NAME="${MODEL:-$MODEL_DEFAULT}"
+DATASET_ARGS=()
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --model_name|--model)
+            if [[ $# -lt 2 ]]; then
+                echo "Missing value for $1"
+                exit 1
+            fi
+            MODEL_NAME="$2"
+            shift 2
+            ;;
+        --model_name=*|--model=*)
+            MODEL_NAME="${1#*=}"
+            shift
+            ;;
+        --help|-h)
+            echo "Usage: bash run_paired_ablation.sh [--model_name MODEL_PATH] [dataset ...]"
+            exit 0
+            ;;
+        *)
+            DATASET_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
 # Dataset size limits (set to "" for full)
 MAX_SAMPLES_AIME="30"
 MAX_SAMPLES_AMC="40"
@@ -146,7 +174,7 @@ MAX_SAMPLES_GSM=""
 # Derived settings
 # ─────────────────────────────────────────────────────────────────────────────
 
-MODEL_SHORT=$(basename "${MODEL}")
+MODEL_SHORT=$(basename "${MODEL_NAME}")
 RUN_TAG="${MODEL_SHORT}_mnt${MAX_NEW_TOKENS}_t${TEMPERATURE}_p${TOP_P}"
 OUT="${BASE_OUT}/${RUN_TAG}"
 mkdir -p "${OUT}/figures" "${OUT}/logs"
@@ -176,7 +204,7 @@ if [[ "${ENABLE_CIMR}" == "1" ]]; then
 fi
 
 COMMON_ARGS=(
-    --model            "${MODEL}"
+    --model            "${MODEL_NAME}"
     --verifier_model   "${VERIFIER_MODEL}"
     --embedding_model  "${EMBEDDING_MODEL}"
     --max_new_tokens   "${MAX_NEW_TOKENS}"
@@ -360,7 +388,7 @@ run_rollout_sweep() {
 # Main dispatch
 # ─────────────────────────────────────────────────────────────────────────────
 
-DATASETS=("${@}")
+DATASETS=("${DATASET_ARGS[@]}")
 
 if [[ ${#DATASETS[@]} -eq 0 ]]; then
     DATASETS=(aime24 aime25 amc23 math500 olympiadbench)
@@ -369,7 +397,7 @@ fi
 echo ""
 echo "════════════════════════════════════════════════════════════════"
 echo "  DN-BoN Paired Ablation  (CIMR rollouts × steps)"
-echo "  Model        : ${MODEL}"
+echo "  Model        : ${MODEL_NAME}"
 echo "  Verifier     : ${VERIFIER_MODEL}"
 echo "  N (baseline) : ${N_DEFAULT}"
 echo "  CIMR rollouts: ${CIMR_N_ROLLOUTS}"
