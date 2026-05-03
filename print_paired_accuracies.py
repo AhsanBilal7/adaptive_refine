@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 """
-Print accuracies from paired-result summaries.
+Print accuracies from paired-result outputs.
 
-Expected files:
-  <results_dir>/<model_run_folder>/summary_paired_<dataset>_N<N>.json
+Primary source:
+    <results_dir>/<model_run_folder>/summary_paired_<dataset>_N<N>.json
 
-Each summary file can contain multiple methods, e.g.:
-  bon, majority, oracle, cimr_majority, cimr_max_prm, ...
+Fallback source (when summary files are missing):
+    <results_dir>/<model_run_folder>/cimr_full_results_<dataset>_N<N>_d<D>.json
 """
 
 from __future__ import annotations
@@ -19,6 +19,9 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 _SUMMARY_RE = re.compile(r"^summary_paired_(?P<dataset>.+)_N(?P<N>\d+)\.json$")
+_CIMR_FULL_RE = re.compile(
+    r"^cimr_full_results_(?P<dataset>.+)_N(?P<N>\d+)_d(?P<D>\d+)\.json$"
+)
 
 
 def _safe_float(x: Any, default: float = 0.0) -> float:
@@ -87,6 +90,86 @@ def collect_rows(
                     "summary_file": str(path),
                 }
             )
+
+    rows.sort(key=lambda r: (r["model_run"], r["dataset"], r["N"], r["method"]))
+    return rows
+
+
+def _collect_rows_from_cimr_full(
+    results_dir: Path,
+    dataset_filter: Optional[str] = None,
+    method_filter: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """Fallback: derive CIMR accuracies directly from cimr_full_results files."""
+    rows: List[Dict[str, Any]] = []
+
+    for path in sorted(results_dir.rglob("cimr_full_results_*_N*_d*.json")):
+        m = _CIMR_FULL_RE.match(path.name)
+        if not m:
+            continue
+
+        dataset = m.group("dataset")
+        n_value = _safe_int(m.group("N"), 0)
+        if dataset_filter and dataset != dataset_filter:
+            continue
+
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as e:
+            print(f"[warn] Could not parse {path}: {e}", file=sys.stderr)
+            continue
+        if not isinstance(payload, dict):
+            continue
+
+        model_run = path.parent.name
+
+        n_total = 0
+        maj_correct = 0
+        prm_correct = 0
+        for _, qrec in payload.items():
+            if not isinstance(qrec, dict):
+                continue
+            agg = qrec.get("aggregation")
+            if not isinstance(agg, dict):
+                continue
+            maj = agg.get("majority_is_correct")
+            prm = agg.get("max_prm_is_correct")
+            if maj is not None:
+                n_total += 1
+                maj_correct += int(bool(maj))
+            if prm is not None:
+                prm_correct += int(bool(prm))
+
+        if n_total <= 0:
+            continue
+
+        maybe_rows = [
+            {
+                "model_run": model_run,
+                "dataset": dataset,
+                "N": n_value,
+                "method": "cimr_majority",
+                "accuracy": 100.0 * maj_correct / n_total,
+                "n_correct": maj_correct,
+                "n_total": n_total,
+                "summary_file": str(path),
+            },
+            {
+                "model_run": model_run,
+                "dataset": dataset,
+                "N": n_value,
+                "method": "cimr_max_prm",
+                "accuracy": 100.0 * prm_correct / n_total,
+                "n_correct": prm_correct,
+                "n_total": n_total,
+                "summary_file": str(path),
+            },
+        ]
+
+        for r in maybe_rows:
+            if method_filter and r["method"] != method_filter:
+                continue
+            rows.append(r)
 
     rows.sort(key=lambda r: (r["model_run"], r["dataset"], r["N"], r["method"]))
     return rows
@@ -162,6 +245,11 @@ def parse_args() -> argparse.Namespace:
         help="Root paired-results folder.",
     )
     p.add_argument(
+        "--debug",
+        action="store_true",
+        help="Print discovered files and fallback decisions.",
+    )
+    p.add_argument(
         "--dataset",
         default=None,
         help="Optional dataset filter (e.g., aime24).",
@@ -186,11 +274,28 @@ def main() -> None:
         print(f"Results directory not found: {results_dir}", file=sys.stderr)
         sys.exit(1)
 
+    summary_files = sorted(results_dir.rglob("summary_paired_*.json"))
+    cimr_full_files = sorted(results_dir.rglob("cimr_full_results_*_N*_d*.json"))
+    if args.debug:
+        print(f"Scanning results_dir: {results_dir.resolve()}")
+        print(f"  summary_paired files found: {len(summary_files)}")
+        print(f"  cimr_full files found: {len(cimr_full_files)}")
+
     rows = collect_rows(
         results_dir=results_dir,
         dataset_filter=args.dataset,
         method_filter=args.method,
     )
+
+    if not rows:
+        # Fallback to CIMR full logs when summary_paired files are missing.
+        rows = _collect_rows_from_cimr_full(
+            results_dir=results_dir,
+            dataset_filter=args.dataset,
+            method_filter=args.method,
+        )
+        if args.debug and rows:
+            print("Using fallback parser from cimr_full_results_*.json")
 
     print_table(rows)
 
