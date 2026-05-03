@@ -17,6 +17,7 @@ import re
 import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional
+import math
 
 _SUMMARY_RE = re.compile(r"^summary_paired_(?P<dataset>.+)_N(?P<N>\d+)\.json$")
 _CIMR_FULL_RE = re.compile(
@@ -75,7 +76,21 @@ def collect_rows(
                 continue
             if not isinstance(data, dict):
                 continue
-            if "accuracy" not in data:
+
+            n_correct = _safe_int(data.get("n_correct"), 0)
+            n_total = _safe_int(data.get("n_total"), 0)
+
+            # Prefer explicit accuracy; otherwise derive from counts when possible.
+            if "accuracy" in data:
+                accuracy = _safe_float(data.get("accuracy"), float("nan"))
+            elif n_total > 0:
+                accuracy = 100.0 * n_correct / n_total
+            else:
+                # Keep row visible even if accuracy is unavailable.
+                accuracy = float("nan")
+
+            # If there's no useful accuracy/count signal at all, skip.
+            if ("accuracy" not in data) and n_total <= 0:
                 continue
 
             rows.append(
@@ -84,9 +99,9 @@ def collect_rows(
                     "dataset": dataset,
                     "N": n_value,
                     "method": method,
-                    "accuracy": _safe_float(data.get("accuracy"), 0.0),
-                    "n_correct": _safe_int(data.get("n_correct"), 0),
-                    "n_total": _safe_int(data.get("n_total"), 0),
+                    "accuracy": accuracy,
+                    "n_correct": n_correct,
+                    "n_total": n_total,
                     "summary_file": str(path),
                 }
             )
@@ -123,7 +138,9 @@ def _collect_rows_from_cimr_full(
 
         model_run = path.parent.name
 
-        n_total = 0
+        n_questions = 0
+        maj_scored = 0
+        prm_scored = 0
         maj_correct = 0
         prm_correct = 0
         for _, qrec in payload.items():
@@ -132,16 +149,21 @@ def _collect_rows_from_cimr_full(
             agg = qrec.get("aggregation")
             if not isinstance(agg, dict):
                 continue
+            n_questions += 1
             maj = agg.get("majority_is_correct")
             prm = agg.get("max_prm_is_correct")
             if maj is not None:
-                n_total += 1
+                maj_scored += 1
                 maj_correct += int(bool(maj))
             if prm is not None:
+                prm_scored += 1
                 prm_correct += int(bool(prm))
 
-        if n_total <= 0:
+        if n_questions <= 0:
             continue
+
+        maj_acc = (100.0 * maj_correct / maj_scored) if maj_scored > 0 else float("nan")
+        prm_acc = (100.0 * prm_correct / prm_scored) if prm_scored > 0 else float("nan")
 
         maybe_rows = [
             {
@@ -149,9 +171,9 @@ def _collect_rows_from_cimr_full(
                 "dataset": dataset,
                 "N": n_value,
                 "method": "cimr_majority",
-                "accuracy": 100.0 * maj_correct / n_total,
+                "accuracy": maj_acc,
                 "n_correct": maj_correct,
-                "n_total": n_total,
+                "n_total": maj_scored,
                 "summary_file": str(path),
             },
             {
@@ -159,9 +181,9 @@ def _collect_rows_from_cimr_full(
                 "dataset": dataset,
                 "N": n_value,
                 "method": "cimr_max_prm",
-                "accuracy": 100.0 * prm_correct / n_total,
+                "accuracy": prm_acc,
                 "n_correct": prm_correct,
-                "n_total": n_total,
+                "n_total": prm_scored,
                 "summary_file": str(path),
             },
         ]
@@ -190,7 +212,7 @@ def print_table(rows: List[Dict[str, Any]]) -> None:
                 str(r["dataset"]),
                 str(r["N"]),
                 str(r["method"]),
-                f"{r['accuracy']:.2f}%",
+                (f"{r['accuracy']:.2f}%" if not math.isnan(float(r["accuracy"])) else "N/A"),
                 f"{r['n_correct']}/{r['n_total']}",
             ]
         )
