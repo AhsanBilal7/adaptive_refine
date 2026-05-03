@@ -71,4 +71,4 @@ nvidia-smi
 # uv run -- bash run_paired_ablation_llama3.sh aime24 aime25 amc23 math500
 # uv run -- bash run_paired_ablation_llama8.sh aime24 aime25 amc23 math500
 # uv run -- bash run_paired_ablation_qwen2.sh aime24 aime25 amc23 math500
-uv run -- bash run_paired_ablation.sh aime24 aime25 amc23 math500
+uv run -- bash run_paired_ablation_qwen15.sh aime24 aime25 amc23 math500

@@ -50,7 +50,9 @@ set -euo pipefail
 # ─────────────────────────────────────────────────────────────────────────────
 
 # Generator LLM
-MODEL="Qwen/Qwen2.5-Math-7B-Instruct"
+# MODEL="Qwen/Qwen2.5-1.5B-Instruct"
+# MODEL="Qwen/Qwen2.5-Math-7B-Instruct"
+MODEL="meta-llama/Llama-3.1-8B-Instruct"
 
 # PRM verifier
 VERIFIER_MODEL="Qwen/Qwen2.5-Math-PRM-7B"
@@ -127,6 +129,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BASE_OUT="${ROOT_DIR}/experiments_results/results_paired"
 
 # GPU(s) to use (comma-separated indices, blank = auto)
+# GPUS="0,2,3"
 GPUS="1"
 
 # Python executable
