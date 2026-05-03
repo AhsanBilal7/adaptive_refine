@@ -146,7 +146,10 @@ def aggregate_rollouts(
         if gold_answer is None or ev is None or not pred:
             return None
         try:
-            from inference_methods import _check_correct  # type: ignore
+            try:
+                from src.inference_methods import _check_correct  # type: ignore
+            except Exception:
+                from inference_methods import _check_correct  # type: ignore
             return bool(_check_correct(pred, gold_answer, ev, data_name))
         except Exception as e:
             logger.debug(f"[CIMR aggregator] correctness check failed: {e}")

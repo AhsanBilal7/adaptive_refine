@@ -524,7 +524,7 @@ def main():
     if args.enable_cimr:
         from src.cimr_inference import (  # type: ignore
             SELECTION_RULE_NAMES, CIMRConfig, CIMRInferencer,
-            run_cimr_for_question,
+            run_cimr_for_question, save_cimr_store,
         )
         from src.cimr_step import CIMRStepConfig  # type: ignore
     else:
@@ -577,6 +577,10 @@ def main():
     # ── 4. Build evaluator ─────────────────────────────────────────────────
     from src.inference_methods import _build_evaluator  # type: ignore
     ev = _build_evaluator(data_name)
+    try:
+        from src.inference_methods import _check_correct  # type: ignore
+    except Exception:
+        _check_correct = None
 
     # ── 5. ClusterManager (shared, tau updated per call) ───────────────────
     logger.info(f"Loading ClusterManager: {args.embedding_model}")
@@ -670,13 +674,46 @@ def main():
                 n_run_now += 1
 
             agg = qrec.get("aggregation", {}) or {}
+            maj_pred = agg.get("majority_pred", "")
+            prm_pred = agg.get("max_prm_pred", "")
+            maj_is_correct = agg.get("majority_is_correct")
+            prm_is_correct = agg.get("max_prm_is_correct")
+
+            # Ensure correctness fields are populated for summary accuracy.
+            # Some runs can resume from old stores where these were None.
+            if rec.get("gold_answer") is not None and _check_correct is not None:
+                if maj_is_correct is None and maj_pred:
+                    try:
+                        maj_is_correct = bool(
+                            _check_correct(maj_pred, rec.get("gold_answer"), ev, data_name)
+                        )
+                    except Exception:
+                        pass
+                if prm_is_correct is None and prm_pred:
+                    try:
+                        prm_is_correct = bool(
+                            _check_correct(prm_pred, rec.get("gold_answer"), ev, data_name)
+                        )
+                    except Exception:
+                        pass
+
+            # Write back corrected flags into aggregation and persist CIMR store.
+            agg["majority_is_correct"] = maj_is_correct
+            agg["max_prm_is_correct"] = prm_is_correct
+            qrec["aggregation"] = agg
+            try:
+                inferencer.store[qid] = qrec
+                save_cimr_store(inferencer.store_path, inferencer.store)
+            except Exception:
+                pass
+
             # Inject majority + max_prm into the per-question results so
             # they show up in the summary alongside the cache baselines.
             all_question_results[i]["cimr_majority"] = dict(
                 method="cimr_majority",
                 selection_rule="majority",
-                predicted_answer=agg.get("majority_pred", ""),
-                is_correct=agg.get("majority_is_correct"),
+                predicted_answer=maj_pred,
+                is_correct=maj_is_correct,
                 rollout_idx=agg.get("majority_rollout_idx", -1),
                 vote_count=agg.get("majority_vote_count", 0),
                 n_rollouts=agg.get("n_rollouts", N_roll),
@@ -685,8 +722,8 @@ def main():
             all_question_results[i]["cimr_max_prm"] = dict(
                 method="cimr_max_prm",
                 selection_rule="max_prm",
-                predicted_answer=agg.get("max_prm_pred", ""),
-                is_correct=agg.get("max_prm_is_correct"),
+                predicted_answer=prm_pred,
+                is_correct=prm_is_correct,
                 rollout_idx=agg.get("max_prm_rollout_idx", -1),
                 prm_score=agg.get("max_prm_score", 0.0),
                 n_rollouts=agg.get("n_rollouts", N_roll),
