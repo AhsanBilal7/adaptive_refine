@@ -611,6 +611,10 @@ def main():
             "__meta__": {"question": rec.get("question")},
         })
 
+    # Paths for incremental saving of accuracies and per-question results
+    summary_path = os.path.join(args.output_dir, f"summary_paired_{tag}.json")
+    results_path = os.path.join(args.output_dir, f"results_paired_{tag}.jsonl")
+
     # ── 8. PASS 2 — CIMR (live, on-the-go save + resume) ───────────────────
     if args.enable_cimr:
         N_roll = int(args.cimr_n_rollouts)
@@ -700,6 +704,34 @@ def main():
                     f"max_prm_pred={agg.get('max_prm_pred', '')!r}  "
                     f"max_prm_correct={agg.get('max_prm_is_correct')}"
                 )
+                # Incremental save: recompute summary and persist results
+                try:
+                    cur_summary = aggregate_results(all_question_results)
+                    tmp = summary_path + ".tmp"
+                    with open(tmp, "w") as sf:
+                        json.dump(cur_summary, sf, indent=2)
+                    os.replace(tmp, summary_path)
+                    # Persist per-question JSONL (overwrite atomically)
+                    tmp2 = results_path + ".tmp"
+                    with open(tmp2, "w", encoding="utf-8") as rf:
+                        for qr in all_question_results:
+                            rf.write(json.dumps(qr, ensure_ascii=False, default=str) + "\n")
+                    os.replace(tmp2, results_path)
+                except Exception as e:
+                    logger.warning(f"Failed to write incremental summary/results: {e}")
+
+                # Log concise accuracy summary
+                try:
+                    for m, v in sorted(cur_summary.items()):
+                        if m.startswith("__"):
+                            continue
+                        logger.info(
+                            f"    {m:<20s} acc={v['accuracy']:6.2f}%  "
+                            f"({v['n_correct']}/{v['n_total']})"
+                        )
+                except Exception:
+                    pass
+                
 
         logger.info(
             f"  CIMR pass complete.  total={len(records)}  "
