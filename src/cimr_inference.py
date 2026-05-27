@@ -99,23 +99,24 @@ class CIMRConfig:
     step_config: CIMRStepConfig = field(default_factory=CIMRStepConfig)
     rollout_temperature: float = 0.7
     rollout_top_p: float = 0.95
+    tag_suffix: str = ""
 
 
 # =============================================================================
 # Persistence helpers
 # =============================================================================
 
-def cimr_store_path(output_dir: str, dataset: str, N: int, D: int) -> str:
+def cimr_store_path(output_dir: str, dataset: str, N: int, D: int, suffix: str = "") -> str:
     return os.path.join(
-        output_dir, f"cimr_full_results_{dataset}_N{N}_d{D}.json"
+        output_dir, f"cimr_full_results_{dataset}_N{N}_d{D}{suffix}.json"
     )
 
 
 def open_cimr_store(
-    output_dir: str, dataset: str, N: int, D: int,
+    output_dir: str, dataset: str, N: int, D: int, suffix: str = "",
 ) -> Tuple[str, Dict[str, Any]]:
     """Open (or create) the CIMR results store. Returns (path, store_dict)."""
-    path = cimr_store_path(output_dir, dataset, N, D)
+    path = cimr_store_path(output_dir, dataset, N, D, suffix)
     store: Dict[str, Any] = {}
 
     if os.path.exists(path):
@@ -222,6 +223,7 @@ class CIMRInferencer:
             dataset=dataset,
             N=config.n_rollouts,
             D=config.depth,
+            suffix=config.tag_suffix,
         )
 
     # ------------------------------------------------------------------

@@ -76,9 +76,9 @@ _HF_CONFIGS: Dict[str, Dict[str, Any]] = {
         "answer_key":   "answer",        # contains "#### <number>"; split on ####
     },
     "olympiadbench": {
-        "hf_path":      "Hothan/OlympiadBench",
-        "hf_name":      "OE_TO_maths_en_COMP",
-        "split":        "train",
+        "hf_path":      "math-ai/olympiadbench",
+        "hf_name":      None,
+        "split":        "test",
         "question_key": "question",
         "answer_key":   "final_answer",  # list; take [0] and strip $
     },

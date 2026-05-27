@@ -302,6 +302,10 @@ class CIMRStepConfig:
     # Unused legacy flag — kept for CLI compat; not applied in any prompt
     other_answer_aware: bool = False
 
+    # Ablation flags
+    no_critique: bool = False
+    no_correction: bool = False
+
 
 # =============================================================================
 # Single-rollout step (wraps run_step_batch for convenience)
@@ -437,55 +441,54 @@ def run_step_batch(
     )
 
     # ── Phase B: self-critique (greedy — deterministic diagnosis) ─────────
-    critique_user_msgs = [
-        build_self_critique_prompt(
-            question=question,
-            trace_text=reasoning_cleans[k],
-            trace_answer=reasoning_answers[k],
-            max_trace_chars=config.critique_max_trace_chars,
+    if config.no_critique:
+        critique_raws = [""] * n
+    else:
+        critique_user_msgs = [
+            build_self_critique_prompt(
+                question=question,
+                trace_text=reasoning_cleans[k],
+                trace_answer=reasoning_answers[k],
+                max_trace_chars=config.critique_max_trace_chars,
+            )
+            for k in range(n)
+        ]
+        critique_prompts = [
+            build_chat_prompt(model, CRITIQUE_SYSTEM_PROMPT, u)
+            for u in critique_user_msgs
+        ]
+        critique_raws = _generate_batch(
+            model, critique_prompts,
+            max_new_tokens=config.critique_max_tokens,
+            do_sample=False,
         )
-        for k in range(n)
-    ]
-
-    critique_prompts = [
-        build_chat_prompt(model, CRITIQUE_SYSTEM_PROMPT, u)
-        for u in critique_user_msgs
-    ]
-
-    critique_raws = _generate_batch(
-        model, critique_prompts,
-        max_new_tokens=config.critique_max_tokens,
-        do_sample=False,
-    )
-
     logger.debug(f"[CIMR step] depth={step_idx} critique done.")
 
     # ── Phase C: self-correction (greedy) ─────────────────────────────────
-    correction_user_msgs = [
-        build_self_correction_prompt(
-            question=question,
-            trace_text=reasoning_cleans[k],
-            critique_text=critique_raws[k] or "",
-            trace_answer=reasoning_answers[k],
-            max_trace_chars=config.correction_max_trace_chars,
-            max_critique_chars=config.correction_max_critique_chars,
+    if config.no_correction:
+        correction_cleans = [""] * n
+    else:
+        correction_user_msgs = [
+            build_self_correction_prompt(
+                question=question,
+                trace_text=reasoning_cleans[k],
+                critique_text=critique_raws[k] or "",
+                trace_answer=reasoning_answers[k],
+                max_trace_chars=config.correction_max_trace_chars,
+                max_critique_chars=config.correction_max_critique_chars,
+            )
+            for k in range(n)
+        ]
+        correction_prompts = [
+            build_chat_prompt(model, CORRECTION_SYSTEM_PROMPT, u)
+            for u in correction_user_msgs
+        ]
+        correction_raws = _generate_batch(
+            model, correction_prompts,
+            max_new_tokens=config.correction_max_tokens,
+            do_sample=False,
         )
-        for k in range(n)
-    ]
-
-    correction_prompts = [
-        build_chat_prompt(model, CORRECTION_SYSTEM_PROMPT, u)
-        for u in correction_user_msgs
-    ]
-
-    correction_raws = _generate_batch(
-        model, correction_prompts,
-        max_new_tokens=config.correction_max_tokens,
-        do_sample=False,
-    )
-
-    # Truncate corrections at first \\boxed{} as well.
-    correction_cleans = [truncate_at_first_boxed(r or "") for r in correction_raws]
+        correction_cleans = [truncate_at_first_boxed(r or "") for r in correction_raws]
 
     # ── Phase D: pick corrected trace and extract answer ──────────────────
     # Rule: use the corrected trace if it is non-empty; otherwise keep the
