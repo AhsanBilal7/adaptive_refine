@@ -1,25 +1,40 @@
-# DN-BoN: Direction-Normalized Best-of-N
+# CIMR Paired Ablation Experiments
 
-Implementation of **Greedy**, **Best-of-N (BoN)**, and **Direction-Normalized Best-of-N (DN-BoN)** for evaluating LLM math reasoning, based on the NeurIPS 2026 research proposal.
+This repository runs the paired-ablation CIMR pipeline used in the experiment scripts. The main path is depth-based rollout generation with optional self-critique and self-correction, followed by PRM scoring and aggregation across rollouts.
 
 ---
 
 ## Project Structure
 
+```text
+adaptive_scientific_discovery/
+├── run_paired_ablation.py   main Python driver for one dataset run
+├── run_paired_ablation.sh   shell wrapper around the driver
+├── run_nd_sweep.sh          loops over N and depth values from a config
+├── batch_nd_sweep.sh        Slurm wrapper for the same sweep
+├── configs/                 model / sweep configs used by the bash scripts
+├── src/                     CIMR implementation and model / verifier helpers
+└── experiments_results/     output directory created by the scripts
 ```
-dn_bon/
-├── run_eval.py            ← Main entry point (CLI)
-├── inference_methods.py   ← Greedy / BoN / DN-BoN implementations
-├── model_wrapper.py       ← HuggingFace LM wrapper (no vLLM)
-├── verifier.py            ← Outcome / Length / PRM verifiers
-├── clustering.py          ← Semantic trace clustering for DN-BoN
-├── evaluator.py           ← Evaluation loop + results I/O
-├── dataset_loader.py      ← Unified dataset loading
-├── parser.py              ← Answer extraction (from repo)
-├── grader.py              ← Math equivalence checking (from repo)
-├── utils.py               ← Small helpers for parser.py
-└── requirements.txt
-```
+
+---
+
+## Methodology
+
+The paired-ablation pipeline is organized around one question at a time:
+
+1. Run `N` independent rollouts.
+2. For each rollout, run `D` depth steps.
+3. At each step, generate reasoning, optionally critique it, optionally correct it, then score the resulting trace with the verifier.
+4. Aggregate rollout outputs using majority vote and max-PRM selection.
+
+The key ablations exposed by the scripts are:
+
+1. `--no_critique` to skip the critique phase.
+2. `--no_correction` to skip the correction phase.
+3. `--cimr_n_rollouts` and `--cimr_depth` to control the search budget.
+
+The default sweep configs set `N_VALUES`, `D_VALUES`, `DATASETS`, and the ablation flags for each model.
 
 ---
 
@@ -29,210 +44,94 @@ dn_bon/
 pip install -r requirements.txt
 ```
 
-For GPU quantisation (optional):
+If you want 4-bit or 8-bit loading, install `bitsandbytes` as well:
+
 ```bash
 pip install bitsandbytes>=0.43.0
 ```
 
 ---
 
-## Supported Datasets
+## Datasets Used By The Scripts
 
-| `--dataset`     | Source                                    |
-|-----------------|-------------------------------------------|
-| `math500`       | lighteval/MATH (500 test problems)        |
-| `aime24`        | Maxwell-Jia/AIME_2024                     |
-| `aime25`        | Maxwell-Jia/AIME_2025                     |
-| `amc23`         | Maxwell-Jia/AMC_2023                      |
-| `gsm8k`         | openai/gsm8k                              |
-| `olympiadbench` | lmms-lab/OlympiadBench                    |
-| `college_math`  | TIGER-Lab/college-math                    |
-| `minerva_math`  | math-ai/minerva_math                      |
-| `mmlu_stem`     | cais/mmlu (STEM categories)               |
-| `custom`        | Local JSON/JSONL (use `--custom_path`)    |
+The bash entrypoints currently run on these datasets:
+
+| Dataset | Notes |
+|---|---|
+| `aime24` | AIME 2024 |
+| `aime25` | AIME 2025 |
+| `amc23` | AMC 2023 |
+| `math500` | MATH-500 |
+| `olympiadbench` | OlympiadBench |
+| `gsm8k` | Supported by `run_paired_ablation.sh` directly |
 
 ---
 
-## Usage
+## Bash Usage
 
-### 1. Greedy only
+### 1. Run one paired-ablation job
 
-```bash
-python run_eval.py \
-  --model Qwen/Qwen2.5-Math-7B-Instruct \
-  --dataset aime24 \
-  --methods greedy \
-  --max_samples 30
-```
-
-### 2. All three methods (N=8, MATH-500)
+`run_paired_ablation.sh` is the direct entrypoint. It accepts `--model_name`, `--cimr_n_rollouts`, `--cimr_depth`, `--no_critique`, `--no_correction`, and an optional dataset list.
 
 ```bash
-python run_eval.py \
-  --model Qwen/Qwen2.5-Math-7B-Instruct \
-  --dataset math500 \
-  --methods greedy bon dn_bon \
-  --N 8 \
-  --max_samples 500 \
-  --output_dir ./results/math500
+bash run_paired_ablation.sh \
+  --model_name Qwen/Qwen2.5-Math-7B-Instruct \
+  --cimr_n_rollouts 8 \
+  --cimr_depth 4 \
+  aime24 amc23 math500
 ```
 
-### 3. Alpha ablation for DN-BoN
+If you omit the dataset list, it defaults to `aime24 aime25 amc23 math500 olympiadbench`.
+
+### 2. Sweep over `N` and depth
+
+`run_nd_sweep.sh` loads a config from `configs/*.conf` and loops over `N_VALUES` and `D_VALUES`.
 
 ```bash
-python run_eval.py \
-  --model Qwen/Qwen2.5-Math-7B-Instruct \
-  --dataset gsm8k \
-  --alpha_ablation 0 0.5 1 \
-  --N 16 \
-  --max_samples 200
+bash run_nd_sweep.sh configs/qwen_7b.conf
 ```
-`alpha=0` exactly recovers plain BoN, making this a clean ablation.
 
-### 4. Budget scaling (vary N)
+Example config values:
 
 ```bash
-for N in 4 8 16 32; do
-  python run_eval.py \
-    --model Qwen/Qwen2.5-Math-7B-Instruct \
-    --dataset math500 \
-    --methods bon dn_bon \
-    --N $N \
-    --max_samples 100 \
-    --output_dir ./results/scaling
-done
+MODEL_NAME="Qwen/Qwen2.5-Math-7B-Instruct"
+N_VALUES=(8 3 5 10)
+D_VALUES=(4 2 3 5)
+DATASETS=(aime24 aime25 amc23 math500 olympiadbench)
+NO_CRITIQUE=1
+NO_CORRECTION=0
 ```
 
-### 5. Custom dataset
+### 3. Submit the same sweep to Slurm
+
+`batch_nd_sweep.sh` wraps the same sweep in a Slurm job.
 
 ```bash
-python run_eval.py \
-  --model Qwen/Qwen2.5-Math-7B-Instruct \
-  --dataset custom \
-  --custom_path ./my_problems.jsonl \
-  --methods greedy bon dn_bon
-```
-
-Custom JSONL format (one JSON object per line):
-```json
-{"question": "What is 2+2?", "answer": "4"}
-{"question": "Solve x^2=9", "answer": "3"}
-```
-
-### 6. 4-bit quantised model (low VRAM)
-
-```bash
-python run_eval.py \
-  --model Qwen/Qwen2.5-Math-7B-Instruct \
-  --load_in_4bit \
-  --dataset aime24 \
-  --methods greedy bon dn_bon \
-  --N 8
-```
-
-### 7. PRM verifier (Process Reward Model)
-
-```bash
-python run_eval.py \
-  --model Qwen/Qwen2.5-Math-7B-Instruct \
-  --dataset math500 \
-  --methods bon dn_bon \
-  --verifier prm \
-  --prm_model Qwen/Qwen2.5-Math-PRM-7B \
-  --N 8
+sbatch batch_nd_sweep.sh configs/qwen_7b.conf
 ```
 
 ---
 
-## Key Arguments
+## Outputs
 
-| Argument               | Default                    | Description                                      |
-|------------------------|----------------------------|--------------------------------------------------|
-| `--model`              | *(required)*               | HF model id or local path                        |
-| `--dataset`            | *(required)*               | Benchmark name                                   |
-| `--methods`            | `greedy bon dn_bon`        | Which methods to run                             |
-| `--N`                  | `8`                        | Sample budget for BoN / DN-BoN                   |
-| `--alpha`              | `0.5`                      | Normalisation exponent (0 = plain BoN)           |
-| `--alpha_ablation`     | None                       | Run DN-BoN with multiple α values                |
-| `--verifier`           | `outcome`                  | `outcome` / `length` / `prm`                     |
-| `--embedding_model`    | `all-MiniLM-L6-v2`         | ST model for trace clustering                    |
-| `--similarity_threshold` | `0.85`                   | Cosine threshold for grouping directions         |
-| `--clustering_method`  | `agglomerative`            | `agglomerative` or `greedy`                      |
-| `--cluster_on_answer`  | False                      | Cluster only the `\boxed{}` answer               |
-| `--max_new_tokens`     | `1024`                     | Max generation length                            |
-| `--temperature`        | `0.7`                      | Sampling temperature                             |
-| `--top_p`              | `0.95`                     | Nucleus sampling p                               |
-| `--max_samples`        | None                       | Limit number of evaluation problems              |
-| `--output_dir`         | `./results`                | Directory for JSONL + summary JSON files         |
-| `--hf_cache_dir`       | None                       | HuggingFace local cache dir                      |
-| `--load_in_4bit`       | False                      | 4-bit NF4 quantisation (bitsandbytes)            |
-| `--load_in_8bit`       | False                      | 8-bit quantisation (bitsandbytes)                |
+`run_paired_ablation.sh` writes results under `experiments_results/results_paired/<model_short>_mnt2048_t0.7_p0.95/`.
+
+For each dataset run, it produces:
+
+```text
+logs/paired_<dataset>_N<N>_d<D>.log
+summary_paired_<dataset>_N<N>_d<D>.json
+results_paired_<dataset>_N<N>_d<D>.jsonl
+analysis_paired_<dataset>_N<N>_d<D>.json
+sample_cache_<dataset>_N<N>.jsonl   only when cache loading is enabled
+```
+
+The CIMR store is also saved as `cimr_full_results_<dataset>_N<N>_d<D>.json` so partially completed runs can resume.
 
 ---
 
-## Output Files
+## Notes
 
-For each `(method, dataset, N)` combination the following files are written to `--output_dir`:
-
-```
-results/
-├── greedy_math500_N8.jsonl          ← per-question results
-├── greedy_math500_N8_summary.json   ← accuracy + stats
-├── bon_math500_N8.jsonl
-├── bon_math500_N8_summary.json
-├── dn_bon_math500_N8.jsonl
-├── dn_bon_math500_N8_summary.json
-└── comparison_math500_N8.txt        ← side-by-side comparison table
-```
-
-### Summary JSON structure
-
-```json
-{
-  "accuracy": 0.6240,
-  "n_correct": 312,
-  "n_total": 500,
-  "avg_elapsed_sec": 4.21,
-  "redundancy_stats": {              // DN-BoN only
-    "avg_num_clusters": 3.8,
-    "avg_selected_cluster_size": 1.9,
-    "avg_max_cluster_size": 4.2,
-    "frac_selected_from_top_cluster": 0.31
-  },
-  "results": [ ... ]
-}
-```
-
----
-
-## DN-BoN Method Summary
-
-Standard BoN selects:
-
-```
-x* = argmax_i  V(x_i)
-```
-
-DN-BoN normalises by cluster size:
-
-```
-x* = argmax_i  V(x_i) / |C(x_i)|^α
-```
-
-| α value | Behaviour                              |
-|---------|----------------------------------------|
-| `0`     | Identical to standard BoN              |
-| `0.5`   | **Default**: moderate direction penalty|
-| `1`     | Full proportional penalty              |
-
----
-
-## Recommended Models
-
-| Model                               | VRAM  | Notes                        |
-|-------------------------------------|-------|------------------------------|
-| `Qwen/Qwen2.5-Math-7B-Instruct`     | ~16GB | Strong math, chat-templated  |
-| `Qwen/Qwen2.5-Math-1.5B-Instruct`   | ~4GB  | Lightweight option           |
-| `deepseek-ai/deepseek-math-7b-instruct` | ~16GB | Strong on competition math |
-| `meta-llama/Llama-3.1-8B-Instruct`  | ~16GB | General purpose              |
-| Any + `--load_in_4bit`              | ~6GB  | 4-bit quantised              |
+1. The sweep configs in `configs/` are the source of truth for model name, dataset list, and the `N`/depth grids.
+2. `run_paired_ablation.py` is the driver used by the bash scripts; the older `run_eval.py` path in the previous README does not match the current experiment workflow.
+3. If you want, I can also rewrite the remaining README sections to document the Python driver flags one by one.
