@@ -1,293 +1,284 @@
-# Training-Free Procedure RSI for Breadth–Depth Self-Refinement
+# Adaptive Delta Refinement: Repair Only the Reasoning That Must Change
 
-**Proposed method: improve refinement using measured action effects and reusable, guarded two-slot repair plans.**
+**Revised recommendation — 29 September 2026**
 
-**Status:** Research proposal, not an experimentally established method. Literature checked on 28 September 2026. The contribution below is a specific novelty hypothesis; a literature review cannot guarantee priority or acceptance.
+**One problem:** iterative self-refinement repeatedly regenerates reasoning that does not depend on the detected error.
 
-## 1. Main idea
+**One change:** replace whole-solution rewriting with a patch to the faulty step and its dependent steps. Reuse everything else.
 
-The original paper improves a solution by repeatedly applying **generate → critique → correct**, then voting over the final rollouts. We add an outer loop that improves **the procedure deciding which rollout to refine, how to refine it, and when to stop**.
+This directly changes the base reasoning method. It needs no development-set procedure search, learned controller, reward model, model-specific calibration, or cross-question memory. The proposal is training-free and operates on the current question.
 
-On development problems, the system saves a reasoning state, tries alternative actions from that exact state, and measures which action helps the final vote under the same remaining compute limit. It converts repeated findings into executable rules used on later problems. All model weights remain fixed.
+## 1. Why this is a better research target
 
-**The contribution hypothesis is interaction-aware procedure evolution:** identify cases where two coordinated repairs help the final vote more than either repair alone, convert them into short guarded plans, and improve those plans across problems. Fixed-history counterfactual credit already exists in C3, and learned component skipping already exists in LW2S; neither is claimed as new here. [13,14]
+In *Refining Over Resampling*, every active rollout receives a generator continuation, a critique, and a correction at every prescribed depth. This can regenerate a long solution even when the required change is small. It also exposes unrelated reasoning to unnecessary modification.
 
-This transfers **KernelAscent Task 3 into mathematical reasoning**. The attached integration report largely takes the opposite direction, applying reasoning refinement to kernels. Here, mathematical answers and plurality voting remain central; a kernel grader or profiler is not assumed to exist during reasoning inference.
+The concrete research question is:
 
-## 2. What the attachments establish—and what remains unresolved
+> Can self-refinement retain its correction benefit while generating only the reasoning affected by each detected error?
 
-The attached *Refining Over Resampling* manuscript uses the same model in generator, critic, and corrector roles. Its default is $N=8,D=4$, requiring $N(1+3D)=104$ logical sequence generations per problem before batching. The method addresses some limitations of independent sampling by revising each candidate before aggregation. Its critique ablation supports explicit feedback in several settings.
+This is narrower and more practical than learning an entire refinement procedure. The proposed adaptivity concerns **repair scope**: a local arithmetic error triggers a small patch; an early assumption affecting the whole argument triggers a large repair.
 
-The paper motivates depth through two limits of resampling: repeated draws can revisit the same likely reasoning modes, and plausible traces can retain local errors. Critique and correction aim to repair those errors before voting. The paper itself acknowledges higher inference cost, dependence on critique/repair quality, and evaluation restricted to math with extractable answers.
+Keep the original paper's independent rollouts and final plurality vote. Change the refinement operator inside each rollout.
 
-The extension should address the following concrete gaps.
-
-| Observation in the manuscript | Implication for this proposal |
+| Base method | Revised method |
 |---|---|
-| Every rollout receives the same three-stage cycle and depth. | Spend compute conditionally on preservation, repair, full refinement, or a fresh attempt. |
-| Correct-to-wrong flips occur; Figure 4 includes negative rollout-level net correction benefit. | Record harmful interventions as well as successful ones. Evaluate their effect on the final vote. |
-| Table 3 shows nonmonotonic accuracy as breadth/depth increases. | Learn when another refinement is useful; do not assume deeper is better. |
-| Main comparisons match initial sample count, not total compute (§5). | Test against genuinely budget-matched sampling and refinement. Accuracy gain per extra TFLOP does not establish superiority at equal compute. |
-| No procedure state persists across problems. | Retain validated control rules and their evidence across development rounds. |
-| Evaluation relies on well-defined mathematical answers. | Retain that scope; generalization to open-ended tasks is not established by this proposal. |
+| Generate a complete initial solution. | Generate a complete solution with numbered steps and dependency references. |
+| Rewrite/continue before every critique. | Critique the current solution directly. |
+| Produce another complete corrected solution. | Generate only the faulty step and its dependent steps. |
+| Use the same depth for every rollout. | Stop a rollout when the critic finds no actionable error; otherwise continue within the shared budget. |
+| Aggregate final rollout answers. | Keep the same one-answer-per-rollout vote. |
 
-Three interpretations also need care. Equation (2) describes single-trace accuracy under a perturbation model; it does **not** prove an asymptotic ceiling for majority voting. Independent samples do not guarantee distinct useful reasoning strategies. Finally, answer disagreement in Appendix A.4 is not proof of reasoning diversity or correctness. The geometry example in Appendix B also contains an incorrect intermediate implication: $AB=BC$ entails $\angle BAC=\angle ACB$, not $\angle ABC=\angle ACB$. Therefore, correct final answers must not be treated as verified rationales.
+The main contribution is the change in repair scope. Removing the extra rewrite and stopping early are supporting simplifications, not sufficient novelty claims.
 
-The supplied KernelAscent webpage retracts its original model-level “no compounding” interpretation, documents insufficient update throughput, and marks historical speed results provisional after a compiler-environment defect. Its strategy-cap experiment also distinguishes **more stored strategies** from **better performance**. We transfer its separation of procedure/weights, lineage records, frozen controls, and measurement checks—not an assumption that compounding has been demonstrated. [K]
+## 2. The closest literature and the remaining gap
 
-## 3. System definition
-
-Let $\pi_\theta$ be the frozen LLM. Maintain an editable procedure
-
-$$
-H_t=(P_t,\mathcal R_t,\mathcal M_t),
-$$
-
-where $P_t$ contains role prompts, $\mathcal R_t$ is an ordered list of conditional action rules, and $\mathcal M_t$ stores evidence for those rules. The outer-round index is $t$; within-problem decisions use $d$.
-
-| Component | Editable? | Function |
+| Paper and verified venue | What it establishes | Relevant gap for this proposal |
 |---|---|---|
-| Generator, critic, corrector, procedure-editor weights | No | Use the same frozen model with role prompts. |
-| Critique/correction instructions | Yes | Change the error-checking or revision instruction. |
-| Action predicates and priority | Yes | Decide which branch gets which operation. |
-| Evidence memory | Yes | Store useful, ineffective, and harmful interventions. |
-| Answer extractor, gold grader, final voting rule, budget meter | No | Keep measurement and output selection invariant. |
+| **Thought-ICS: Structure Enables Effective Self-Localization of Errors in LLMs**, ICML 2026 [1] | Structured thoughts support error localization; correction backtracks and resamples from a retained prefix. It includes an autonomous variant. | Suffix regeneration also discards later steps that are independent of the error. Test noncontiguous repair against its autonomous method. |
+| **Graph-Based Chain-of-Thought Pruning**, Findings of ACL 2026 [2] | Uses dependency graphs to identify redundant reflection, followed by SFT, DPO, and GRPO. | Its graph is used for post-training data/behavior optimization. Our graph controls which steps are regenerated immediately on a new question, with fixed weights. |
+| **Stop Unnecessary Reflection**, ICLR 2026 [3] | Learns efficient reflection with coordinated RL penalties. | It requires post-training. Our repair scope is computed from the current solution rather than learned through a length/reflection reward. |
+| **Thought Calibration**, EMNLP 2025 [4] | Trains and calibrates hidden-state probes to stop reasoning. | It targets when to stop; the proposed method targets how much reasoning to regenerate when correction is still needed. |
+| **Wider or Deeper? / AB-MCTS**, NeurIPS 2025 [5] | Adapts search breadth and depth using an external or surrogate scoring function. | Our setting retains the original paper's lack of an external inference-time scorer and avoids a search tree over complete answers. |
 
-Start $H_0$ with the paper's round-robin refinement schedule. Only critique/correction prompts and control rules may change; initial and rewrite generator prompts remain fixed. The editor cannot redefine correctness, read test labels, alter vote weights, or exempt calls from compute accounting.
+The important distinction from Thought-ICS is **dependency locality rather than position locality**. A later step is not necessarily affected just because it appears after the error.
 
-“Training-free” means **no gradient updates or newly trained controller/verifier**. Procedure development still uses labeled development questions. It is not supervision-free or cost-free. At final inference, neither gold answers nor an external correctness scorer is available.
+Graph reasoning and selective recomputation themselves are established ideas. Graph of Thoughts already supports dependency-based thought transformations [6]. A recent memory-agent preprint also selectively replays computation downstream of diagnosed faulty memories [7]. Therefore, the defensible contribution is:
 
-## 4. Inner loop: adaptive refinement with one vote per slot
+> **An inference-only, dependency-closed patch operator for mathematical self-refinement, with measured savings over both full rewriting and prefix-based suffix regeneration.**
 
-### 4.1 Initialize independent solutions
+This is a specific research hypothesis, not a guarantee of publication priority. The experiments must establish that the finer repair scope is useful enough to justify its small representation overhead.
 
-Draw $N$ initial traces independently from the same problem-only generator prompt:
+## 3. Methodology
 
-$$
-r_i^{(0)}\sim\pi_\theta^G(\cdot\mid x),\qquad i=1,\ldots,N.
-$$
+### 3.1 Generate independent structured solutions
 
-Keep one active trace in each of the $N$ slots. Store earlier versions for analysis, but only the current version votes. A restart replaces a slot; it does not add votes. No candidate is copied into multiple slots.
-
-### 4.2 Construct the observable state
-
-The decision state $S_d$ includes the problem, current traces, normalized answer counts, per-slot depth, previous answer changes, frozen-slot flags, and remaining compute. Include a critique category only if a critique has already been generated; its call is counted. Initially that category is `unknown`.
-
-Rule predicates use a fixed feature schema: depth, remaining-budget fraction, answer-frequency fraction, number of recent answer changes, normalized-answer equality, and the latest critique category. Categories such as `arithmetic`, `assumption`, `case omission`, or `no specific error` are model assertions, not correctness labels. No rule may contain a problem ID, a gold answer, or a lookup of solved evaluation questions. Reject prompt patches containing benchmark answer lists or problem-specific lookup instructions.
-
-### 4.3 Choose and execute an operation
-
-| Action | Exact behavior | Solver calls |
-|---|---|---:|
-| `FULL_REFINE$i$` | Continue/rewrite $r_i$, critique the intermediate trace, then correct it. | 3 |
-| `DIRECT_REPAIR$i$` | Critique the current $r_i$, then correct it without an extra generator rewrite. | 2 |
-| `RESTART$i$` | Replace slot $i$ with a new problem-only independent solution. | 1 |
-| `KEEP$i$` | Freeze its current trace for this solve and allocate remaining compute elsewhere. | 0 |
-| `STOP` | End all refinement and vote. | 0 |
-| `PAIR(m,i,j)` | Execute an accepted two-operation plan on distinct slots, checking its continuation guard after the first operation. | Sum of its primitive calls |
-
-For full refinement, retain the paper's equations, now conditioned on the current procedure's prompts:
-
-$$
-g_i\sim\pi_\theta^G(\cdot\mid x,r_i;P_t),\quad
-c_i\sim\pi_\theta^C(\cdot\mid x,g_i;P_t),\quad
-r_i'\sim\pi_\theta^R(\cdot\mid x,g_i,c_i;P_t).
-$$
-
-The first matching rule chooses a legal action; ties between slots use a fixed slot order. If no rule matches, use $H_0$'s next affordable action. `KEEP` disables that slot, preventing zero-cost loops. A fixed maximum number of decisions also guarantees termination.
-
-The call counts above describe structure, not equal compute. Meter actual input/output tokens and estimated model FLOPs, including longer contexts. Choose one predeclared cost measure for the hard cap and utility; report the other measures alongside it.
-
-Each multi-call operation reserves enough budget for its capped inputs and outputs. An incomplete operation leaves the old slot unchanged, but its spent compute is still charged. Restarting does not restore the global budget or decision limit.
-
-### 4.4 Return the answer
-
-At termination, use ordinary plurality voting:
-
-$$
-\hat y=\arg\max_y\sum_{i=1}^{N}\mathbf1[\Phi$r_i$=y].
-$$
-
-Invalid extractions abstain. Break ties by the lowest slot index supporting a tied answer; if every extraction fails, return a designated invalid answer. Fix these conventions for every baseline. Agreement may inform control, but it never supplies a truth label or a preference label.
-
-## 5. Main mechanism: measure alternative actions from the same state
-
-A successful trajectory alone does not show that its critique caused the success. The parent may already have been correct, or a cheaper restart may have worked equally well.
-
-On **development data only**, save complete states reached by $H_t$. At a sampled state, evaluate the incumbent action and alternatives using exact copies of the population, history, procedure, and remaining budget. For each alternative $a$:
-
-1. Execute $a$ on its designated slot, or stop immediately.
-2. Continue with the same incumbent procedure $H_t$ until termination.
-3. Grade the final population vote against the development answer.
-4. Record all additional inference cost, including unsuccessful calls.
-5. Repeat with several random seeds.
-
-Define the measured action value
-
-$$
-\widehat Q_t(S,a)=\frac1K\sum_{k=1}^{K}
-\left[\mathbf1\{\hat y_{S,a,k}=y^*\}
--\lambda\frac{C_{S,a,k}}{B}\right],
-$$
-
-where $C_{S,a,k}$ is **future** inference cost from the saved state, $B$ is the full per-problem limit, and all continuations respect the same remaining cap. Past cost is identical and cancels. $\lambda$ expresses a development-set accuracy–cost trade-off; also report accuracy and cost separately.
-
-Relative to the incumbent decision $a_0$, store
-
-$$
-\widehat\Delta_t(S,a)=\widehat Q_t(S,a)-\widehat Q_t(S,a_0).
-$$
-
-This is an empirical intervention comparison conditional on the current continuation procedure. It is not proof of a universal causal effect or an optimal policy. Fresh end-to-end evaluation is necessary after a procedure changes.
-
-**Why population credit matters.** Suppose the three current answers are $[0,0,1]$, with gold answer $1$. Repairing one `0` to `1` changes the winning answer. In $[0,0,0,0,1]$, the same individual repair does not immediately change the winner. A controller trained only on trace correctness misses this distinction; continuing each experiment to its terminal vote can capture subsequent effects too.
-
-**Keep negative evidence.** Store state features, action, parent/child answers, terminal vote, costs, seed, model/procedure hashes, and recovery/regression indicators. Do not require a newly correct answer before storing a useful result: an action that reliably avoids harming a correct solution or saves compute is also informative.
-
-For efficiency, first study two selected slots per state plus `STOP`, rotating slot coverage across states. Untested actions remain unknown; they are never labeled unsuccessful. Budget all counterfactual calls as procedure-development cost.
-
-### 5.1 Distinct extension: learn when two repairs must be coordinated
-
-Plurality voting can hide useful partial progress. For $[0,0,0,0,1]$ with gold $1$, repairing either of two wrong slots leaves the wrong answer ahead; repairing both produces $[1,1,0,0,1]$. This example concerns the immediate vote; measured values below include the full remaining continuation.
-
-For a small set of candidate pairs on distinct slots, measure four branches from the same state: incumbent continuation, force $a$ then continue, force $b$ then continue, and force $a$ followed by $b$ then continue. Let their values be $Q_\varnothing,Q_a,Q_b,Q_{a\to b}$. Compute
-
-$$
-I(S,a,b)=Q_{a\to b}-Q_a-Q_b+Q_\varnothing.
-$$
-
-This is a descriptive interaction contrast under the specified continuation, not a universal causal decomposition. Evaluate every branch under the same remaining cap; do not add savings from separately evaluated branches.
-
-A pair becomes a candidate only if it has reproducibly positive interaction and its utility exceeds the incumbent and both single-action alternatives. Also require positive interaction in correctness probability alone, computed by replacing each $Q$ with its empirical success rate; saving controller overhead must not masquerade as voting synergy. Try at most two ordered pairs per sampled state in the pilot, including some exploration outside high-disagreement states. Pair operations are chosen from full refinement, direct repair, and restart. Reverse order is a separate experiment.
-
-Compile repeated findings into a short plan:
+For input question $x$, generate $N$ independent solutions using the same frozen model as the base method. Each solution is a numbered list:
 
 ~~~text
-start guard: observable conditions selecting two distinct eligible slots
-first operation: a
-continuation guard: observable condition checked after a
-second operation: b, only if its guard remains true
+1. uses: []       statement and calculation
+2. uses: []       statement and calculation
+3. uses: [1]      statement using the result of step 1
+4. uses: [2]      statement using the result of step 2
+5. uses: [3,4]    final calculation and answer
 ~~~
 
-The editor chooses guards from the same fixed feature schema used by ordinary rules. It cannot use the gold answer. Evaluate the actual guarded plan again: evidence for an unconditional pair does not automatically validate a conditional plan.
+Each step contains one meaningful calculation or deduction. The model declares the earlier steps whose results it uses. Information taken directly from the question needs no step reference.
 
-Reserve budget for both operations. If the continuation guard fails, return to ordinary scheduling. If the second operation fails, retain any completed first operation, charge all work, and resume scheduling. Never assume individual gains add up.
+Generate the entire list in **one call per rollout**. Do not call a separate model to convert a completed solution into a graph.
 
-The reusable unit is this **guarded two-slot plan**, not a memorized solution. Keep plans within a declared prompt/rule budget, permit deletion, and admit them only through fresh full-solve confirmation. This specifically targets vote-threshold interactions; it does not resolve arbitrarily large coalitions.
+Represent the result as $G=(V,E)$, with an edge $u\to v$ when step $v$ uses step $u$. References point backward, so this is a directed acyclic graph. This representation is simply a numbered solution plus dependency IDs; it does not introduce another agent. A rollout with malformed structure uses the same full-rewrite fallback until a valid structured solution is available.
 
-## 6. Outer loop: turn evidence into a reusable procedure
+### 3.2 Reuse the existing critic to identify the repair target
 
-Use three disjoint data roles: **search data**, **fresh confirmation blocks**, and a **sealed final test set**. Deduplicate by problem and source template before splitting. All states and descendants of one problem remain in its split.
+The critic reads the question and current solution and returns one of:
 
-At each outer round:
+~~~text
+KEEP
+FIX(step_id, concrete_error)
+REBUILD(reason)
+~~~
 
-1. Run $H_t$ on the next search batch and collect action comparisons.
-2. Ask the frozen editor to propose a small patch: one new/revised/deleted rule, one guarded two-slot plan, or one role-prompt edit. It must name the supporting and contradicting development evidence.
-3. Evaluate several patches on search data; select one before opening the next confirmation block.
-4. Compare that patch with $H_t$ from the start of each confirmation problem under matched caps and seeds.
-5. Accept only if the predeclared utility-improvement criterion passes and accuracy does not violate a predeclared noninferiority margin. Otherwise retain $H_t$.
+- **KEEP:** no actionable error was found; freeze this rollout.
+- **FIX:** identify the first faulty step and explain its error briefly.
+- **REBUILD:** the approach or dependency structure needs a global change.
 
-Use paired question-level uncertainty, grouping repeated seeds within questions. For formal acceptance tests across $R$ rounds, allocate a total error budget in advance, for example $\alpha_t=0.05/R$, and never reuse a confirmation block for another adaptive decision. Size these blocks from pilot discordance rates; a tiny block cannot validate a one-point gain.
+Ask the critic to check both the mathematical reasoning and missing dependency references. Do not provide other rollouts' answers or the current majority. Each rollout remains independent.
 
-Example rule hypothesis—not a measured result:
+KEEP is a stopping decision, not a certificate of mathematical correctness.
 
-```text
-IF a slot has changed answers twice
-AND its latest critique identified no specific error
-AND sufficient budget remains:
-    RESTART that slot.
-```
+### 3.3 Compute the repair set deterministically
 
-The rule survives only if its complete procedure transfers to fresh confirmation questions. Store accepted and rejected edits, evidence counts, and versions. Permit rule replacement and deletion rather than imposing an arbitrary “12 strategies” ceiling. Keep a declared execution/context budget and measure sensitivity to it.
+For a localized faulty step $j$, define
 
-```text
-H = original_refinement_procedure
-memory = empty
-for round in 1..R:
-    states = solve_and_log(search_batch[round], H, frozen_model)
-    evidence = compare_actions_from_copied_states(states, H)
-    evidence.add(compare_bounded_two_slot_plans(states, H))
-    memory.add(evidence)  # positive, zero, and negative effects
-    patches = frozen_editor.propose(H, memory)
-    candidate = choose_on_search_data(patches, H)
-    result = paired_full_solve(candidate, H, fresh_confirmation[round])
-    if acceptance_rule(result):
-        H = candidate
-return freeze(H)  # final test answers never enter memory
-```
+$$
+A(j)=\{j\}\cup\operatorname{Desc}_G(j).
+$$
 
-This is persistent **procedure adaptation**. It does not by itself prove that the editor has learned to become a better editor, or that gains compound indefinitely.
+Here $\operatorname{Desc}_G(j)$ contains every step that directly or indirectly uses step $j$.
 
-## 7. Position relative to the closest research
+Repair all steps in $A(j)$ and retain every step outside it verbatim. Ordinary graph traversal computes this set in $O(|V|+|E|)$ time. There is no learned score, similarity threshold, top-$k$ selection, or graph-size penalty.
 
-“Refinement + memory + an outer loop” is already established. The table identifies overlap and the narrower distinction to test; it does not claim prior methods are incapable of implementing it.
+For $m$ topologically ordered steps, $A(j)\subseteq\{j,\ldots,m\}$. Thus the requested repair contains no more steps than suffix regeneration, and strictly fewer when some later steps are independent. This is a basic scope property, not a guarantee about generated-token length or latency.
 
-| Prior work and verified status | Established contribution | Proposed distinction |
-|---|---|---|
-| Self-Refine, NeurIPS 2023 [1]; Reflexion, NeurIPS 2023 [2] | Iterative feedback/revision; persistent verbal experience. | Store measured alternatives from the same population state, including harmful actions, and evolve executable decision rules. |
-| ADAS and AFlow, ICLR 2025 [3,4] | Automatic agent/workflow discovery. | Restrict search to the paper's refinement operations and supply direct intervention evidence for which operation earns its cost. |
-| GEPA, ICLR 2026 Oral [5] | Reflective prompt mutation and Pareto selection from execution/evaluation feedback. | The main variable is a state-dependent refinement decision; feedback compares actions with the same starting population and continuation budget. GEPA is a mandatory optimizer baseline. |
-| DGM, ICLR 2026 [6]; Hyperagents, March 2026 preprint [7] | Code self-modification; editable task and meta-level improvement mechanisms. | We study a narrower reasoning-control problem with fixed grading/voting and explicit action credit. Self-modification itself is not new. |
-| Meta-Harness, COLM 2026 as listed by its authors [8] | Code-space harness search using detailed execution records; includes math retrieval. | Replace observational diagnosis alone with controlled action experiments inside the refinement population. Reuse its optimizer as a strong baseline. |
-| CoRefine, February 2026 preprint [9] | Trained confidence controller for halt/rethink/alternative; hybrid tree variant. | Our weights remain frozen; action effects are measured on terminal population utility rather than inferred from confidence/history heuristics. Adaptive control itself is not new. |
-| RSA, public paper revised February 2026 [10] | Population self-aggregation and aggregation-aware training. | Improve the reusable control procedure across problems while retaining the original paper's one-slot-one-vote output rule. Population refinement itself is not new. |
-| MoMHa, September 25, 2026 preprint [11] | Joint optimization of harness accuracy, safety, and token cost. | A cost-aware harness objective is insufficient novelty; the proposed distinction is intervention-based population credit. |
-| C3 / *Exact Is Easier*, revised May 2026 preprint [13] | Restores history, evaluates alternative actions through terminal continuations, and trains from their credit. | This is the foundation, not our invention. Test whether discovering reusable two-slot plans adds value over primitive-action credit. |
-| LW2S, September 25, 2026 preprint [14] | Learns calibrated component-skip decisions from controlled interventions, including a debate-refine setting. | Test coordinated repair/restart plans and persistent rule evolution with all weights frozen; controlled skipping alone is not new. |
-| CCPO, revised June 2026 preprint [15] | Attributes team reward through agent-removal counterfactuals. | Keep the population intact and compare repair operations and their interactions. |
+This rule includes the final answer whenever it depends on the faulty step. It prevents the common mistake of fixing an intermediate value while retaining downstream calculations made from the old value.
 
-**Defensible proposed contribution:** “We evolve a frozen-model refinement procedure by identifying nonadditive voting gains from bounded two-slot interventions and compiling them into reusable guarded plans.” The combination is a candidate contribution; the reviewed credit-assignment frameworks can already express broad intervention ideas. Its value must come from the specific mechanism and evidence.
+### 3.4 Replace the corrector's full rewrite with a patch
 
-C3's reported validation uses short two-/three-decision protocols and identifies stale policy values and diminishing action diversity as limitations. LW2S chiefly tests reward-preserving omission rather than acquiring new repair capability. Our bounded plans and fresh measurements address those specific design gaps, but broader scalability and distribution-shift robustness remain experimental questions. [13,14]
+Supply the corrector with:
 
-## 8. Experiments needed to support the method
+1. The original question.
+2. The current numbered solution.
+3. The critic's specific error.
+4. The exact list of step IDs allowed to change.
 
-**Primary outcome:** held-out final-answer accuracy versus measured compute, including all control, generation, critique, and correction work. Use both equal hard caps and comparisons at comparable realized cost. Report latency separately because sequential depth and parallel breadth differ operationally.
+The corrector outputs replacements for those IDs only, in dependency order. It may revise their dependency lists, provided every reference points to an existing earlier step. The implementation inserts these replacements and keeps the other steps byte-for-byte unchanged.
 
-Use the original five math benchmarks for continuity, plus a larger disjoint test split for statistical power and a source/template-held-out transfer split. AIME sets contain few questions; report solved counts and seed variability, not only percentages. Freeze checkpoint revisions and prompts for reproducibility.
+Formally,
 
-Required baselines are compute-matched majority sampling, original fixed refinement, fixed heuristic adaptive refinement, GEPA on the role prompts, AFlow/Meta-Harness on the same allowed operations, Reflexion-style memory, and CoRefine/RSA under their disclosed access requirements. Add an LW2S-style skip controller, C3-style primitive-action credit, and a C3 optimizer given the same pair-action vocabulary. The last comparison separates a useful action vocabulary from a genuinely better improvement procedure. Separate frozen-weight optimizer comparisons from trained-controller comparisons; label each access regime. Give all development optimizers comparable search and evaluator budgets. Recent *Sample More, Reflect Less* reinforces this need in its tested small-model settings; it does not settle the result for every model or this proposal. [12]
+$$
+G^{t+1}=G^t\oplus
+\operatorname{Patch}_{\theta}\!\left(x,G^t,c^t,A(j^t)\right),
+$$
 
-The decisive ablations are:
+where $\oplus$ replaces the listed steps rather than appending a second solution.
 
-- Guarded pair plans versus primitive-only control at equal total intervention/search budgets.
-- Interaction-selected plans versus equally many randomly selected or immediate-vote-greedy plans.
-- Population-vote action credit versus individual-trace correctness credit.
-- Matched-state experiments versus ordinary successful-trajectory summaries.
-- Signed evidence versus success-only memory.
-- Evolved rules versus evolved prompts alone; `KEEP`/`RESTART` removed separately.
-- Persistent procedure versus reset procedure with the **same accumulated evidence** and total search budget.
-- At a fixed checkpoint, freeze both procedure and memory in one arm while continuing adaptation in the other; keep task stream and subsequent budgets matched.
+Keep step IDs and their intended subproblems fixed during a local patch. If a different decomposition is needed, use REBUILD to generate a new complete structured solution. Invalid references or a malformed patch use this same full-rewrite fallback if budget permits; otherwise retain the last complete solution.
 
-Report conditional wrong-to-correct and correct-to-wrong rates, final-vote recoveries/regressions, candidate accuracy, extraction failures, action frequencies, accepted edits, and evidence yield. Cluster longitudinal inference by independent optimization run; rounds are not independent replicates. A positive gain over $H_0$ establishes adaptation. A continued-lineage advantage over strong reset/frozen controls across later rounds is evidence for sustained benefits, not proof of unlimited recursive improvement.
+This fallback is part of the method and must be counted in its cost.
 
-## 9. Minimal implementation and remaining risk
+### 3.5 Repeat only while correction is needed and affordable
 
-Start with $N=4$, a cap allowing roughly two full refinement cycles per slot after initialization, four continuation seeds per tested action, and five outer rounds. These are pilot settings, not validated optima. Move to the paper's $N=8,D=4$ setting only after measuring whether action preferences have usable signal and development cost is justified.
+Schedule active rollouts in round-robin order. For each:
 
-Implement five modules: a capped role-call wrapper; a slot/history store; a state-copy/action-comparison runner; a restricted rule editor; and a sealed evaluator. Before the study, check extraction on known equivalent/inequivalent answers and test that the evaluator detects deliberately changed predictions. Estimate the number of informative action comparisons expected per round. A channel producing almost no distinguishable interventions is not a meaningful recursion experiment.
+1. Critique the current solution.
+2. Freeze it on KEEP.
+3. Apply a local patch on FIX, or a full rewrite on REBUILD.
+4. Revisit the resulting solution on its next turn.
 
-The main unresolved risks are noisy action values, missed interactions between simultaneous repairs, rule overfitting, shared model errors, and costly development. `KEEP` can preserve a wrong answer and `RESTART` can discard a useful one. Full-solve validation reduces these risks; it cannot guarantee correctness. The method can improve allocation only where the underlying model has usable repair or resampling capability.
+A frozen rollout consumes no further calls, so the remaining budget is available to the others. Stop when all rollouts are frozen or the question's compute budget is exhausted. If an update reproduces a previously seen complete state exactly, freeze that rollout to prevent cycles.
 
-## References and source boundaries
+Use the last complete solution from each rollout and apply the original final-answer plurality vote. Old versions never receive additional votes. Use a fixed tie-break and extraction policy across all methods.
 
-**Attached sources read in full:** *7357_Refining_Over_Resampling_ (2)(2).pdf* (16 pages, including appendices); *Integrating Kernel-Ascent RSI with LLM Self-Refinement.pdf* (21 pages); *Pasted text(20260928-070349).txt*. The live KernelAscent page was also retrieved; its static caveats match the supplied snapshot. The attached text supplies the dynamically populated board values. No unpublished experiments or reviewer reports were available.
+This is recursive correction of the **current solution state**. It does not improve the model's weights or establish persistent recursive self-improvement across questions. The paper should be positioned as adaptive test-time refinement.
 
-- **[K]** [KernelAscent project](https://ahmd-mohsin.github.io/KernelAscent/) and [repository](https://github.com/ahmd-mohsin/KernelAscent). Project evidence, not a verified top-tier publication. The supplied material contains both old leaderboard language and later withdrawals; the caveats take precedence.
-- **[1]** [Self-Refine: Iterative Refinement with Self-Feedback](https://arxiv.org/abs/2303.17651), NeurIPS 2023.
-- **[2]** [Reflexion: Language Agents with Verbal Reinforcement Learning](https://arxiv.org/abs/2303.11366), NeurIPS 2023.
-- **[3]** [Automated Design of Agentic Systems](https://proceedings.iclr.cc/paper_files/paper/2025/hash/36b7acf6f6010652b3f2a433774a66fe-Abstract-Conference.html), ICLR 2025.
-- **[4]** [AFlow: Automating Agentic Workflow Generation](https://proceedings.iclr.cc/paper_files/paper/2025/hash/5492ecbce4439401798dcd2c90be94cd-Abstract-Conference.html), ICLR 2025.
-- **[5]** [GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning](https://proceedings.iclr.cc/paper_files/paper/2026/hash/0e9e708b6f48e14fd0ac29e167413f76-Abstract-Conference.html), ICLR 2026; [full paper](https://arxiv.org/abs/2507.19457).
-- **[6]** [Darwin Gödel Machine](https://arxiv.org/abs/2505.22954), [ICLR 2026 paper](https://openreview.net/pdf/ed3ddb9e9f1b6ad69626362874aa9d16e434528b.pdf).
-- **[7]** [Hyperagents](https://arxiv.org/abs/2603.19461), March 2026 preprint.
-- **[8]** [Meta-Harness](https://arxiv.org/abs/2603.28052); [author project and COLM 2026 listing](https://yoonholee.com/meta-harness/).
-- **[9]** [CoRefine](https://arxiv.org/abs/2602.08948), February 2026 preprint, especially §3.3 on oracle-label generation.
-- **[10]** [Recursive Self-Aggregation](https://arxiv.org/abs/2509.26626); [author project](https://rsa-llm.github.io/). Conference acceptance was not independently confirmed in this review.
-- **[11]** [MoMHa](https://arxiv.org/abs/2609.30967), September 2026 preprint. A conference-template footer is not evidence of acceptance.
-- **[12]** [Sample More, Reflect Less](https://arxiv.org/abs/2607.28576), July 2026 preprint; limited model/task scope and completion-token accounting.
-- **[13]** [Exact Is Easier: Credit Assignment for Cooperative LLM Agents (C3)](https://arxiv.org/abs/2603.06859), May 2026 revision of the March manuscript originally titled *Contextual Counterfactual Credit Assignment*.
-- **[14]** [Learning What to Skip (LW2S)](https://arxiv.org/abs/2609.30734), September 25, 2026 preprint.
-- **[15]** [Counterfactual Credit Policy Optimization (CCPO)](https://arxiv.org/abs/2603.21563), June 2026 revision. The latest version emphasizes Think–Solve; older indexed abstracts also mention voting.
+## 4. Worked example
 
-This is a targeted review of the closest mechanisms, not an exhaustive claim to have checked every recent paper.
+Suppose a rectangle is 12 m by 5 m. Painting costs $3 per square metre, and fencing costs $2 per metre. Compute their combined cost.
+
+An initial solution contains:
+
+| Step | Current statement | Uses | Action after detecting the error in step 1 |
+|---|---|---|---|
+| 1 | Area: $12\times5=50$ | Question | Replace with $60$. |
+| 2 | Perimeter: $2(12+5)=34$ | Question | Keep unchanged. |
+| 3 | Painting cost: $3\times50=150$ | 1 | Replace with $180$. |
+| 4 | Fencing cost: $2\times34=68$ | 2 | Keep unchanged. |
+| 5 | Total: $150+68=218$ | 3, 4 | Replace with $248$. |
+
+The repair set is $\{1,3,5\}$. The perimeter and fencing calculations remain usable even though they occur after the faulty area calculation.
+
+A full rewrite regenerates all five steps. A suffix restart from step 1 also regenerates all five. Adaptive Delta Refinement emits three replacements. This is an illustration of avoided work, not an experimental speedup claim.
+
+If every later step depends on step 1, the repair set becomes the entire suffix. The same rule adapts automatically; no separate policy selects a repair radius.
+
+## 5. Algorithm
+
+~~~text
+Input: question x, frozen model, breadth N, total budget B
+states = generate N independent structured solutions
+active = all rollout IDs
+
+while active is not empty and another update is affordable:
+    i = next active rollout in round-robin order
+    feedback = critique(x, states[i])
+
+    if feedback is KEEP:
+        remove i from active
+        continue
+
+    if feedback is FIX(j, error):
+        affected = j plus all descendants of j
+        candidate = patch_only(x, states[i], affected, error)
+    else:
+        candidate = full_rewrite(x, states[i], feedback)
+
+    if candidate is structurally invalid:
+        candidate = budgeted_full_rewrite_or_keep_previous()
+
+    if candidate repeats an earlier complete state:
+        remove i from active
+
+    states[i] = last complete candidate
+
+return plurality_vote(extract_answer(states))
+~~~
+
+All calls, failed outputs, and fallbacks count against $B$. Reserve the configured maximum cost of a critique-plus-update before starting a turn. If KEEP uses less than this reservation, return the unused allowance to the question's budget. Incomplete updates never replace a complete solution.
+
+## 6. What makes this adaptive and efficient?
+
+**Adaptive repair scope.** The number of regenerated steps follows the actual dependency closure. A local mistake and a global assumption error naturally receive different amounts of work.
+
+**Adaptive refinement depth.** A rollout stops when the existing critic finds no specific error. Other rollouts continue using the remaining budget.
+
+**No offline deployment cost.** The same prompt contracts and graph traversal apply to every evaluation model. Standard chat templates may differ, but no procedure is fitted separately for each model.
+
+The principal configuration is the existing breadth $N$ and a total compute cap $B$, replacing fixed refinement depth $D$. Decoding settings and per-call output caps are shared with the baselines. There are no additional confidence thresholds or learned scheduling parameters.
+
+For the original method, $N=8,D=4$ gives 104 logical sequence generations. For the revised method,
+
+$$
+C_{\mathrm{new}}
+=C_{\mathrm{initial}}
++\sum_t C_{\mathrm{critic},t}
++\sum_t C_{\mathrm{patch/rebuild},t}.
+$$
+
+The important saving is fewer generated reasoning tokens, not merely fewer calls. The critic still reads the current solution, and the default patch prompt also includes it. Do not claim that all prefill cost disappears or that fewer output tokens imply an equal percentage of wall-clock savings. Ordinary exact-prefix caching can be used equally by every baseline; arbitrary unchanged text does not imply reusable KV states.
+
+## 7. A practical experiment that can establish the contribution
+
+First run a predeclared 50-question feasibility pilot on one model. Check whether dependency references are well formed and whether detected errors produce repair sets substantially smaller than their suffixes. If the solutions are mostly linear or fallbacks dominate, this direction is unlikely to save enough compute; do not begin a large sweep. This pilot fits no rules or thresholds, and its failures must remain visible in the report.
+
+For the main study, start with a single instruction model on MATH500, the paper's existing answer extractor, and $N=4$. Evaluate a small predeclared set of total token/FLOP budgets. This is evaluation of a fixed algorithm, not a search for model-specific rules.
+
+The essential comparison is:
+
+| Variant | Purpose |
+|---|---|
+| Original three-stage fixed refinement | Establish improvement over the attached method. |
+| Direct critique + full rewrite, with the same stopping rule | Separate sparse repair benefits from simply removing one generation stage. |
+| Direct critique + suffix regeneration | Test whether dependency locality improves over position locality. |
+| Adaptive Delta Refinement | Proposed method. |
+| Compute-matched majority sampling | Check whether repair is worth more than additional independent attempts. |
+
+For the three direct-critique variants, start from the same structured solutions and use identical critique outputs at the first repair. Then evaluate their complete end-to-end behavior. Include the published autonomous Thought-ICS method as the closest full-system baseline; never compare its oracle-assisted results with our label-free inference.
+
+Only two ablations are essential:
+
+1. Give every step all earlier steps as dependencies. The repair set then reduces to a suffix, isolating the value of dependency information.
+2. Force full rewriting while preserving the structured initial solution, stopping policy, and call budget. This isolates patch scope from formatting and stage-count changes.
+
+Report:
+
+- Final-answer accuracy against total input/output tokens and estimated FLOPs.
+- Wall-clock latency under the same batching and caching conditions.
+- Fraction of reasoning regenerated per repair.
+- Wrong-to-correct and correct-to-wrong answer changes.
+- Dependency/format failures and full-rewrite fallback rate.
+
+After the first study, test unchanged prompts on a second model family and the original competition-math benchmarks. Use paired question-level uncertainty. Model-specific rule searches and large controller-training sweeps are unnecessary.
+
+**Success criterion:** at comparable accuracy, the sparse method must cost less than direct full rewriting **and** suffix regeneration. Beating only the original three-call loop would support a simpler implementation change, not the main research claim.
+
+## 8. The remaining technical risk
+
+The method depends on the LLM reporting useful errors and sufficiently complete dependencies. Missing an edge can leave a stale downstream step unchanged. The whole-solution critic and full-rewrite fallback help detect this, but do not guarantee it.
+
+Therefore, audit dependency omissions on a small labeled analysis sample and measure downstream inconsistencies. This is evaluation, not a calibration dataset required for deployment. RefineBench and Thought-ICS both reinforce that repeated self-assessment should not be assumed reliable [1,8].
+
+The expected benefit is reduced unnecessary regeneration and fewer opportunities to disturb unrelated work. Improved accuracy and robust savings must be demonstrated; neither follows automatically from smaller patches.
+
+## 9. Other simple ideas considered
+
+| Idea | Assessment |
+|---|---|
+| Stop when answers stabilize, or when a critic says KEEP. | Very easy to implement, but overlaps heavily with existing adaptive stopping. Use as a baseline, not the central novelty. |
+| Locate the first error and regenerate only its suffix. | Practical and a strong baseline, but already central to Thought-ICS. |
+| Repair the error's dependency closure while preserving independent later steps. | Recommended research direction: one concrete change inside refinement, with a clear efficiency hypothesis and direct competing baselines. |
+
+For the main paper, keep only the third idea as the contribution. Treat stopping and budget accounting as its execution details.
+
+## References
+
+1. **Thought-ICS**, *Structure Enables Effective Self-Localization of Errors in LLMs*, ICML 2026. [Paper](https://arxiv.org/abs/2602.02416), [official conference listing](https://icml.cc/Downloads/2026), [author venue confirmation](https://danielrjiang.github.io/). Read especially the suffix-regeneration mechanism and autonomous self-verification analysis.
+2. **Graph-Based Chain-of-Thought Pruning for Reducing Redundant Reflections in Reasoning LLMs**, Findings of ACL 2026. [Proceedings and paper](https://aclanthology.org/2026.findings-acl.281/). Findings is identified separately from the ACL main track.
+3. **Stop Unnecessary Reflection: Training LRMs for Efficient Reasoning with Adaptive Reflection and Length Coordinated Penalty**, ICLR 2026. [Proceedings](https://proceedings.iclr.cc/paper_files/paper/2026/hash/08fe50bf209c57eecf0804f9f9ed639f-Abstract-Conference.html).
+4. **Thought Calibration: Efficient and Confident Test-Time Scaling**, EMNLP 2025. [Proceedings and paper](https://aclanthology.org/2025.emnlp-main.722/).
+5. **Wider or Deeper? Scaling LLM Inference-Time Compute with Adaptive Branching Tree Search**, NeurIPS 2025. [Proceedings](https://proceedings.nips.cc/paper_files/paper/2025/hash/32dff2e27b0da1fb5f4209216a948544-Abstract-Conference.html), [paper](https://arxiv.org/abs/2503.04412).
+6. **Graph of Thoughts: Solving Elaborate Problems with Large Language Models**, AAAI 2024. [Proceedings](https://ojs.aaai.org/index.php/AAAI/article/view/29720).
+7. **From Faulty Memories to Corrected Actions: Dependency-Guided Rollback Repair for Memory-Augmented Agents**, August 2026 preprint. [Paper](https://arxiv.org/abs/2608.10502). Related selective-replay work; not presented as an accepted top-tier paper.
+8. **RefineBench: Evaluating Refinement Capability of Language Models via Checklists**, ICLR 2026. [Proceedings](https://proceedings.iclr.cc/paper_files/paper/2026/hash/835b6c04ca2daaa1a682c2eaad4a70ea-Abstract-Conference.html).
+9. **Refining Over Resampling: Test-Time Self-Correction for LLM Reasoning**, attached manuscript; [public paper](https://arxiv.org/abs/2608.05643).
+
+This revision supersedes the earlier development-set procedure search, counterfactual action collection, and two-rollout rule library. Those components are not required by the proposed method.
