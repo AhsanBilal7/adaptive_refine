@@ -1,7 +1,10 @@
 #!/bin/bash
 #SBATCH -p gpu
-#SBATCH --gres=gpu:1
+#SBATCH --nodes=1
+#SBATCH --ntasks=1
+#SBATCH --gres=gpu:h100:1
 #SBATCH --cpus-per-task=16
+#SBATCH --mem=48G
 #SBATCH --job-name=procedure_rsi
 #SBATCH --output=logs/out_rsi_%j.log
 #SBATCH --error=logs/err_rsi_%j.log
