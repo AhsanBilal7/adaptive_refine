@@ -113,6 +113,8 @@ class InferenceResult:
 _EVALUATOR_MAP: Dict[str, str] = {
     "math500":       "MATH500",
     "math":          "MATH500",
+    "math_train":    "MATH500",
+    "gsm8k_train":   "GSM8K",
     "aime24":        "AIME2024",
     "aime25":        "AIME",
     "amc23":         "AMC2023",

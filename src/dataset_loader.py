@@ -47,6 +47,22 @@ _HF_CONFIGS: Dict[str, Dict[str, Any]] = {
         "question_key": "problem",
         "answer_key":   "solution",      # full worked solution; \boxed{} extracted
     },
+    "math_train": {
+        # MATH train split (7.5k) — disjoint from MATH-500 (a subset of MATH test);
+        # used as the development pool for procedure RSI (search + confirmation).
+        "hf_path":      "DigitalLearningGmbH/MATH-lighteval",
+        "hf_name":      "default",
+        "split":        "train",
+        "question_key": "problem",
+        "answer_key":   "solution",
+    },
+    "gsm8k_train": {
+        "hf_path":      "openai/gsm8k",
+        "hf_name":      "main",
+        "split":        "train",
+        "question_key": "question",
+        "answer_key":   "answer",
+    },
     "aime24": {
         "hf_path":      "Maxwell-Jia/AIME_2024",
         "hf_name":      None,
@@ -172,7 +188,7 @@ def _extract_gt(row: Dict, data_name: str) -> str:
     answer_key = cfg.get("answer_key", "answer")
 
     # ── math500: solution column contains the full worked solution ─────────────
-    if data_name in ("math500", "math"):
+    if data_name in ("math500", "math", "math_train"):
         solution = str(row.get(answer_key, ""))
         return _extract_boxed_from_solution(solution)
 
@@ -192,7 +208,7 @@ def _extract_gt(row: Dict, data_name: str) -> str:
         return str(row.get(answer_key, "")).strip()
 
     # ── gsm8k: "#### <number>" at the end of the answer field ─────────────────
-    if data_name == "gsm8k":
+    if data_name in ("gsm8k", "gsm8k_train"):
         raw = str(row.get(answer_key, ""))
         if "####" in raw:
             return raw.split("####")[-1].strip()

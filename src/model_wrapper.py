@@ -148,6 +148,7 @@ class HFModelWrapper:
         system_prompt: str = MATH_SYSTEM_PROMPT,
         trust_remote_code: bool = False,
         cache_dir: Optional[str] = None,
+        max_input_tokens: int = 2048,
     ):
         from transformers import (
             AutoTokenizer, AutoModelForCausalLM,
@@ -161,6 +162,7 @@ class HFModelWrapper:
         self.top_p          = top_p
         self.top_k          = top_k
         self.system_prompt  = system_prompt
+        self.max_input_tokens = int(max_input_tokens)
 
         # ── Log GPU availability ───────────────────────────────────────────────
         _log_gpu_info()
@@ -308,7 +310,7 @@ class HFModelWrapper:
         mnt = max_new_tokens or self.max_new_tokens
         enc = self.tokenizer(
             prompts, return_tensors="pt", padding=True,
-            truncation=True, max_length=2048,
+            truncation=True, max_length=self.max_input_tokens,
         ).to(self.device)      # primary device — HF moves layers internally
         prompt_len = enc["input_ids"].shape[1]
 
@@ -330,6 +332,71 @@ class HFModelWrapper:
             self.tokenizer.decode(ids, skip_special_tokens=True).strip()
             for ids in output_ids
         ]
+
+    @torch.no_grad()
+    def generate_with_usage(
+        self,
+        prompts: List[str],
+        do_sample: bool = False,
+        temperature: Optional[float] = None,
+        top_p: Optional[float] = None,
+        top_k: Optional[int] = None,
+        max_new_tokens: Optional[int] = None,
+    ):
+        """Like ``_generate_batch_raw`` but also returns realized token counts.
+
+        Returns (texts, n_input_tokens, n_output_tokens) — one entry per prompt.
+        Over-long prompts are truncated from the LEFT so the generation prompt
+        (the end of the chat template) is never cut.  Output tokens are counted
+        up to and including the first EOS, i.e. the tokens actually decoded.
+        """
+        mnt = max_new_tokens or self.max_new_tokens
+        old_side = getattr(self.tokenizer, "truncation_side", "right")
+        self.tokenizer.truncation_side = "left"
+        try:
+            enc = self.tokenizer(
+                prompts, return_tensors="pt", padding=True,
+                truncation=True, max_length=self.max_input_tokens,
+                add_special_tokens=False,
+            ).to(self.device)
+        finally:
+            self.tokenizer.truncation_side = old_side
+        prompt_len = enc["input_ids"].shape[1]
+        n_in = [int(x) for x in enc["attention_mask"].sum(dim=1).tolist()]
+
+        gen_kwargs: Dict[str, Any] = dict(
+            max_new_tokens=mnt,
+            do_sample=do_sample,
+            pad_token_id=self.tokenizer.pad_token_id,
+            eos_token_id=self.tokenizer.eos_token_id,
+        )
+        if do_sample:
+            gen_kwargs["temperature"] = temperature or self.temperature
+            gen_kwargs["top_p"]       = top_p       or self.top_p
+            gen_kwargs["top_k"]       = top_k       or self.top_k
+        else:
+            # Silence "generation flags are not valid" warnings from sampling
+            # defaults stored in generation_config.
+            gen_kwargs.update(temperature=None, top_p=None, top_k=None)
+
+        output_ids = self.model.generate(**enc, **gen_kwargs)
+        if not self._is_seq2seq:
+            output_ids = output_ids[:, prompt_len:]
+
+        eos_ids = self.model.generation_config.eos_token_id
+        if eos_ids is None:
+            eos_ids = self.tokenizer.eos_token_id
+        eos_set = set(eos_ids if isinstance(eos_ids, (list, tuple)) else [eos_ids])
+        texts, n_out = [], []
+        for ids in output_ids.tolist():
+            n = len(ids)
+            for k, t in enumerate(ids):
+                if t in eos_set:
+                    n = k + 1
+                    break
+            n_out.append(n)
+            texts.append(self.tokenizer.decode(ids[:n], skip_special_tokens=True).strip())
+        return texts, n_in, n_out
 
     # ── public API ────────────────────────────────────────────────────────────
 

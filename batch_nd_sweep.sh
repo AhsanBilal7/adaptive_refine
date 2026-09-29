@@ -7,18 +7,22 @@
 #SBATCH --time=2-00:00:00
 
 set -e
+mkdir -p logs
 
 CONFIG="${1:?Usage: sbatch batch_nd_sweep.sh configs/<model>.conf}"
+ROOT_DIR="${SLURM_SUBMIT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)}"
+cd "${ROOT_DIR}"
+
+# .env: machine paths (venv, HF caches, logs) + predefined variables.
+set -a
+# shellcheck disable=SC1091
+source "${ROOT_DIR}/.env"
+set +a
+# The conf overrides MODEL_NAME / N_VALUES / D_VALUES / DATASETS / ablation flags.
+# shellcheck disable=SC1090
 source "${CONFIG}"
-
-cd /home/ahsan/crisp
-
-export HF_HOME=/scratch/$USER/hf_cache
-export TRANSFORMERS_CACHE=/scratch/$USER/hf_cache
-export HF_DATASETS_CACHE=/scratch/$USER/hf_cache
-mkdir -p "$HF_HOME"
-
-source ~/.bashrc
+mkdir -p "${HF_HOME}" "${LOG_DIR}"
+export MODEL_NAME
 
 ABLATION_FLAGS=()
 [[ "${NO_CRITIQUE:-0}"   == "1" ]] && ABLATION_FLAGS+=(--no_critique)
@@ -27,7 +31,7 @@ ABLATION_FLAGS=()
 for N in "${N_VALUES[@]}"; do
     for D in "${D_VALUES[@]}"; do
         echo "=== N=${N} D=${D} ==="
-        uv run -- bash /home/ahsan/crisp/run_paired_ablation.sh \
+        uv run --frozen --no-sync -- bash "${ROOT_DIR}/run_paired_ablation.sh" \
             --model_name "${MODEL_NAME}" \
             --cimr_n_rollouts "${N}" \
             --cimr_depth "${D}" \
