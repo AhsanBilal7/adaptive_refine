@@ -153,7 +153,7 @@ def run_solves_multi(ctx: SolveContext, backend: GenerationBackend, problems: Se
                 jobs.append(make_job(ctx, method, proc, f"{a}|{tag}|{p['qid']}|{k}", p["qid"], p["question"],
                                      seed_base(ctx.cfg.seed, p["qid"], k)))
                 meta.append((a, p, k))
-    outs = run_jobs(backend, jobs, ckpt, desc=desc, max_inflight=max_inflight,
+    outs = run_jobs(backend, jobs, ckpt, desc=desc, max_inflight=max_inflight or ctx.cfg.resolved_max_inflight(),
                     save_every_s=ctx.cfg.checkpoint_every_s)
     recs: List[List[Dict[str, Any]]] = [[] for _ in arms]
     for (a, p, k), res in zip(meta, outs):

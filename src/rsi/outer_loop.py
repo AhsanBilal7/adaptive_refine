@@ -52,6 +52,7 @@ from .editor import LeakGuard, Patch, apply_patch, compile_patches, llm_patches
 from .memory import EvidenceMemory
 from .procedure import Procedure, h0_procedure
 from .checkpoint import atomic_json, atomic_pickle, load_pickle
+from .progress import set_context
 from .runner import run_solves, run_solves_multi, summarize
 from .solver import SolveContext
 from .splits import load_jsonl
@@ -73,8 +74,11 @@ def _mean(xs):
 
 class OuterLoop:
     def __init__(self, cfg: RSIConfig, backend: GenerationBackend, run_dir: str,
-                 problems: Dict[str, Dict[str, Any]], splits: Dict[str, Any]):
+                 problems: Dict[str, Dict[str, Any]], splits: Dict[str, Any],
+                 final_path: Optional[str] = None):
         self.cfg = cfg
+        # the frozen procedure lives at the MODEL level (<root>/<model>/final_procedure.json)
+        self.final_path = final_path or os.path.join(run_dir, "final_procedure.json")
         self.backend = backend
         self.run_dir = run_dir
         self.problems = problems
@@ -176,11 +180,17 @@ class OuterLoop:
                 base.save(base_path)
             search = self._batch(self.splits["search"][r])
             confirm_ids = self.splits["confirm"][r]
-            logger.info(f"[outer] round {r}: |search|={len(search)} |confirm|={len(confirm_ids)} "
-                        f"H={base.hash()} rules={base.n_rules()} plans={base.n_plans()}")
+            logger.info("=" * 100)
+            logger.info(f"[outer] ROUND {r + 1}/{cfg.rounds}: search={len(search)} problems, "
+                        f"confirmation={len(confirm_ids)} problems | procedure H={base.hash()} "
+                        f"rules={base.n_rules()} plans={base.n_plans()}")
+            logger.info("[outer] phases: 1 solve-and-log → 2 test alternatives → 3 propose edits → "
+                        "4 score on search → 5 confirm on fresh block")
+            logger.info("=" * 100)
 
             # 1. solve-and-log
             self._status(round=r, phase="solve_and_log")
+            set_context(f"Round {r + 1}/{cfg.rounds} · phase 1/5")
             def _log():
                 logged, snaps = solve_and_log(self.ctx, self.backend, search, base, self.grader,
                                               self._rng(r, "log"), seed=0, ckpt=os.path.join(rdir, "ckpt_log"))
@@ -192,6 +202,7 @@ class OuterLoop:
             ev_path = os.path.join(rdir, "evidence.jsonl")
             if not os.path.exists(ev_path):
                 self._status(round=r, phase="counterfactual", states=len(snaps))
+                set_context(f"Round {r + 1}/{cfg.rounds} · phase 2/5")
                 evidence = compare_actions(self.ctx, self.backend, snaps, base, self._gold_map(search),
                                            self.grader, self._rng(r, "cf"), r, ledger=self.ledger,
                                            ckpt=os.path.join(rdir, "ckpt_cf"))
@@ -214,6 +225,7 @@ class OuterLoop:
 
             # 4. propose patches
             self._status(round=r, phase="proposals")
+            set_context(f"Round {r + 1}/{cfg.rounds} · phase 3/5")
             def _propose():
                 rng = self._rng(r, "propose")
                 patches: List[Patch] = []
@@ -246,6 +258,7 @@ class OuterLoop:
 
             # 5. choose on search data (incumbent + all candidates in one batched, checkpointed pass)
             self._status(round=r, phase="search_eval", candidates=len(candidates))
+            set_context(f"Round {r + 1}/{cfg.rounds} · phase 4/5")
             seeds = list(range(max(1, cfg.search_eval_seeds)))
             def _search():
                 arm_recs = run_solves_multi(self.ctx, self.backend, search,
@@ -276,6 +289,7 @@ class OuterLoop:
             # 6-7. paired confirmation on a FRESH block; accept or retain
             if best is not None and inc_U is not None and best["utility"] > inc_U:
                 self._status(round=r, phase="confirmation")
+                set_context(f"Round {r + 1}/{cfg.rounds} · phase 5/5")
                 confirm = self._batch(confirm_ids)
                 cseeds = list(range(max(1, cfg.confirm_seeds)))
                 def _confirm():
@@ -320,7 +334,8 @@ class OuterLoop:
             atomic_json(self.lineage, self.lineage_path)
             logger.info(f"[outer] round {r}: decision={decision} H={H.hash()} ({time.time() - t0:.0f}s)")
 
-        final_path = os.path.join(self.run_dir, "final_procedure.json")
+        final_path = self.final_path
+        os.makedirs(os.path.dirname(final_path) or ".", exist_ok=True)
         H.save(final_path)
         atomic_json(self.ledger.to_dict(), os.path.join(self.run_dir, "dev_ledger.json"))
         self._status(phase="done", final_procedure=final_path, procedure_hash=H.hash())

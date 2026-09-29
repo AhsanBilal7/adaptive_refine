@@ -197,6 +197,27 @@ class TestInnerLoop(unittest.TestCase):
         self.assertEqual(max(be.batch_sizes), 15)   # 5 solves × 3 initial samples in one batch
 
 
+    def test_chunked_continuous_batching(self):
+        cfg = tiny_cfg()
+        be = FakeBackend(responder_factory())
+        be.chunk_size = 4
+        ctx = SolveContext(cfg, be)
+        gens = [solve_gen(ctx, ctx.new_state(f"q{i}", "What is 2+2?", i), h0_procedure(2)) for i in range(5)]
+        outs = run_generators(be, gens)
+        self.assertLessEqual(max(be.batch_sizes), 4)             # never more than one chunk per call
+        for r in outs:                                           # every solve still completes its schedule
+            self.assertEqual(r.state.meter.calls, 3 * (1 + 3 * 2))
+            self.assertEqual(r.state.stop_reason, "H0:done")
+
+    def test_output_layout(self):
+        cfg = tiny_cfg(model_name="Org/My-Model-7B", output_root="/r")
+        self.assertEqual(cfg.model_dir(), "/r/My-Model-7B")
+        self.assertEqual(cfg.final_procedure_path(), "/r/My-Model-7B/final_procedure.json")
+        self.assertEqual(cfg.run_dir(), "/r/My-Model-7B/development")
+        self.assertEqual(cfg.dataset_dir("aime24"), "/r/My-Model-7B/aime24")
+        cfg.run_name = "primitive_only"
+        self.assertEqual(cfg.model_dir(), "/r/My-Model-7B/runs/primitive_only")
+
 class TestCounterfactual(unittest.TestCase):
     def test_compare_actions_and_interaction(self):
         cfg = tiny_cfg(cf_explore_frac=1.0)

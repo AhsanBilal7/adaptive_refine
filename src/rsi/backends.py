@@ -64,6 +64,7 @@ class GenerationBackend:
     """Interface. Subclasses implement ``_generate_group`` and ``count_tokens``."""
 
     name = "base"
+    chunk_size: int = 0          # requests per scheduler chunk (0 → everything queued)
     num_params: float = 0.0
     model_id: str = ""
     max_input_tokens: int = 4096
@@ -141,6 +142,7 @@ class HFBackend(GenerationBackend):
             sum(p.numel() for p in self.wrapper.model.parameters()))
         self._base_seed = int(cfg.seed)
         self._n_batches = 0
+        self.chunk_size = max(1, int(cfg.batch_size))
 
     def format(self, system: str, user: str) -> str:
         return _chat_format(self.tokenizer, system, user)

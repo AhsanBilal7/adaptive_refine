@@ -55,7 +55,6 @@ def _parse():
             sp.add_argument("--datasets", default=None, help="comma list; default RSI_TEST_DATASETS")
             sp.add_argument("--sealed", action="store_true", help="evaluate on the run's sealed test split")
             sp.add_argument("--eval_seeds", type=int, default=1)
-            sp.add_argument("--eval_tag", default="")
     return p.parse_args()
 
 
@@ -128,25 +127,26 @@ def cmd_develop(cfg) -> int:
     problems = load_dev_problems(run_dir)
     _set_seeds(cfg.seed)
     backend = build_backend(cfg)
-    loop = OuterLoop(cfg, backend, run_dir, problems, splits)
+    loop = OuterLoop(cfg, backend, run_dir, problems, splits, final_path=cfg.final_procedure_path())
     H = loop.run()
     logger.info(f"final procedure {H.hash()}: rules={H.n_rules()} plans={H.n_plans()}")
     return 0
 
 
 def cmd_evaluate(cfg, args) -> int:
+    """Evaluate procedures / baselines.  Results go to <model_dir>/<dataset>/:
+        results_<method>.jsonl  summary.json  ckpt/<method>.*   (resumable)
+    and a combined table to <model_dir>/eval_summary.json."""
     from src.rsi.backends import build_backend
     from src.rsi.procedure import Procedure, h0_procedure, heuristic_procedure
+    from src.rsi.progress import set_context
     from src.rsi.runner import run_solves, summarize
     from src.rsi.solver import SolveContext
     from src.rsi.splits import load_jsonl, load_problems
     from src.rsi.voting import Grader
 
-    run_dir = cfg.run_dir()
-    out_dir = os.path.join(run_dir, "eval" + (f"_{args.eval_tag}" if args.eval_tag else ""))
-    os.makedirs(out_dir, exist_ok=True)
-    dump_config(cfg, os.path.join(out_dir, "config.json"))
-
+    model_dir, run_dir = cfg.model_dir(), cfg.run_dir()
+    os.makedirs(model_dir, exist_ok=True)
     if args.sealed:
         probs = load_jsonl(os.path.join(run_dir, "sealed_test", "test_problems.jsonl"))
         by_ds = {}
@@ -167,11 +167,11 @@ def cmd_evaluate(cfg, args) -> int:
         elif m == "maj_matched":
             methods.append(("maj_matched", "maj_matched", None))
         elif m == "final":
-            fp = os.path.join(run_dir, "final_procedure.json")
+            fp = cfg.final_procedure_path()
             if not os.path.exists(fp):
-                logger.warning(f"no {fp}; skipping 'final'")
+                logger.warning(f"no {fp} yet (development not finished); skipping 'final'")
                 continue
-            methods.append((f"final_{Procedure.load(fp).hash()}", "procedure", Procedure.load(fp)))
+            methods.append(("final", "procedure", Procedure.load(fp)))
         elif m:
             pr = Procedure.load(m)
             methods.append((f"proc_{pr.hash()}", "procedure", pr))
@@ -180,43 +180,58 @@ def cmd_evaluate(cfg, args) -> int:
     backend = build_backend(cfg)
     ctx = SolveContext(cfg, backend)
     seeds = list(range(max(1, args.eval_seeds)))
-    summ_path = os.path.join(out_dir, "summary.json")
-    table = {}
-    if os.path.exists(summ_path):            # resume: keep finished (method, dataset) cells
-        with open(summ_path) as f:
-            table = json.load(f)
-    for ds, probs in by_ds.items():
+    combined_path = os.path.join(model_dir, "eval_summary.json")
+    combined = {}
+    if os.path.exists(combined_path):
+        with open(combined_path) as f:
+            combined = json.load(f)
+    for di, (ds, probs) in enumerate(by_ds.items()):
+        ds_dir = cfg.dataset_dir(ds)
+        os.makedirs(os.path.join(ds_dir, "ckpt"), exist_ok=True)
+        dump_config(cfg, os.path.join(ds_dir, "config.json"))
+        summ_path = os.path.join(ds_dir, "summary.json")
+        table = {}
+        if os.path.exists(summ_path):          # resume: keep finished methods
+            with open(summ_path) as f:
+                table = json.load(f)
         grader = Grader(ds)
-        for name, kind, proc in methods:
-            tag = f"{name}_{ds}"
-            path = os.path.join(out_dir, f"results_{tag}.jsonl")
-            if tag in table and table[tag].get("n_solves") == len(probs) * len(seeds) and os.path.exists(path):
-                logger.info(f"[eval] {tag}: already complete, skipping")
+        for mi, (name, kind, proc) in enumerate(methods):
+            path = os.path.join(ds_dir, f"results_{name}.jsonl")
+            phash = proc.hash() if proc else None
+            prev = table.get(name, {})
+            if (prev.get("n_solves") == len(probs) * len(seeds) and prev.get("procedure_hash") == phash
+                    and os.path.exists(path)):
+                logger.info(f"[eval] {ds}/{name}: already complete, skipping")
                 continue
-            logger.info(f"[eval] {tag}: {len(probs)} problems × {len(seeds)} seeds")
-            recs = run_solves(ctx, backend, probs, kind, proc, seeds, grader, cfg.utility_lambda, desc=tag,
-                              ckpt=os.path.join(out_dir, "ckpt", tag))
+            set_context(f"Eval dataset {di + 1}/{len(by_ds)} {ds} · method {mi + 1}/{len(methods)} {name}")
+            logger.info(f"[eval] {ds}/{name}: {len(probs)} problems × {len(seeds)} seeds")
+            ck = os.path.join(ds_dir, "ckpt", f"{name}_{phash or 'na'}_s{len(seeds)}")
+            recs = run_solves(ctx, backend, probs, kind, proc, seeds, grader, cfg.utility_lambda,
+                              desc=f"{len(probs) * len(seeds)} solves", ckpt=ck)
             with open(path + ".tmp", "w") as f:
                 for r in recs:
                     f.write(json.dumps(r, default=str) + "\n")
             os.replace(path + ".tmp", path)
-            s = summarize(recs)
-            s.update(method=name, dataset=ds, procedure_hash=proc.hash() if proc else None)
-            table[tag] = s
-            logger.info(f"[eval] {tag}: acc={s.get('accuracy')} util={s.get('utility')} "
-                        f"TFLOPs/q={s.get('mean_tflops'):.2f} calls/q={s.get('mean_calls'):.1f}")
-            with open(summ_path + ".tmp", "w") as f:
-                json.dump(table, f, indent=1)
-            os.replace(summ_path + ".tmp", summ_path)
-    print("\n" + "=" * 96)
-    print(f"{'method':<28}{'dataset':<14}{'acc':>8}{'utility':>10}{'TFLOPs/q':>11}{'calls/q':>9}"
+            sm = summarize(recs)
+            sm.update(method=name, dataset=ds, procedure_hash=phash, n_seeds=len(seeds))
+            table[name] = sm
+            combined[f"{ds}/{name}"] = sm
+            logger.info(f"[eval] {ds}/{name}: acc={sm.get('accuracy')} solved={sm.get('solved_count')} "
+                        f"util={sm.get('utility')} TFLOPs/q={sm.get('mean_tflops'):.2f} "
+                        f"calls/q={sm.get('mean_calls'):.1f}")
+            for pth, obj in ((summ_path, table), (combined_path, combined)):
+                with open(pth + ".tmp", "w") as f:
+                    json.dump(obj, f, indent=1)
+                os.replace(pth + ".tmp", pth)
+    print("\n" + "=" * 104)
+    print(f"{'dataset':<14}{'method':<14}{'acc':>8}{'solved':>9}{'utility':>10}{'TFLOPs/q':>11}{'calls/q':>9}"
           f"{'W→C|W':>8}{'C→W|C':>8}")
-    for tag, s in table.items():
+    for key, sm in combined.items():
         fmt = lambda x, p=3: "-" if x is None else f"{x:.{p}f}"
-        print(f"{s['method']:<28}{s['dataset']:<14}{fmt(s['accuracy']):>8}{fmt(s['utility']):>10}"
-              f"{fmt(s['mean_tflops'], 2):>11}{fmt(s['mean_calls'], 1):>9}"
-              f"{fmt(s['cond_wrong_to_correct']):>8}{fmt(s['cond_correct_to_wrong']):>8}")
-    print("=" * 96)
+        print(f"{sm['dataset']:<14}{sm['method']:<14}{fmt(sm['accuracy']):>8}{fmt(sm['solved_count'], 1):>9}"
+              f"{fmt(sm['utility']):>10}{fmt(sm['mean_tflops'], 2):>11}{fmt(sm['mean_calls'], 1):>9}"
+              f"{fmt(sm['cond_wrong_to_correct']):>8}{fmt(sm['cond_correct_to_wrong']):>8}")
+    print("=" * 104)
     return 0
 
 

@@ -155,8 +155,8 @@ cd /home/u.ab353540/adaptive_scientific_discovery
 HF_HUB_OFFLINE=1 nohup bash run_rsi_experiment.sh configs/rsi_qwen_7b.conf,configs/rsi_qwen_7b_aime.conf \
     > logs/aime_N8_qwen7b_experiment.out 2>&1 &
 
-# or as its own Slurm job (not tied to another allocation's time limit)
-sbatch batch_procedure_rsi.sh develop configs/rsi_qwen_7b.conf,configs/rsi_qwen_7b_aime.conf
+# or as its own Slurm job (not tied to another allocation's time limit; resubmit to resume)
+sbatch batch_procedure_rsi.sh experiment configs/rsi_qwen_7b.conf,configs/rsi_qwen_7b_aime.conf
 ```
 
 Other entry points:
@@ -175,44 +175,91 @@ python -m unittest tests/test_rsi.py -v                                   # unit
 ### Step 3: monitor
 
 ```bash
-RUN=$SCRATCH/procedure_rsi_results/Qwen2.5-Math-7B-Instruct/aime_N8_c2
-cat $RUN/status.json                          # current round / phase
-cat $RUN/rounds/round_*/ckpt_*.status.json    # solves done / in-flight in the current phase
-tail -f logs/aime_N8_qwen7b_experiment.out
+M=$SCRATCH/procedure_rsi_results/Qwen2.5-Math-7B-Instruct
+cat $M/development/status.json                         # current round / phase
+cat $M/development/rounds/round_*/ckpt_*.status.json   # solves done / left in the current phase
+grep progress logs/aime_N8_qwen7b_experiment.out | tail -3
 ```
+
+The log prints a tqdm-style progress line every minute (a live tqdm bar on an interactive terminal):
+
+```text
+Round 1/5 · phase 2/5 · counterfactual:  33%|██████▋             | 312/932 [1:02:11<2:04:00, 5.0solves/min] | left=620 in-flight=256 model-calls=6,480
+```
+
+* **Round r/5**: outer-loop round.
+* **phase p/5**: 1 solve-and-log, 2 test alternatives (counterfactual), 3 propose edits, 4 score on search, 5 confirm.
+* **312/932**: solves finished / total in this phase.
+* **left**: solves still to finish.
+* **in-flight**: solves currently active.
+* **model-calls**: generations made in this session.
+
+Evaluation lines read `Eval dataset 1/2 aime24 · method 2/4 maj_matched · 90 solves: …`.
+
+### Output layout (one folder per model, one folder per test dataset)
+
+```text
+$RSI_OUTPUT_ROOT/<model>/                 (default $SCRATCH/procedure_rsi_results/<model>/)
+├── final_procedure.json                  the model's frozen procedure (written when development ends)
+├── experiment.log                        full log of run_rsi_experiment.sh
+├── eval_summary.json                     every dataset × method in one table
+├── development/                          everything used to BUILD the procedure
+│   ├── config.json, status.json, splits.json, dev_problems.jsonl, sealed_test/
+│   ├── memory.jsonl, lineage.json, dev_ledger.json, procedures/HXXX_<hash>.json
+│   ├── rounds/round_XX.json              per-round summary (evidence, patches, search scores, confirmation test)
+│   └── rounds/round_XX/                  base_procedure.json, log.pkl, evidence.jsonl, proposals.pkl,
+│                                         search.pkl, confirm.pkl, ckpt_*.{done,inflight}.pkl, ckpt_*.status.json
+├── aime24/                               results of every method on AIME24
+│   ├── results_h0.jsonl, results_maj_matched.jsonl, results_heuristic.jsonl, results_final.jsonl
+│   ├── summary.json, config.json, ckpt/
+├── aime25/  math500/  olympiadbench/ ... same structure
+└── runs/<RSI_RUN_NAME>/                  smoke / sample / ablation runs, same inner layout
+```
+
+The main run of a model has no `RSI_RUN_NAME` and writes directly to `<model>/`. Any named run (e.g. `configs/ablations/*.conf`, `rsi_smoke.conf`) goes to `<model>/runs/<name>/`, so it never overwrites the main procedure. To evaluate the model's procedure on more benchmarks later:
+
+```bash
+bash run_procedure_rsi.sh evaluate configs/rsi_qwen_7b.conf,configs/rsi_qwen_7b_aime.conf -- \
+    --methods h0,maj_matched,heuristic,final --datasets math500,olympiadbench,amc23
+```
+
+Each dataset lands in its own folder; finished (dataset, method) results are skipped.
 
 ### Continuous saving and resume
 
-Results are written **continuously** to `$RSI_OUTPUT_ROOT/<model>/<RSI_RUN_NAME>/`, which defaults to scratch: `$SCRATCH/procedure_rsi_results`. When the allocation ends or the job is killed, **run the same command again**. The run picks up where it stopped:
+Everything is written **continuously** under `<model>/`. When the allocation ends or the job is killed, **run the same command again**. The run picks up where it stopped:
 
 * **Finished solves** are appended to `*.done.pkl` as soon as they complete and are never re-run.
-* **In-flight solves** save their full state (slots, histories, charged compute, decisions) to `*.inflight.pkl` every `RSI_CHECKPOINT_EVERY_S` seconds (default 60). They restart from that state. An operation cut off mid-way is treated like an incomplete operation: its compute stays charged, the slot is unchanged, and the decision is made again.
-* **Each outer-loop phase** saves its output once (`log.pkl`, `evidence.jsonl`, `proposals.pkl`, `search.pkl`, `confirm.pkl`). The counterfactual branch plan is fixed in `ckpt_cf.plan.pkl`, so a resume runs exactly the same experiments. Evidence memory is rebuilt from per-round files and never double-counted.
-* **`evaluate`** skips finished (method, dataset) cells and resumes unfinished ones the same way.
-* **`run_rsi_experiment.sh`** holds a lock file, so two copies of the same experiment never run at once.
+* **In-flight solves** save their full state (slots, histories, charged compute, decisions) to `*.inflight.pkl`, at most every `RSI_CHECKPOINT_EVERY_S` seconds (default 60). They restart from that state. An operation cut off mid-way is treated as an incomplete operation: its compute stays charged, the slot is unchanged, and the decision is made again.
+* **Scheduling.** The scheduler uses continuous batching. Each GPU chunk (`BATCH_SIZE` requests) advances its solves immediately, so a checkpoint opportunity comes every few minutes even when hundreds of solves are active.
+* **Each outer-loop phase** saves its output once. The branch plan of the counterfactual phase is fixed on disk, and evidence memory is rebuilt from per-round files (never double-counted).
+* **`evaluate`** skips finished (dataset, method) results. It re-runs a method only if its procedure changed (hash) or the number of seeds changed.
+* **Locking.** `run_rsi_experiment.sh` holds a lock file, so two copies of the same experiment never run at once.
 
-### Outputs (`$RSI_OUTPUT_ROOT/<model>/<run_name>/`)
+### Cost to expect (measured)
 
-```text
-config.json, status.json, experiment.log
-splits.json                 search / confirmation ids per round
-dev_problems.jsonl          development pool (search + confirmation only)
-sealed_test/test_problems.jsonl
-memory.jsonl                every comparison: single / stop / incumbent / pair records (signed), rebuilt per round
-rounds/round_XX/            base_procedure.json, log.pkl, evidence.jsonl, proposals.pkl, search.pkl, confirm.pkl,
-                            ckpt_*.done.pkl / .inflight.pkl / .status.json (continuous checkpoints)
-rounds/round_XX.json        evidence yield, patches (valid + rejected with reasons), search scores,
-                            confirmation test (p-value, accuracy bound, suggested block sizes), dev ledger
-procedures/HXXX_<hash>.json procedure after each round (H000 = H0)
-lineage.json                accepted / rejected edits with evidence counts and versions
-final_procedure.json        frozen H
-dev_ledger.json             total procedure-development compute by phase
-eval/summary.json, eval/results_<method>_<dataset>.jsonl, eval/ckpt/
-```
+Rates measured for Qwen2.5-Math-7B, N=8, HF backend, on an H100 shared with another job: about **13–25 model calls per minute**.
 
-### Cost to expect
+| Phase (one round, default AIME config) | ≈ model calls | ≈ time |
+|---|---|---|
+| 1 solve-and-log (20 problems) | 1,100 | 45–60 min |
+| 2 test alternatives (≈930 continuations) | 22,000 | 18–28 h |
+| 3 propose edits | few | minutes |
+| 4 score H + ≤8 candidates on search | 10,000 | 8–13 h |
+| 5 confirmation (only if a candidate wins on search) | 9,000 | 7–11 h |
+| **one round** | **~40,000** | **~1.5–2 days** |
+| **5 rounds → `final_procedure.json`** | **~200,000** | **~7–10 GPU-days** |
 
-A counterfactual state with default settings forks into roughly 12 branches × K=4 continuations, each running to the end of the remaining budget. Development compute is therefore dominated by the counterfactual phase, and `dev_ledger.json` reports it separately from inference cost. As §9 suggests, start with the pilot and check `evidence_yield` (informative comparisons per round) before scaling up.
+Ways to cut this, all expressible as conf values:
+* a dedicated (unshared) GPU: roughly 2×
+* `RSI_CF_SEEDS=2`: halves phase 2
+* `RSI_CF_ALT_OPS=DIRECT_REPAIR,RESTART,KEEP`: fewer branches per state
+* `RSI_EDITOR_NUM_PROPOSALS=2`: fewer candidates to score in phase 4
+* `RSI_CONFIRM_SEEDS=1`: halves phase 5
+* shorter generations (`RSI_*_MAX_NEW_TOKENS`)
+* a vLLM backend (typically ≥5× faster), which needs a host or container with glibc ≥ 2.31
+
+`dev_ledger.json` reports the development compute actually spent, separately from inference cost.
 
 ### Caveats
 

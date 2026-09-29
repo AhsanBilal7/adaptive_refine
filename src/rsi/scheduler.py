@@ -1,20 +1,23 @@
 """
 scheduler.py
 ============
-Drive many ``solve_gen`` generators concurrently and batch their model calls.
+Drive many ``solve_gen`` generators concurrently with continuous batching.
 
-Each generator is sequential internally (it yields one list of requests and
-blocks until they are answered).  Across generators the scheduler collects
-every pending request into ONE backend call per tick, which the backend then
-groups by sampling parameters and chunks by ``batch_size``.  This keeps the
-GPU busy even though every individual solve makes one decision at a time.
+Each generator is sequential internally (it yields a list of requests and
+blocks until ALL of them are answered).  Across generators the scheduler
+keeps one FIFO queue of pending requests and repeatedly sends the next chunk
+(up to ``backend.chunk_size`` requests with identical sampling parameters) to
+the model.  As soon as every request of a generator has an answer, that
+generator is advanced and its next requests join the queue — nobody waits for
+the slowest request of a huge batch, and every chunk is a checkpoint point.
 """
 
 from __future__ import annotations
 
 import logging
 import time
-from typing import Any, Callable, Generator, List, Optional
+from collections import deque
+from typing import Any, Callable, Dict, Generator, List, Optional
 
 from .backends import GenerationBackend
 
@@ -24,66 +27,77 @@ logger = logging.getLogger(__name__)
 def run_generators(backend: GenerationBackend, gens: List[Generator],
                    on_done: Optional[Callable[[int, Any], None]] = None,
                    max_inflight: int = 0, desc: str = "",
-                   on_tick: Optional[Callable[[], None]] = None) -> List[Any]:
+                   on_tick: Optional[Callable[[Dict[str, Any]], None]] = None) -> List[Any]:
     """Run generators to completion; returns their return values in order.
 
-    ``max_inflight`` > 0 limits how many generators are active at once
-    (bounded memory for large counterfactual sweeps).
+    ``max_inflight`` > 0 limits how many generators are active at once.
+    ``on_tick(info)`` is called after every model chunk with progress counters.
     """
     n = len(gens)
     results: List[Any] = [None] * n
-    pending = {}                       # idx -> list of requests
+    slots: Dict[int, Dict[str, Any]] = {}      # idx -> {"reqs", "outs", "left"}
+    queue: deque = deque()                     # (idx, position)
+    chunk = int(getattr(backend, "chunk_size", 0) or 0)
+    info = dict(done=0, total=n, active=0, calls=0, chunks=0, t0=time.time())
     next_start = 0
-    active = 0
-    finished = 0
-    t0 = time.time()
-    ticks = 0
-
-    def start(idx: int):
-        nonlocal active, finished
-        try:
-            reqs = next(gens[idx])
-            pending[idx] = reqs
-            active += 1
-        except StopIteration as stop:
-            results[idx] = stop.value
-            finished += 1
-            if on_done:
-                on_done(idx, stop.value)
-
     limit = max_inflight if max_inflight > 0 else n
-    while next_start < n and active < limit:
-        start(next_start)
-        next_start += 1
 
-    while pending:
-        order = list(pending.keys())
-        flat, spans = [], []
-        for idx in order:
-            reqs = pending[idx]
-            spans.append((idx, len(flat), len(reqs)))
-            flat.extend(reqs)
-        outs = backend.generate(flat) if flat else []
-        ticks += 1
-        for idx, off, k in spans:
-            del pending[idx]
+    def push(idx: int, reqs) -> None:
+        if not reqs:                           # a generator must always ask for something
+            raise RuntimeError(f"generator {idx} yielded an empty request list")
+        slots[idx] = dict(reqs=reqs, outs=[None] * len(reqs), left=len(reqs))
+        for pos in range(len(reqs)):
+            queue.append((idx, pos))
+
+    def finish(idx: int, value: Any) -> None:
+        results[idx] = value
+        info["done"] += 1
+        info["active"] -= 1
+        if on_done:
+            on_done(idx, value)
+
+    def start_more() -> None:
+        nonlocal next_start
+        while next_start < n and info["active"] < limit:
+            idx = next_start
+            next_start += 1
+            info["active"] += 1
             try:
-                reqs = gens[idx].send(outs[off:off + k])
-                pending[idx] = reqs
+                push(idx, next(gens[idx]))
             except StopIteration as stop:
-                results[idx] = stop.value
-                active -= 1
-                finished += 1
-                if on_done:
-                    on_done(idx, stop.value)
-                while next_start < n and active < limit:
-                    start(next_start)
-                    next_start += 1
+                finish(idx, stop.value)
+
+    start_more()
+    while queue:
+        # next chunk: the oldest request's sampling key, FIFO among equals
+        key = slots[queue[0][0]]["reqs"][queue[0][1]].sampling_key()
+        take, keep = [], deque()
+        while queue:
+            idx, pos = queue.popleft()
+            if (not chunk or len(take) < chunk) and slots[idx]["reqs"][pos].sampling_key() == key:
+                take.append((idx, pos))
+            else:
+                keep.append((idx, pos))
+        queue = keep
+        outs = backend.generate([slots[i]["reqs"][p] for i, p in take])
+        info["calls"] += len(take)
+        info["chunks"] += 1
+        ready = []
+        for (idx, pos), out in zip(take, outs):
+            s = slots[idx]
+            s["outs"][pos] = out
+            s["left"] -= 1
+            if s["left"] == 0:
+                ready.append(idx)
+        for idx in ready:
+            s = slots.pop(idx)
+            try:
+                push(idx, gens[idx].send(s["outs"]))
+            except StopIteration as stop:
+                finish(idx, stop.value)
+        start_more()
         if on_tick is not None:
-            on_tick()
-        if ticks % 20 == 0:
-            logger.info(f"[sched{(' ' + desc) if desc else ''}] tick={ticks} done={finished}/{n} "
-                        f"active={active} batch={len(flat)} elapsed={time.time() - t0:.0f}s")
+            on_tick(dict(info, batch=len(take), queued=len(queue)))
     return results
 
 

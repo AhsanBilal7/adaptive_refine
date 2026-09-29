@@ -129,7 +129,8 @@ class RSIConfig:
     # ── Output ──────────────────────────────────────────────────────────────
     output_root: str = "experiments_results/procedure_rsi"
     checkpoint_every_s: float = 60.0         # in-flight solve states are saved at least this often
-    run_name: str = ""
+    max_inflight_solves: int = 0             # 0 → 4 × batch_size; bounds tick length (= checkpoint granularity)
+    run_name: str = ""                       # "" / "main" → <root>/<model>/ ; else <root>/<model>/runs/<run_name>/
     log_every: int = 5
 
     # ------------------------------------------------------------------
@@ -142,13 +143,33 @@ class RSIConfig:
             return int(self.max_decisions)
         return int(4 * self.n_slots * max(self.budget_cycles, 1.0) + 8)
 
+    def resolved_max_inflight(self) -> int:
+        """Solves active at once.  The HF backend already works in batch_size
+        chunks, so a few chunks per tick keeps the GPU full while each tick
+        (and therefore each checkpoint) stays short."""
+        return int(self.max_inflight_solves) if self.max_inflight_solves > 0 else 4 * max(1, self.batch_size)
+
     def to_dict(self) -> Dict[str, Any]:
         return dataclasses.asdict(self)
 
-    def run_dir(self) -> str:
+    def model_dir(self) -> str:
+        """<root>/<model>/ for the main run; <root>/<model>/runs/<run_name>/ for
+        ablations / smoke / sample runs (same inner layout)."""
         short = os.path.basename(self.model_name.rstrip("/"))
-        name = self.run_name or f"N{self.n_slots}_c{self.budget_cycles:g}_K{self.cf_seeds}_R{self.rounds}"
-        return os.path.join(self.output_root, short, name)
+        base = os.path.join(self.output_root, short)
+        if self.run_name and self.run_name != "main":
+            return os.path.join(base, "runs", self.run_name)
+        return base
+
+    def run_dir(self) -> str:
+        """Development artifacts (splits, rounds, memory, lineage, checkpoints)."""
+        return os.path.join(self.model_dir(), "development")
+
+    def final_procedure_path(self) -> str:
+        return os.path.join(self.model_dir(), "final_procedure.json")
+
+    def dataset_dir(self, dataset: str) -> str:
+        return os.path.join(self.model_dir(), dataset)
 
 
 # Legacy / shared env names accepted in addition to RSI_<FIELD>.

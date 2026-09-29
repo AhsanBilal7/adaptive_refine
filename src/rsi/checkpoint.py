@@ -35,6 +35,7 @@ from typing import Any, Callable, Dict, List, Optional
 
 from .backends import GenerationBackend
 from .procedure import Decision
+from .progress import CONTEXT, Progress
 from .scheduler import run_generators
 from .state import SolveState
 
@@ -101,7 +102,16 @@ def run_jobs(backend: GenerationBackend, jobs: List[Job], prefix: Optional[str],
     """Run jobs to completion with continuous checkpointing (``prefix=None`` → no files)."""
     if prefix is None:
         gens = [j.make_gen(j.state, j.remaining_forced()) for j in jobs]
-        return run_generators(backend, gens, max_inflight=max_inflight, desc=desc)
+        bar = Progress(len(jobs), 0, desc)
+        cnt = [0]
+
+        def _done(i, v):
+            cnt[0] += 1
+
+        out = run_generators(backend, gens, max_inflight=max_inflight, desc=desc, on_done=_done,
+                             on_tick=lambda info: bar.update(cnt[0], info))
+        bar.close(cnt[0], {})
+        return out
 
     os.makedirs(os.path.dirname(prefix) or ".", exist_ok=True)
     done_path, infl_path, stat_path = prefix + ".done.pkl", prefix + ".inflight.pkl", prefix + ".status.json"
@@ -125,15 +135,24 @@ def run_jobs(backend: GenerationBackend, jobs: List[Job], prefix: Optional[str],
     done_f = open(done_path, "ab")
     live = {j.id: j for j in todo}
     last = [time.time()]
+    bar = Progress(len(jobs), len(done), desc)
+    last_info: Dict[str, Any] = {}
 
     def snapshot(force: bool = False):
         if not force and time.time() - last[0] < save_every_s:
             return
         atomic_pickle(dict(states={jid: j.state for jid, j in live.items()},
                            aux=aux_get() if aux_get else None), infl_path)
-        atomic_json(dict(desc=desc, total=len(jobs), done=len(jobs) - len(live), inflight=len(live),
+        atomic_json(dict(context=CONTEXT["label"], desc=desc, total=len(jobs), done=len(jobs) - len(live),
+                         left=len(live), active=last_info.get("active", 0),
+                         model_calls_this_session=last_info.get("calls", 0),
                          updated=time.strftime("%Y-%m-%d %H:%M:%S")), stat_path)
         last[0] = time.time()
+
+    def on_tick(info: Dict[str, Any]):
+        last_info.update(info)
+        bar.update(len(jobs) - len(live), info)
+        snapshot(False)
 
     def on_done(idx: int, res: Any):
         j = todo[idx]
@@ -145,11 +164,12 @@ def run_jobs(backend: GenerationBackend, jobs: List[Job], prefix: Optional[str],
 
     try:
         gens = [j.make_gen(j.state, j.remaining_forced()) for j in todo]
-        run_generators(backend, gens, on_done=on_done, on_tick=lambda: snapshot(False),
+        run_generators(backend, gens, on_done=on_done, on_tick=on_tick,
                        max_inflight=max_inflight, desc=desc)
     finally:
         done_f.close()
         snapshot(force=True)
+        bar.close(len(jobs) - len(live), last_info)
     return [done[j.id] for j in jobs]
 
 

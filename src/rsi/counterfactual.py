@@ -121,6 +121,7 @@ def solve_and_log(ctx: SolveContext, backend: GenerationBackend, problems: Seque
                         (lambda h: (lambda s, forced: solve_gen(ctx, s, proc, snapshot_hook=h)))(hook)))
         metas.append(p)
     outs = run_jobs(backend, jobs, ckpt, desc="solve_and_log", save_every_s=cfg.checkpoint_every_s,
+                    max_inflight=cfg.resolved_max_inflight(),
                     aux_get=aux_get, aux_set=aux_set)
     recs = []
     for p, res in zip(metas, outs):
@@ -244,7 +245,8 @@ def compare_actions(ctx: SolveContext, backend: GenerationBackend, snaps: List[S
             keys.append((bi, k))
     logger.info(f"[CF] round={round_idx} states={len(snaps)} branches={len(all_branches)} "
                 f"continuations={len(jobs)}")
-    outs = run_jobs(backend, jobs, ckpt, desc="counterfactual", max_inflight=max_inflight,
+    outs = run_jobs(backend, jobs, ckpt, desc="counterfactual",
+                    max_inflight=max_inflight or cfg.resolved_max_inflight(),
                     save_every_s=cfg.checkpoint_every_s)
 
     # -- collect per-branch per-seed outcomes --------------------------------
