@@ -1,7 +1,5 @@
 """
-stats.py
-========
-Paired question-level uncertainty for method comparisons (updated_methodology.md §7).
+Paired, question-level confidence intervals for method comparisons.
 
 Unit of analysis = question: repeated seeds are averaged within a question
 first, then method A − method B differences are paired across questions.

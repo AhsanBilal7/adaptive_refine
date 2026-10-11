@@ -1,1 +1,1 @@
-# Source modules for adaptive scientific discovery
+# Python sources of the ARR experiments.

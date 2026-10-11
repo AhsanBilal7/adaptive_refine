@@ -1,21 +1,17 @@
-"""
-voting.py
-=========
-Answer extraction Φ, normalization η, one-answer-per-rollout plurality vote
-and the gold grader — a FIXED extraction and tie-break policy shared by every
-method (updated_methodology.md §3.5).
+"""Answer extraction, normalization, majority vote, and the gold grader.
 
-Conventions (fixed for every method and baseline)
--------------------------------------------------
-* Φ: content of the LAST ``\\boxed{...}``; optionally the last number when no
-  box exists (``extract_fallback_last_number``).  No extraction → abstain.
-* η: paper App. A.5 — strip whitespace, drop ``\\, \\! \\;``, unwrap one layer
-  of braces, drop trailing decimal zeros, lowercase.  Additionally
-  ``\\dfrac/\\tfrac → \\frac``, ``\\left/\\right`` and ``$`` are removed and a
-  trailing period is stripped so trivially identical answers share a vote.
-* Plurality over normalized answers; ties → the answer supported by the
-  LOWEST slot index; all abstain → ``INVALID_ANSWER``.
-* Agreement is never used as a truth or preference label.
+Every method uses the same rules:
+
+* extraction phi: content of the last ``\\boxed{...}``; if there is no box, the
+  last number in the text (``extract_fallback_last_number``).  No answer means
+  the root abstains.
+* normalization: remove spaces, ``$``, ``\\left``/``\\right``, thin spaces, one
+  pair of outer braces, trailing zeros of decimals and a final period; map
+  ``\\dfrac``/``\\tfrac`` to ``\\frac``; lowercase.
+* vote: the most frequent normalized answer over the voting roots; a tie goes
+  to the answer of the lowest root index; no answer at all gives ``[invalid]``.
+* ``Grader`` scores the voted answer against the gold label after the solve
+  finishes.  The controller never sees it.
 """
 
 from __future__ import annotations
@@ -29,8 +25,27 @@ INVALID_ANSWER = "[invalid]"
 _NUM_RE = re.compile(r"-?\d+(?:\.\d+)?")
 
 
+def truncate_at_first_boxed(text: str) -> str:
+    """Text up to and including the first ``\\boxed{...}`` (drops text after the answer)."""
+    if not text:
+        return text
+    m = re.search(r"\\boxed\{", text)
+    if not m:
+        return text
+    start = m.end()
+    depth = 1
+    i = start
+    while i < len(text) and depth > 0:
+        if text[i] == "{":
+            depth += 1
+        elif text[i] == "}":
+            depth -= 1
+        i += 1
+    return text[:i] if depth == 0 else text
+
+
 def extract_answer(text: str, fallback_last_number: bool = True) -> str:
-    """Φ(r): last \\boxed{} content (brace matched), else optional last number."""
+    """Content of the last ``\\boxed{}`` (braces matched), else optionally the last number."""
     if not text:
         return ""
     idx = text.rfind("\\boxed")
@@ -55,7 +70,7 @@ def extract_answer(text: str, fallback_last_number: bool = True) -> str:
 
 
 def normalize_answer(ans: str) -> str:
-    """η(a) — returns "" for invalid/empty answers."""
+    """Normalized form of an answer (``""`` for an empty or invalid answer)."""
     s = str(ans or "").strip()
     if not s:
         return ""
@@ -73,7 +88,7 @@ def normalize_answer(ans: str) -> str:
     return s.lower()
 
 
-def plurality_vote(norm_answers: Sequence[str], display: Optional[Sequence[str]] = None
+def majority_vote(norm_answers: Sequence[str], display: Optional[Sequence[str]] = None
                    ) -> Tuple[str, str, Dict[str, int]]:
     """Return (winner_norm, winner_display, counts) with lowest-slot tie-break.
 
@@ -104,13 +119,9 @@ class Grader:
         self._ev = None
         self._check = None
         self._cache: Dict[Tuple[str, str], bool] = {}
-        try:
-            from src.inference_methods import _build_evaluator, _check_correct  # type: ignore
-            self._ev = _build_evaluator(data_name)
-            self._check = _check_correct
-        except Exception:
-            self._ev = None
-            self._check = None
+        from .evaluators import build_evaluator, check_correct
+        self._ev = build_evaluator(data_name)
+        self._check = check_correct
 
     def is_correct(self, pred: str, gold: Optional[str]) -> Optional[bool]:
         if gold is None:
@@ -133,11 +144,13 @@ class Grader:
 
 
 def sanity_check_grader(grader: Grader) -> List[str]:
-    """§9: check extraction on known (in)equivalent answers and that the
+    """Check extraction on known (in)equivalent answers and that the
     evaluator detects deliberately changed predictions.  Returns failures."""
     failures: List[str] = []
     equiv = [("\\frac{1}{2}", "0.5"), ("3.500", "3.5"), ("{7}", "7"), ("\\dfrac{3}{4}", "\\frac{3}{4}"),
              ("28", "28")]
+    if grader.data_name == "gsm8k":                 # numeric-only answers and grader
+        equiv = [("3.500", "3.5"), ("28", "28")]
     inequiv = [("2", "3"), ("\\frac{1}{2}", "\\frac{1}{3}"), ("12", "21"), ("-5", "5")]
     for a, b in equiv:
         if not grader.is_correct(a, b):
@@ -163,6 +176,6 @@ def sanity_check_grader(grader: Grader) -> List[str]:
 
 
 __all__ = [
-    "INVALID_ANSWER", "extract_answer", "normalize_answer", "plurality_vote",
+    "INVALID_ANSWER", "extract_answer", "normalize_answer", "majority_vote", "truncate_at_first_boxed",
     "Grader", "sanity_check_grader",
 ]

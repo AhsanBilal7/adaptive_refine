@@ -1,38 +1,26 @@
-"""
-evaluator_classes.py
---------------------
-Evaluator classes for answer extraction and equivalence checking.
-Ported from the project's Evaluator.py.
+"""Dataset-specific answer graders (used only after a solve finishes).
 
-Key improvement over plain string equality
--------------------------------------------
-MATHEvaluator._check_answers_equiv uses a four-level strategy:
-  1. Exact string match (case-insensitive)
-  2. Normalised LaTeX match  — strips \\left/\\right, collapses whitespace,
-     normalises comma spacing.  Catches cases like:
-       \\left( \\frac{3}{5}, \\frac{8}{3} \\right]  ==  \\left(\\frac{3}{5},\\frac{8}{3}\\right]
-  3. latex_equiv  (symbolic, via grader.math_equal fallback when unavailable)
-  4. latex_equiv on the normalised forms
+The graders never influence the controller: ARR and every baseline choose their
+answer by majority vote over extracted answers, and the grader only scores that
+answer against the gold label.  ``build_evaluator(dataset)`` returns the grader
+of a benchmark and ``check_correct(pred, gold, ev, dataset)`` applies it.
+
+The math grader (``MATHEvaluator``) tries, in order: exact string match, a
+normalized LaTeX match (``\\left``/``\\right``, spacing, commas), and symbolic
+equivalence with ``latex_equiv``.
 """
 
 import re
 from typing import Tuple
 
-# ── latex_equiv with graceful fallback ────────────────────────────────────────
 try:
-    from help_functions.math_toolkit.latex_answer_check import latex_equiv  # type: ignore
-except ImportError:
+    from .math_toolkit.latex_answer_check import latex_equiv
+except ImportError:                     # SymPy / pyparsing missing: fall back to string equality
     def latex_equiv(a: str, b: str) -> bool:  # type: ignore
-        try:
-            from grader import math_equal  # type: ignore
-            return bool(math_equal(a, b, timeout=True))
-        except Exception:
-            return a.strip() == b.strip()
+        return a.strip() == b.strip()
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # LaTeX normalisation helper
-# ──────────────────────────────────────────────────────────────────────────────
 
 def _normalise_latex(s: str) -> str:
     """
@@ -62,9 +50,7 @@ def _normalise_latex(s: str) -> str:
     return s.strip()
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Base Evaluator
-# ──────────────────────────────────────────────────────────────────────────────
 
 class Evaluator:
     def __init__(self, num_last_chars_for_eval=128) -> None:
@@ -172,9 +158,7 @@ class Evaluator:
         return majority_completion, majority_answer
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Dataset-specific evaluators
-# ──────────────────────────────────────────────────────────────────────────────
 
 class GSM8KEvaluator(Evaluator):
     def __init__(self) -> None:
@@ -200,7 +184,6 @@ class GSM8KEvaluator(Evaluator):
     def _extract_answer_from_model_completion(self, completion: str):
         ans = self._remove_boxed(completion)
         return ans if ans else None
-
 
 
 def _numeric_equiv(a: str, b: str, tol: float = 1e-2) -> bool:
@@ -321,15 +304,11 @@ class OlympiadEvaluator(Evaluator):
         return ans if ans else None
 
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Registry
-# ──────────────────────────────────────────────────────────────────────────────
 
-# ──────────────────────────────────────────────────────────────────────────────
 # Registry
-# ──────────────────────────────────────────────────────────────────────────────
 
-# ── Multiple-choice evaluator (MMLU, ARC-Challenge) ───────────────────────────
+# Multiple-choice evaluator (MMLU, ARC-Challenge)
 # Gold answer is a single letter A/B/C/D.
 # Model answer is extracted by looking for the last standalone letter
 # A/B/C/D in the completion (inside \boxed{} if present, otherwise raw).
@@ -396,7 +375,7 @@ class MCQEvaluator(Evaluator):
         return completion.strip()[:1].upper()
 
 
-# ── Yes/No evaluator (StrategyQA) ──────────────────────────────────────────────
+# Yes/No evaluator (StrategyQA)
 # Gold answer is "yes" or "no".  Model answer is extracted by searching
 # for the first occurrence of "yes" or "no" in the completion.
 
@@ -443,7 +422,7 @@ class YesNoEvaluator(Evaluator):
         return ""
 
 
-# ── BBH (Big-Bench Hard) evaluator ────────────────────────────────────────────
+# BBH (Big-Bench Hard) evaluator
 # BBH tasks have heterogeneous answer formats (letters, words, numbers, dates).
 # We use a multi-strategy approach: exact match → normalised string → numeric.
 
@@ -521,7 +500,7 @@ EvaluatorMapping = {
     "AIME2024":          MATHEvaluator,
     "OlympiadBench":     OlympiadEvaluator,
     "NuminaMath":        MATHEvaluator,
-    # ── New general-reasoning benchmarks ──────────────────────────────────────
+    # New general-reasoning benchmarks
     "MMLU":              MCQEvaluator,
     "ARC":               MCQEvaluator,
     "ARC_Challenge":     MCQEvaluator,
@@ -545,3 +524,47 @@ def get_evaluator(task_name: str = "MATH500") -> Evaluator:
     if "TruthfulQA" in task_name or "truthful" in task_name.lower():
         return MCQEvaluator()
     raise ValueError(f"Task '{task_name}' not in EvaluatorMapping")
+
+
+# Benchmark name -> grader key of ``get_evaluator``.
+EVALUATOR_KEYS = {
+    "math500": "MATH500",
+    "math": "MATH500",
+    "aime24": "AIME2024",
+    "aime25": "AIME",
+    "amc23": "AMC2023",
+    "gsm8k": "GSM8K",
+    "olympiadbench": "OlympiadBench",
+    "college_math": "MATH500",
+    "minerva_math": "MATH500",
+    "custom": "MATH500",
+    "mmlu": "MMLU",
+    "bbh": "BBH",
+    "arc_challenge": "ARC_Challenge",
+    "truthfulqa": "TruthfulQA",
+    "strategyqa": "StrategyQA",
+}
+
+
+def build_evaluator(data_name: str):
+    """Return the grader of benchmark ``data_name`` (``None`` if it cannot be built)."""
+    try:
+        return get_evaluator(EVALUATOR_KEYS.get(data_name, "MATH500"))
+    except Exception:
+        return None
+
+
+def check_correct(pred: str, gold, ev, data_name: str):
+    """True if ``pred`` matches ``gold`` under grader ``ev``; ``None`` if there is no gold label."""
+    if gold is None:
+        return None
+    if not pred:
+        return False
+    if ev is not None:
+        try:
+            result = ev.check_answers_equiv(pred, gold)
+            if result is not None:
+                return bool(result)
+        except Exception:
+            pass
+    return pred.strip() == gold.strip()

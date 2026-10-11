@@ -6,6 +6,12 @@
 # Based on ToRA (https://github.com/microsoft/ToRA/blob/main/src/eval/grader.py)
 # Modified by Weiqi Wang
 # ---------------------------------------------------------
+"""Symbolic equivalence of two LaTeX answers (used by the math graders).
+
+``latex_equiv(a, b)`` normalizes both strings, parses them with SymPy, and
+compares them numerically and symbolically (sets, intervals, matrices and
+permutations of tuples included).
+"""
 import re
 from typing import Union, Any
 from copy import deepcopy
@@ -15,10 +21,7 @@ from sympy.parsing.latex import parse_latex
 from sympy.parsing.sympy_parser import parse_expr
 from itertools import permutations
 
-from help_functions.math_toolkit.parsing_lib import *
-# from .custom_toolkit.latex import transform_tex
-# from evaluation.utils.custom_toolkit.latex import check_tex_equiv
-# from evaluation.utils.custom_toolkit.funcs import check_funcs_equiv
+from .parsing_lib import *
 
 
 def has_numbers(input_string: str) -> bool:
@@ -183,20 +186,7 @@ def sqrt_to_float(sqrt_str):
     raise ValueError("Input is not a valid \sqrt[]{} string")
 
 
-#TODO: this one does not work when running RL, don't know why
-# def convert_latex_numerical_string_to_float(latex_str):
-#     """
-#     Evaluate a LaTeX string to its numerical value.
-#     Handles nested fractions and square roots.
-#     """
-#     try:
-#         res = transform_tex(latex_str, "sympy")
-#         res = float(res)
-#         return res
-#     except:
-#         pass
     
-#     return None
 
 
 def convert_latex_numerical_string_to_float(latex_str):

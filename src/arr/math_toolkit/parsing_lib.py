@@ -1,3 +1,4 @@
+"""String and LaTeX normalization helpers used by ``latex_answer_check``."""
 from pyparsing import *
 from typing import List
 import os
