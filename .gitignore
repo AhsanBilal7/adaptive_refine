@@ -9,8 +9,29 @@ __pycache__/
 *.png
 *.pdf
 *.csv
-
-experiments_results/
 *.pkl
 *.lock
 .lock
+!uv.lock
+
+# README figures and animations
+!assets/*.png
+!assets/*.gif
+
+# local environment, data, and results
+.env
+.venv/
+.work/
+experiments_results/
+results/
+
+# paper sources and cluster-specific tooling (not part of the release)
+overleaf_paper/
+configs/specs/
+arr_dispatch.py
+batch_arr_multi.sh
+srun_arr.sh
+updated_methodology.md
+refined_methodology.md
+configs/arr_qwen_1b.conf
+batch_nd_sweep.sh
