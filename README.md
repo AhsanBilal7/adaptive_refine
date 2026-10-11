@@ -1,183 +1,299 @@
-# Adaptive Delta Refinement (ADR): repair only the reasoning that must change
+<div align="center">
 
-This repository contains:
+# Adaptive Replay Refinement
 
-1. **The base method, *Refining Over Resampling* (CIMR):** `N` independent rollouts, each refined `D` times by *rewrite → critique → correct*, then a plurality vote. The untouched original code is on the **`cimr` branch**. On `main`, the original paired-ablation scripts are kept, and a faithful CIMR baseline is built into the ADR runner.
-2. **Adaptive Delta Refinement** (`updated_methodology.md`), on `main`. It is the same independent rollouts and the same one-answer-per-rollout vote, with one change inside each rollout: **instead of regenerating the whole solution, regenerate only the faulty step and the steps that depend on it**, and reuse everything else verbatim.
+### Allocating Compute between Revision and Resampling
 
-ADR is training-free and works on the current question alone. It has no development set, no learned controller, no reward model, no procedure file, and no cross-question memory.
+*Official code of the paper (under anonymous review).*
 
----
+<img src="assets/overview.png" width="100%" alt="Overview of Adaptive Replay Refinement">
 
-## The method in one example (methodology §4)
+</div>
 
-A rectangle is 12 m by 5 m; paint costs $3/m², fence $2/m. The model writes a numbered solution with dependency ids:
+**Should a model keep improving a solution, or stop and try a new one?**
+Adaptive Replay Refinement (**ARR**) answers this question at inference time, without training.
+ARR revises each sampled solution with one fixed greedy revision operator.
+When a revision reproduces its input exactly, the solution is a **fixed point**: more revision cannot change it.
+ARR then gives the compute of that solution to a **new independent sample**.
+**Replay decoding** makes this test cheap: it uses the current solution as a draft and verifies its tokens in parallel.
 
-```text
-1. uses: []      Area: 12×5 = 50            ← wrong
-2. uses: []      Perimeter: 2(12+5) = 34
-3. uses: [1]     Paint: 3×50 = 150
-4. uses: [2]     Fence: 2×34 = 68
-5. uses: [3, 4]  Total: 150+68 = \boxed{218}
-```
-
-The critic says `FIX 1 | 12×5 is 60`. The repair set is step 1 plus everything that (indirectly) uses it: **A(1) = {1, 3, 5}**. Steps 2 and 4 stay **byte-for-byte**. The corrector outputs only three replacement lines (60, 180, `\boxed{248}`).
-
-For comparison, a full rewrite regenerates all 5 steps, and suffix regeneration from step 1 also regenerates all 5.
+- **Exact stop signal.** A fixed point is detected exactly. ARR has no confidence threshold, critic, tuned revision depth, or learned controller.
+- **Short critical path.** Replay checks up to *W* = 32 reused tokens in one forward pass. On MATH500, ARR reaches 84.6% accuracy with 0.41 of the serial forward passes of majority voting.
+- **Equal-compute comparison.** All methods share one FLOP account per question that charges every processed token: prompts, accepted and rejected draft tokens, and truncated calls.
 
 ---
 
-## How the code implements the methodology
+## Contents
 
-| Methodology | Implementation | File |
-|---|---|---|
-| §3.1 structured solutions | One call per rollout produces `k. uses: [...]` steps. They are parsed deterministically into a DAG (ids 1..m, references only backward). A malformed solution takes the full-rewrite fallback until it is valid. | `src/adr/structure.py`, `src/adr/prompts.py` |
-| §3.2 critic | The same frozen model returns `DECISION: KEEP`, `FIX <step> \| <error>`, or `REBUILD \| <reason>`. It checks both the math and missing dependency references, and never sees other rollouts or the majority. | `src/adr/prompts.py` |
-| §3.3 repair set | `A(j) = {j} ∪ Desc(j)` by BFS over the DAG. There are no scores, thresholds, or top-k. `A(j) ⊆ {j..m}` always. | `structure.repair_set_adr` |
-| §3.4 patch | The corrector gets the question, the current solution, the error, and the exact ids allowed to change. It must return exactly those ids. Other steps are kept verbatim. Dependency lists may change but must point backward. An invalid patch triggers the full-rewrite fallback if affordable; otherwise the previous solution is kept. | `structure.apply_patch`, `methods.direct_gen` |
-| §3.5 / §5 loop | Round-robin over active rollouts: critique → KEEP freezes / FIX patches / REBUILD rewrites. A repeated complete state freezes the rollout (cycle). The loop stops when all rollouts are frozen or no turn is affordable. The last complete solution of each rollout votes (plurality; ties go to the lowest rollout index). | `methods.direct_gen`, `voting.py` |
-| §5 budget | Every call, failed output, and fallback is charged with its **real** tokens. Each turn reserves the maximum cost of critique + update. Only actual cost is charged, so a KEEP returns the unused allowance. An incomplete update never replaces a complete solution. | `budget.py`, `methods.py` |
-| §6 configuration | Breadth `N` plus a predeclared set of total budgets `B` replace depth `D`. All methods share the same decoding and per-call caps. | `config.py`, `.env` |
-| §7 comparison | `cimr` (original three-stage, fixed D), `full_rewrite` (direct critique + full rewrite, same stopping rule; = ablation 2), `suffix` (direct critique + regenerate steps j..end), **`adr`**, `adr_all_deps` (ablation 1: every step uses all earlier steps, so A(j) = suffix), and `maj_matched` (compute-matched majority sampling under the same B). The four direct-critique variants start from the **same structured solutions and identical first critiques** (shared prefix). | `methods.py`, `runner.py` |
-| §7 reporting | Accuracy and solved count vs. total input/output tokens and FLOPs; wall-clock latency (same batching); fraction of reasoning regenerated per repair and `\|A\|/suffix`; wrong→correct and correct→wrong changes; format failures, fallback rate, invalid-update rate; KEEP/FIX/REBUILD counts; paired question-level comparisons against ADR (sign-flip p-value and 95% bootstrap CI). | `runner.summarize`, `stats.py` |
-| §7 pilot | `pilot`: ADR on 50 questions. Reports dependency well-formedness, repair-set vs. suffix sizes, and fallback rate, then gives a verdict ("do not begin a large sweep" if the solutions are mostly linear or fallbacks dominate). It fits nothing. | `run_adr.py pilot`, `runner.pilot_report` |
-
-**Not included:**
-* **Thought-ICS** (autonomous), the external full-system baseline in §7. Run it from its own release under the same budgets.
-* The **dependency-omission audit** on a labeled sample (§8). This is a manual analysis; the per-turn records in `results_*.jsonl` contain every solution version and repair set it needs.
+- [How ARR works](#how-arr-works)
+- [Results](#results)
+- [Installation](#installation)
+- [Quick start](#quick-start)
+- [Reproducing the paper](#reproducing-the-paper)
+- [Methods](#methods)
+- [Configuration](#configuration)
+- [Outputs](#outputs)
+- [Analysis and figures](#analysis-and-figures)
+- [Repository structure](#repository-structure)
+- [Citation](#citation)
 
 ---
 
-## Project structure
+## How ARR works
 
-```text
-├── .env / sample.env           machine paths + predefined variables (sourced by every script)
-├── configs/
-│   ├── adr_<model>.conf        model-specific overrides (context length, batch size)
-│   ├── adr_aime24.conf         experiment: §7 comparison on AIME24
-│   ├── adr_math500.conf        experiment: §7 main study on MATH500
-│   └── <model>[_cric_corr].conf  original CIMR N×D sweep configs
-├── run_adr.py                  CLI: sanity | pilot | run
-├── run_adr.sh / batch_adr.sh   launcher (sources .env + confs, venv, lock, log) / Slurm wrapper
-├── src/adr/                    Adaptive Delta Refinement
-│   ├── structure.py            parse / validate DAG, repair sets, patch & suffix splicing
-│   ├── prompts.py              generation, critic (KEEP/FIX/REBUILD), patch, suffix, rewrite
-│   ├── methods.py              shared prefix, direct-critique loop, CIMR, compute-matched majority
-│   ├── runner.py               cells per budget, grading, metrics, paired comparisons, pilot
-│   ├── backends.py, budget.py  model calls with real token counts; compute meter
-│   ├── scheduler.py            continuous batching across all solves
-│   ├── checkpoint.py, progress.py   continuous saving / resume; readable progress
-│   └── voting.py, stats.py, config.py, state.py
-├── src/cimr_*.py, model_wrapper.py, dataset_loader.py, evaluator_classes.py, ...   shared + original pipeline
-├── run_paired_ablation.{py,sh}, run_nd_sweep.sh, batch_nd_sweep.sh   original CIMR scripts
-└── tests/test_adr.py           18 unit tests (scripted backend, no GPU)
-```
+### 1. Replay decoding
+
+ARR revises a solution *y* to the question *x* with greedy decoding of a fixed revision prompt, *F<sub>x</sub>(y) = Greedy(ρ(x, y))*.
+A revision usually reproduces a long prefix of its input, so replay decoding uses *y* as a draft.
+It checks *W* draft tokens in one parallel pass and accepts the longest prefix that matches the greedy predictions.
+At the first disagreement it keeps the model's token, drops the rest of the draft, and continues with ordinary greedy decoding.
+The output is **identical** to ordinary greedy decoding; only the number of serial passes changes.
+
+<p align="center">
+  <img src="assets/replay_decoding.gif" width="92%" alt="Replay decoding animation">
+</p>
+
+If the whole draft is accepted, termination token included, then *F<sub>x</sub>(y) = y*.
+Because *ρ* depends only on *(x, y)* and greedy decoding is deterministic, every later revision also returns *y*: the root has reached a fixed point.
+A fixed point of 512 tokens with *W* = 32 costs 17 serial passes instead of 513.
+
+### 2. Fixed-point replacement
+
+ARR keeps *N* = 4 active roots (solutions) and applies one rule to the revision *z* of each root:
+
+| Revision *z* | Action |
+|---|---|
+| complete and different from *y* | *z* replaces *y*; revise again |
+| identical to *y* (fixed point) | keep *y* as the root's final vote; sample a **new root** in its slot if the budget allows |
+| truncated by the output cap or the budget | keep the last complete solution |
+
+The prediction is the **majority vote** over one final answer per root.
+Depth (revisions per root) and breadth (number of roots) adapt to each question with no tuned parameter.
+
+<p align="center">
+  <img src="assets/arr_allocation.gif" width="92%" alt="ARR compute allocation animation">
+</p>
+
+---
+
+## Results
+
+<p align="center">
+  <img src="assets/main_results.png" width="100%" alt="Accuracy against serial forward passes">
+</p>
+
+<p align="center"><em>Accuracy against the median number of serial forward passes on the critical path (Qwen2.5-Math-7B-Instruct; each point is one budget B ∈ {200, 400, 800} TFLOPs per question).</em></p>
+
+- **More accuracy per serial pass.** On MATH500, AMC23, and AIME24, ARR is above ARR<sub>AR</sub>, SETS, and Majority Voting over most of the latency range.
+- **Equal FLOPs.** At *B* = 800, ARR and Majority Voting are equal within noise on MATH500, AMC23, and AIME24 (84.6% each on MATH500). Majority Voting is better on OlympiadBench, AIME25, and GSM8K.
+- **Shorter critical path.** At *B* = 800, ARR needs 0.41–0.61 of the serial passes of Majority Voting at equal FLOPs, and writes 18.2k instead of 46.7k output tokens per MATH500 question.
+- **Generality.** The method transfers to seven models from five families (Qwen2.5, Qwen3, Qwen3.5, Ministral, Gemma-4) and to LiveBench reasoning.
+
+<details>
+<summary><b>When should revision receive compute?</b></summary>
+
+<p align="center"><img src="assets/revision_dynamics.png" width="100%" alt="Revision dynamics"></p>
+
+Most revisions converge quickly: 49% of first revisions are already fixed points, and the net repair of a revision falls to about zero after four revisions.
+Revision helps when it repairs more answers than it breaks; otherwise independent samples are the better use of compute.
+
+<p align="center"><img src="assets/regimes.png" width="100%" alt="Revision quality and stopping rules"></p>
+
+</details>
+
+<details>
+<summary><b>Motivation: revision exhausts after a few steps</b></summary>
+
+<p align="center"><img src="assets/motivation.png" width="60%" alt="Motivation"></p>
+
+On MATH500 most solutions reach a fixed point within a few revisions, so a fixed revision schedule spends much of its compute on solutions that can no longer change.
+
+</details>
 
 ---
 
 ## Installation
 
-The environment is pinned by `pyproject.toml` + `uv.lock` (Python 3.12, torch 2.10+cu128, transformers 4.57.6):
+The code needs Python ≥ 3.10, PyTorch, and Hugging Face Transformers. We ran every experiment on a single A100 or H100 GPU.
 
 ```bash
-set -a; source .env; set +a       # UV_CACHE_DIR, UV_PYTHON_INSTALL_DIR, UV_PROJECT_ENVIRONMENT=$VENV_PATH (scratch)
-uv sync --frozen --python 3.12 --no-install-package vllm
+git clone <this-repository> arr && cd arr
+uv sync                      # creates .venv from pyproject.toml / uv.lock
+# or: python -m venv .venv && .venv/bin/pip install "torch>=2.4" "transformers>=4.57" accelerate datasets \
+#     numpy sympy antlr4-python3-runtime==4.13.2 pyparsing
+cp sample.env .env           # then edit the paths in .env
 ```
 
-`--no-install-package vllm` is needed on these RHEL8 nodes. The locked vllm wheel requires glibc ≥ 2.31; the nodes ship 2.28. The default backend is HF.
-
-Compute nodes are offline, so cache models and datasets from a login node first:
-
-```bash
-source $VENV_PATH/bin/activate
-python -c "from huggingface_hub import snapshot_download as d; d('Qwen/Qwen2.5-Math-7B-Instruct')"
-python -c "import sys; sys.path.insert(0,'.'); from src.dataset_loader import load_dataset_split as l; [l(x) for x in ['aime24','aime25','amc23','math500','olympiadbench']]"
-```
+Gemma-4-E4B and Qwen3.5 need `transformers >= 5`. Install it in a second environment and set `TF5_VENV_PATH` in `.env`; the configs of these models use it.
 
 ---
 
-## Configuration: `.env` → `configs/*.conf` → CLI
+## Quick start
 
-* **`.env`** holds paths and the predefined variables. Big files go to scratch: `ADR_OUTPUT_ROOT=$SCRATCH/adr_results`, plus the HF/uv/pip caches and the venv.
-* **`configs/*.conf`** are sourced after `.env` and override it. Stack them with commas (model conf first, then the experiment conf).
-* **CLI flags** (`--<field>`) override both. Every field of `src/adr/config.py:ADRConfig` reads `ADR_<FIELD>`.
+```bash
+# 1. CPU checks: graders, answer extraction, and on a tiny random model that replay
+#    decoding equals greedy decoding, fixed points are detected, and budgets hold.
+bash run_arr.sh sanity
+python -m unittest tests/test_arr.py -v
+
+# 2. ARR and every baseline on AIME 2024 with Qwen2.5-Math-7B-Instruct, B = 200, 400, 800 TFLOPs.
+bash run_arr.sh run configs/arr_qwen_math_7b.conf,configs/arr_aime24.conf
+
+# 3. Print the results table.
+python parse_arr_results.py --dataset aime24
+```
+
+`run_arr.sh` sources `.env`, then the comma-separated config files in order, and calls `run_arr.py`.
+Results are appended after each finished question, so the same command resumes an interrupted run.
+On a Slurm cluster, `sbatch batch_arr.sh run <configs>` runs the same command on one GPU.
+
+---
+
+## Reproducing the paper
+
+Each experiment is one model config plus one benchmark config, optionally followed by an ablation config.
+
+| Experiment | Command |
+|---|---|
+| Main results, primary model | `bash run_arr.sh run configs/arr_qwen_math_7b.conf,configs/arr_<benchmark>.conf` |
+| Benchmarks | `math500_all`, `olympiadbench`, `amc23`, `aime24`, `aime25`, `gsm8k`, `livebench` |
+| Other models | `arr_qwen3_8b`, `arr_ministral_8b`, `arr_gemma4_e4b`, `arr_qwen35_9b`, `arr_qwen35_2b`, `arr_qwen_7b` (LiveBench) |
+| More seeds | append `configs/arr_seed1.conf` (… `arr_seed4.conf`) |
+| ConMA baseline | append `configs/arr_conma.conf` |
+| Stopping-rule ablation | append `configs/arr_abl_stop.conf` |
+| Width *N* | append `configs/arr_n2.conf` or `configs/arr_n8.conf` (with `arr_methods_nabl.conf`) |
+| Block size *W* | append `configs/arr_w8.conf`, `arr_w16.conf`, or `arr_w64.conf` |
+| Temperature | append `configs/arr_temp05.conf` or `configs/arr_temp10.conf` |
+| Budget *B* = 1600 | append `configs/arr_budget1600.conf` |
+| Revision prompt | append `configs/arr_revprompt1.conf` or `configs/arr_revprompt2.conf` |
+| Latency-matched budgets | append `configs/arr_passes_budget.conf` |
+| Wall-clock timing | append `configs/arr_timing.conf` (one solve at a time on an exclusive GPU) |
+
+Write each ablation to its own output root, named after the main root with a suffix, so that `collect_results.py` reports it as a variant:
+
+```bash
+ARR_OUTPUT_ROOT=$PWD/.work/arr_results_n8 \
+  bash run_arr.sh run configs/arr_qwen_math_7b.conf,configs/arr_math500_all.conf,configs/arr_methods_nabl.conf,configs/arr_n8.conf
+```
+
+Large benchmarks can be split over GPUs with `ARR_SHARD=i/n` (question index modulo *n*); the analysis merges the shards.
+
+---
+
+## Methods
+
+Every method starts from the same *N* sampled roots, uses the same prompts, output cap, answer extraction, and majority vote, and spends the same FLOP budget *B*.
+
+| Paper name | `ARR_METHODS` key | Update of a root | Stop / reallocation |
+|---|---|---|---|
+| **ARR** (ours) | `arr` | greedy revision, replay decoding | fixed point → new root |
+| ARR<sub>AR</sub> | `replace_ordinary` | greedy revision, ordinary decoding | fixed point → new root |
+| ARR<sub>PLD</sub> | `replace_pld` | greedy revision, prompt-lookup decoding | fixed point → new root |
+| ARR<sub>Depth</sub> | `arr_no_replace` | greedy revision, replay decoding | fixed point → root retires, no new root |
+| Self-Refine | `direct_fixed` | greedy revision | fixed depth *D* = 4 |
+| SETS | `critic_correct` | critique, then correction | fixed point → new root |
+| Sequential Revision | `continuation` | sampled continuation | until the budget ends |
+| Majority Voting | `maj` | none (independent samples) | every sample → new root |
+| ConMA | `conma` | confidence-guided kernel sampling | one answer left in the kernel |
+| Ablation: answer stop | `arr_answer` | as ARR | extracted answer unchanged → new root |
+| Ablation: one revision | `arr_once` | as ARR | after one revision → new root |
+
+---
+
+## Configuration
+
+Settings are read in this order (later wins): defaults in `src/arr/config.py` < `.env` < config files < command-line flags `--<field>`.
+Each field `foo_bar` is the environment variable `ARR_FOO_BAR`.
 
 | Variable | Default | Meaning |
 |---|---|---|
-| `MODEL_NAME` | per conf | frozen model used in every role |
-| `ADR_N_ROLLOUTS` | 4 | breadth N |
-| `ADR_BUDGETS` | `30000,60000` | predeclared total per-question budgets B |
-| `ADR_COST_MEASURE` | `tokens` | budget unit (`tokens`, `tflops`, `calls`; FLOPs = 2·params·tokens) |
-| `ADR_TEMPERATURE`, `ADR_TOP_P` | 0.7, 0.95 | shared decoding for solutions / rewrites / patches |
-| `ADR_CRITIQUE_TEMPERATURE` | 0.0 | deterministic critic |
-| `ADR_GEN_MAX_NEW_TOKENS`, `ADR_PATCH_MAX_NEW_TOKENS`, `ADR_CRITIQUE_MAX_NEW_TOKENS` | 1536 / 1024 / 384 | shared per-call output caps |
-| `ADR_CIMR_DEPTH` | 4 | D of the original-method baseline |
-| `ADR_METHODS`, `ADR_DATASETS`, `ADR_SEEDS` | all six, `math500`, 1 | what to run |
+| `MODEL_NAME` | `Qwen/Qwen2.5-Math-7B-Instruct` | Hugging Face model |
+| `ARR_METHODS` | all methods of the main table | comma-separated method keys |
+| `ARR_DATASETS` | `aime24` | `math500`, `olympiadbench`, `amc23`, `aime24`, `aime25`, `gsm8k`, `livebench_reasoning` |
+| `ARR_BUDGETS` | `200,400,800` | per-question budgets *B* |
+| `ARR_COST_MEASURE` | `tflops` | `tflops` (FLOPs) or `passes` (serial forward passes) |
+| `ARR_N_ACTIVE` | `4` | width *N*: number of active roots |
+| `ARR_BLOCK_SIZE` | `32` | block size *W* of replay decoding (speed only, not output) |
+| `ARR_MAX_NEW_TOKENS` | `1536` | output cap *T*<sub>max</sub> of every call |
+| `ARR_TEMPERATURE`, `ARR_TOP_P` | `0.7`, `0.95` | sampling of new roots |
+| `ARR_REVISE_PROMPT` | `0` | revision prompt *ρ* (0) or a paraphrase (1, 2) |
+| `ARR_FIXED_DEPTH` | `4` | depth *D* of Self-Refine |
+| `ARR_SEEDS`, `ARR_SEED_IDS` | `1`, all | number of seeds, or only some seed indices |
+| `ARR_OUTPUT_ROOT` | `$SCRATCH/arr_results` | output directory |
 
 ---
 
-## How to run
+## Outputs
 
-```bash
-# 0) checks (no GPU): grader, extraction, parser, the §4 worked example (A(1) = {1,3,5}), patch splicing
-bash run_adr.sh sanity
-
-# 1) §7 feasibility pilot: 50 MATH500 questions, ADR only
-sbatch batch_adr.sh pilot configs/adr_qwen_7b.conf
-
-# 2) the comparison on AIME24 (or MATH500)
-sbatch batch_adr.sh run configs/adr_qwen_7b.conf,configs/adr_aime24.conf
-#    interactive node instead:  ssh <node>; HF_HUB_OFFLINE=1 nohup bash run_adr.sh run configs/adr_qwen_7b.conf,configs/adr_aime24.conf &
-
-# 3) tests
-python -m unittest tests/test_adr.py -v
+```
+$ARR_OUTPUT_ROOT/<model>/<dataset>/
+├── config.json                      settings, checkpoint, chat template, engine facts
+├── cohort/seed<k>.jsonl             the shared initial roots of every question
+├── B<budget>/results_<method>.jsonl one record per question and seed: roots, revisions,
+│                                    votes, answer, correctness, cost, serial passes, events
+├── B<budget>/summary.json           metrics per method and paired comparisons with ARR
+└── summary_all.json                 every budget and method in one table
 ```
 
-**Monitoring.** The log prints a progress line every minute:
-
-```text
-aime24 · cell 2/3 B=30000 · method 4/5 adr · 30 solves:  40%|████  | 12/30 [0:12:11<0:18:00] | left=18 in-flight=18 model-calls=640
-```
-
-Each cell has `ckpt*.status.json` files with done/left counts.
-
-**Resume.** Everything is saved continuously on scratch:
-* finished solves are appended immediately;
-* in-flight question states are snapshotted every `ADR_CHECKPOINT_EVERY_S` seconds;
-* finished (cell, method) results are skipped.
-
-After a killed job, **run the same command again**. A lock prevents two identical runs.
-
-### Output layout
-
-```text
-$ADR_OUTPUT_ROOT/<model>/                       (default $SCRATCH/adr_results/<model>/)
-├── experiment.log
-└── <dataset>/                                  e.g. aime24/
-    ├── config.json, summary_all.json           every cell × method in one table
-    ├── prefix/                                 shared structured solutions + first critiques (+ checkpoints)
-    ├── cimr_D4/                                original method: results_cimr.jsonl, summary.json
-    └── B30000/, B60000/                        one folder per predeclared budget
-        ├── results_<method>.jsonl              per question: answers, cost, latency, every turn
-        │                                        (feedback, repair ids, |A|, suffix size, fallback, answers before/after)
-        ├── summary.json                        metrics per method + paired comparisons vs adr
-        └── ckpt/
-```
-
-**Success criterion (§7).** At comparable accuracy, `adr` must cost less than **both** `full_rewrite` and `suffix`. Beating only `cimr` would support a simpler implementation change, not the research claim.
+Reported metrics include accuracy per seed, TFLOPs, serial passes on the critical path (median and p95), wall-clock latency, output tokens, roots and votes per question, fixed-point rate, accepted-prefix fraction, answers repaired and broken by revision, and paired question-level 95% confidence intervals.
 
 ---
 
-## Original CIMR pipeline
-
-The untouched original code lives on the `cimr` branch (`git checkout cimr`). On `main` the original scripts still work. They source `.env` for paths.
+## Analysis and figures
 
 ```bash
-bash run_paired_ablation.sh --model_name Qwen/Qwen2.5-Math-7B-Instruct --cimr_n_rollouts 8 --cimr_depth 4 aime24 amc23 math500
-bash run_nd_sweep.sh configs/qwen_7b.conf           # N_VALUES × D_VALUES from the conf
-sbatch batch_nd_sweep.sh configs/qwen_7b.conf
+python parse_arr_results.py --markdown results/arr_results.md   # tables per model and benchmark
+python collect_results.py            # results/all_results.{csv,html}: every cell of every output root
+python arr_analysis.py               # results/analysis.json: dynamics, stopping rules, ablations, timing
+python export_arr_figures.py         # figure-ready CSVs (Pareto fronts, trajectories, revisions)
+python make_matlab_figure_script.py  # MATLAB scripts of the paper figures (values hard-coded)
+python scripts/make_readme_assets.py # the two animations of this README
 ```
 
-Outputs go under `experiments_results/results_paired/<model>_mnt<T>_t<temp>_p<top_p>/`. `extract_cimr_metrics.py`, `extract_compute_flop.py`, and `export_paper_csvs.py` build the paper's figures and tables from them.
+---
 
-Supported datasets: `aime24`, `aime25`, `amc23`, `math500`, `olympiadbench`, `gsm8k`.
+## Repository structure
+
+```
+.
+├── run_arr.py                 entry point: sanity | pilot | run
+├── run_arr.sh, batch_arr.sh   launcher (sources .env and configs) and a Slurm example
+├── configs/                   models, benchmarks, seeds, and ablations
+├── src/arr/
+│   ├── engine.py              batched decoder: sample, greedy, replay, and PLD modes
+│   ├── methods.py             controllers of ARR and the baselines (fixed-point replacement)
+│   ├── conma.py               ConMA baseline
+│   ├── ledger.py              per-question FLOP accounting under the budget B
+│   ├── prompts.py             prompts of every method
+│   ├── runner.py              experiment driver, resume, and metrics
+│   ├── tasks.py, data.py      benchmarks: loading, answer extraction, scoring
+│   ├── voting.py              answer normalization, majority vote, grader
+│   ├── evaluators.py          dataset-specific graders
+│   ├── stats.py               paired bootstrap and permutation tests
+│   ├── sanity.py              CPU checks of the decoder and the graders
+│   ├── math_toolkit/          LaTeX answer equivalence (third party, MIT)
+│   └── benchmarks/            official LiveBench and NATURAL PLAN scorers (Apache-2.0)
+├── tests/test_arr.py          unit tests (CPU, no download)
+├── collect_results.py, arr_analysis.py, parse_arr_results.py, export_arr_figures.py
+├── make_matlab_figure_script.py
+├── scripts/make_readme_assets.py
+└── assets/                    figures and animations of this README
+```
+
+---
+
+## Citation
+
+```bibtex
+@inproceedings{arr2026,
+  title     = {Adaptive Replay Refinement: Allocating Compute between Revision and Resampling},
+  author    = {Anonymous},
+  booktitle = {Under review},
+  year      = {2026}
+}
+```
+
+## Acknowledgements
+
+`src/arr/math_toolkit` is adapted from Xwin-Math (MIT license), which builds on ToRA.
+`src/arr/benchmarks` contains the official scorers of [LiveBench](https://github.com/LiveBench/LiveBench) and [NATURAL PLAN](https://github.com/google-deepmind/natural-plan) (Apache-2.0).
