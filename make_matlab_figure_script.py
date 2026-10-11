@@ -762,7 +762,7 @@ h1 = plot(ax, k, accRev, '-o', 'Color', S.col(1,:), 'LineWidth', 1.6, 'MarkerSiz
 h2 = plot(ax, k, accIni, '--s', 'Color', S.col(4,:), 'LineWidth', 1.1, 'MarkerSize', 3.2, 'MarkerFaceColor', S.col(4,:));
 h3 = plot(ax, [k(1) k(end)], [accNew accNew], ':', 'Color', S.col(8,:), 'LineWidth', 1.5);
 set(ax, 'XLim', [-0.4 k(end) + 0.4], 'XTick', k, 'YLim', [70 95], 'YTick', 70:5:95);
-xlabel(ax, 'Revisions $k$ of a root'); ylabel(ax, 'Accuracy of a root (\%)');
+xlabel(ax, 'Revisions $k$ of a root'); ylabel(ax, 'Root accuracy (\%)');
 
 % (b) answer changes and fixed points at each revision index
 ax = nexttile(t); styleAxes(ax, S, '(b) Revision stage');
@@ -863,7 +863,7 @@ end
 r = corrcoef(regX, regY);
 text(ax, min(regX) + 0.3, 13.5, sprintf('$r = %.2f$', r(1,2)), 'FontSize', S.fs - 1);
 set(ax, 'YLim', [-26 17], 'XLim', [-13.5 2]);
-xlabel(ax, 'Net repair of $F_x$ (\% of revisions)'); ylabel(ax, {'ARR $-$ Majority Voting', '(points)'});
+xlabel(ax, 'Net repair of $F_x$ (\% of revisions)'); ylabel(ax, {'ARR $-$ Majority', 'Voting (points)'});
 axL = axes(f, 'Visible', 'off', 'Position', [0 0 0.01 0.01]); hold(axL, 'on');   % legends need figure-level axes
 for m = 1:numel(mdl), hm(m) = plot(axL, NaN, NaN, mk{m}, 'MarkerSize', 4.5, 'Color', pal(m,:), 'MarkerFaceColor', pal(m,:)); end
 lgM = legend(axL, hm, strcat('(a)~', mdl), 'Orientation', 'horizontal', 'NumColumns', numel(mdl), 'Box', 'off', ...
