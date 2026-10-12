@@ -360,8 +360,7 @@ lg.Layout.Tile = 'north';
 ax3 = ax;
 h1 = plot(ax3, NaN, NaN, 'o', 'MarkerSize', 5, 'MarkerFaceColor', [0.3 0.3 0.3], 'MarkerEdgeColor', [0.3 0.3 0.3]);
 h2 = plot(ax3, NaN, NaN, 'o', 'MarkerSize', 5, 'MarkerFaceColor', 'w', 'MarkerEdgeColor', [0.3 0.3 0.3]);
-lg2 = legend(ax3, [h1 h2], {sprintf('Filled: Qwen2.5-Math-7B (mean of %d cells)', n1), ...
-    sprintf('Open: five other models (mean of %d cells)', n2)}, ...
+lg2 = legend(ax3, [h1 h2], {'Filled: Qwen2.5-Math-7B', 'Open: five other models'}, ...
     'Orientation', 'horizontal', 'NumColumns', 2, 'Box', 'off', 'Interpreter', 'latex', 'FontSize', S.fs);
 lg2.ItemTokenSize = [8 8];
 lg2.Layout.Tile = 'south';

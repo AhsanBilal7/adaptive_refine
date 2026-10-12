@@ -2,7 +2,7 @@
 
 # Adaptive Replay Refinement
 
-### Allocating Compute between Revision and Resampling
+### Allocating Test-Time Compute Between Revision and Resampling
 
 *Official code of the paper (under anonymous review).*
 
@@ -286,7 +286,7 @@ python scripts/make_readme_assets.py # the two animations of this README
 
 ```bibtex
 @inproceedings{arr2026,
-  title     = {Adaptive Replay Refinement: Allocating Compute between Revision and Resampling},
+  title     = {Adaptive Replay Refinement: Allocating Test-Time Compute Between Revision and Resampling},
   author    = {Anonymous},
   booktitle = {Under review},
   year      = {2026}
